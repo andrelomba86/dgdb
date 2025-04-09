@@ -7,14 +7,7 @@ class DatabaseError extends Error {
   }
 }
 
-const MAX_RETRIES = 3
-const RETRY_DELAY = 1000 // 1 segundo
-
-async function wait(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
-export async function conectarDB(retryCount = 0) {
+export async function conectarDB() {
   try {
     // Validar variáveis de ambiente
     if (!process.env.DB_HOST || !process.env.DB_USER) {
@@ -33,20 +26,8 @@ export async function conectarDB(retryCount = 0) {
 
     await connection.connect()
     return connection
-  } catch (error) {
-    if (error.code === 'EAI_AGAIN' && retryCount < MAX_RETRIES) {
-      console.log(`Tentativa ${retryCount + 1} de ${MAX_RETRIES} falhou, tentando novamente...`)
-      await wait(RETRY_DELAY)
-      return conectarDB(retryCount + 1)
-    }
-
+  } catch (error: any) {
     console.error('Erro ao conectar ao banco de dados:', error)
-    throw new DatabaseError(
-      error.code === 'EAI_AGAIN'
-        ? 'Erro de resolução DNS. Verifique sua conexão com a internet e o endereço do host.'
-        : error instanceof Error
-        ? error.message
-        : 'Erro desconhecido na conexão'
-    )
+    throw new DatabaseError(error instanceof Error ? error.message : 'Erro desconhecido na conexão')
   }
 }

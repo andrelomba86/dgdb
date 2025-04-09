@@ -6,7 +6,6 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
-    console.log(id)
     if (!id) {
       return NextResponse.json({ error: 'ID não fornecido' }, { status: 400 })
     }
@@ -49,8 +48,6 @@ export async function POST(request: Request) {
         docente.matricula,
         docente.email,
         JSON.stringify(docente.telefones),
-        docente.cpf,
-        docente.rg,
         docente.data_admissao,
         docente.regime_juridico,
         docente.regime_trabalho,

@@ -25,10 +25,11 @@ import { CollectionOptions, ListCollection, CollectionItem } from '@zag-js/colle
 
 import { Tabs } from '@/app/components/Tabs'
 import { useState, useEffect, useRef } from 'react'
-import { Docente, DadosDocente } from '@/types/docente'
+import { DadosDocente, Docente } from '@/types/docente'
 import { User, Mail, MapPin, Calendar, Briefcase, Info } from 'lucide-react'
 import { label } from 'framer-motion/client'
 import { InfoField } from '@/app/components/InfoField'
+import { carregaDocente, carregaDadosDocente, carregaDocumentosDocente } from './functions'
 
 export default function DocentesPage() {
   const [idDocenteSelecionado, setIdDocenteSelecionado] = useState<number>(0)
@@ -44,41 +45,42 @@ export default function DocentesPage() {
 
   //TODO: corrigir reloads desnecessários
   useEffect(() => {
-    const carregarDocente = async () => {
-      const response = await fetch('/api/docentes/nomes')
-      const data = await response.json()
+    const carregaDados = async () => {
+      const docentes: Docente = await carregaDocente()
       setListaDeDocentes(
         createListCollection({
-          items: data.map((docente: Docente) => ({
+          items: docentes.map((docente: Docente) => ({
             label: docente.nome,
             value: docente.id,
           })),
         })
       )
     }
-    carregarDocente()
+
+    carregaDados()
+    // setListaDeDocentes(docentes)
   }, [])
 
   useEffect(() => {
-    const carregarDadosDocente = async () => {
-      if (idDocenteSelecionado === -1) return
-
-      try {
-        setIsLoading(true)
-        const response = await fetch(`/api/docentes?id=${idDocenteSelecionado}`)
-        const data = await response.json()
-        setDadosDocente(data)
-      } catch (error) {
-        console.error('Erro ao carregar dados do docente:', error)
-      } finally {
-        setIsLoading(false)
+    if (idDocenteSelecionado === -1) return
+    const carregaDados = async () => {
+      setIsLoading(true)
+      //TODO: chechar se ocorre erro ao enviar id de docente não existente
+      const dadosDocente = await carregaDadosDocente(idDocenteSelecionado)
+      const documentosDocente = await carregaDocumentosDocente(idDocenteSelecionado)
+      if (!dadosDocente) return
+      const docente: DadosDocente = {
+        ...dadosDocente,
+        documentos: documentosDocente,
       }
+      console.log(documentosDocente)
+      setDadosDocente(docente)
+      setIsLoading(false)
     }
 
-    carregarDadosDocente()
+    carregaDados()
   }, [idDocenteSelecionado])
 
-  console.log(listaDeDocentes)
   // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   //   const { name, value } = event.target
   //   setDocente(prevDocente => ({
@@ -154,8 +156,8 @@ export default function DocentesPage() {
                     Documentos
                   </Heading>
                   <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
-                    <InfoField label="CPF" value={dadosDocente.cpf} />
-                    <InfoField label="RG" value={dadosDocente.rg} />
+                    {/* <InfoField label="CPF" value={dadosDocente.cpf} />
+                    <InfoField label="RG" value={dadosDocente.rg} /> */}
                   </Grid>
 
                   <Heading size="md" mt={6} mb={4}>
