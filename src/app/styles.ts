@@ -36,7 +36,7 @@ const layerStyles = defineLayerStyles({
 export const config = defineConfig({
   globalCss: {
     body: {
-      background: 'linear-gradient(45deg,rgb(207, 206, 201),rgb(205, 207, 211),rgb(219, 211, 208))',
+      background: 'linear-gradient(45deg,rgb(218, 210, 173),rgb(179, 191, 216),rgb(219, 211, 208))',
     },
     html: {
       backgroundColor: 'gray.900',

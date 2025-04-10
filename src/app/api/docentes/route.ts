@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { conectarDB } from '@/lib/db'
 import { DadosDocente, Docente } from '@/types/docente'
+import { OkPacketParams } from 'mysql2'
 
 export async function GET(request: Request) {
   try {
@@ -27,39 +28,60 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const docente: DadosDocente = await request.json()
+    const data = await request.json()
+    const {
+      nome,
+      data_nascimento,
+      endereco,
+      matricula,
+      email,
+      data_admissao,
+      regime_trabalho,
+      regime_juridico,
+      regime_data_aplicacao,
+      banco,
+      agencia,
+      conta,
+    } = data
 
-    // Validações básicas
-    if (!docente.nome || !docente.email) {
-      return NextResponse.json({ error: 'Nome e email são obrigatórios' }, { status: 400 })
+    if (!nome) {
+      return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
     }
 
     const conn = await conectarDB()
     const [result] = await conn.execute(
       `INSERT INTO docente (
-        nome, data_nascimento, endereco, matricula, email, 
-        telefones, cpf, rg, data_admissao, regime_juridico, 
-        regime_trabalho, regime_data_aplicacao, banco, agencia, conta
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        nome,
+        data_nascimento,
+        endereco,
+        matricula,
+        email,
+        data_admissao,
+        regime_trabalho,
+        regime_juridico,
+        regime_data_aplicacao,
+        banco,
+        agencia,
+        conta
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        docente.nome,
-        docente.data_nascimento,
-        docente.endereco,
-        docente.matricula,
-        docente.email,
-        JSON.stringify(docente.telefones),
-        docente.data_admissao,
-        docente.regime_juridico,
-        docente.regime_trabalho,
-        docente.regime_data_aplicacao,
-        docente.banco,
-        docente.agencia,
-        docente.conta,
+        nome,
+        data_nascimento || null,
+        endereco || null,
+        matricula || null,
+        email || null,
+        data_admissao || null,
+        regime_trabalho || null,
+        regime_juridico || null,
+        regime_data_aplicacao || null,
+        banco || null,
+        agencia || null,
+        conta || null,
       ]
     )
-
     await conn.end()
-    return NextResponse.json(result)
+
+    return NextResponse.json({ ...result, id: (result as OkPacketParams).insertId })
   } catch (error) {
     console.error('Erro ao criar docente:', error)
     return NextResponse.json({ error: 'Erro ao criar docente' }, { status: 500 })
@@ -68,25 +90,64 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const docente: DadosDocente = await request.json()
+    const data = await request.json()
+    const {
+      id,
+      nome,
+      data_nascimento,
+      endereco,
+      matricula,
+      email,
+      data_admissao,
+      regime_trabalho,
+      regime_juridico,
+      regime_data_aplicacao,
+      banco,
+      agencia,
+      conta,
+    } = data
+
+    if (!id || !nome) {
+      return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 })
+    }
+
     const conn = await conectarDB()
     const [result] = await conn.execute(
-      'UPDATE docente SET nome = ?, endereco = ?, data_nascimento = ?, email = ?, data_admissao = ?, regime_juridico = ?, regime_trabalho = ?, regime_data_aplicacao = ? WHERE id = ?',
+      `UPDATE docente SET 
+        nome = ?,
+        data_nascimento = ?,
+        endereco = ?,
+        matricula = ?,
+        email = ?,
+        data_admissao = ?,
+        regime_trabalho = ?,
+        regime_juridico = ?,
+        regime_data_aplicacao = ?,
+        banco = ?,
+        agencia = ?,
+        conta = ?
+      WHERE id = ?`,
       [
-        docente.nome,
-        docente.endereco,
-        docente.data_nascimento,
-        docente.email,
-        docente.data_admissao,
-        docente.regime_juridico,
-        docente.regime_trabalho,
-        docente.regime_data_aplicacao,
-        docente.id,
+        nome,
+        data_nascimento,
+        endereco,
+        matricula,
+        email,
+        data_admissao,
+        regime_trabalho,
+        regime_juridico,
+        regime_data_aplicacao,
+        banco,
+        agencia,
+        conta,
+        id,
       ]
     )
     await conn.end()
+
     return NextResponse.json(result)
   } catch (error) {
+    console.error('Erro ao atualizar docente:', error)
     return NextResponse.json({ error: 'Erro ao atualizar docente' }, { status: 500 })
   }
 }

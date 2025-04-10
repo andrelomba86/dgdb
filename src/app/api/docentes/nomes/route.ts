@@ -8,7 +8,7 @@ export async function GET() {
     await conn.end()
     return NextResponse.json(rows)
   } catch (error) {
-    console.error('Erro ao buscar nomes dos docentes:', error)
-    return NextResponse.json({ error: 'Erro ao buscar nomes dos docentes' }, { status: 500 })
+    console.error('Erro ao buscar docentes:', error)
+    return NextResponse.json({ error: 'Erro ao buscar docentes' }, { status: 500 })
   }
 }

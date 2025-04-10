@@ -31,7 +31,9 @@ CREATE TABLE IF NOT EXISTS `dg`.`docente` (
   `regime_juridico` VARCHAR(15) NULL,
   `regime_trabalho` VARCHAR(15) NULL,
   `regime_data_aplicacao` DATE NULL,
+  `matricula` VARCHAR(10) NULL,
   PRIMARY KEY (`id`))
+  CONSTRAINT `docente_unique_matricula` UNIQUE (`matricula`))
 ENGINE = InnoDB;
 
 
@@ -42,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `dg`.`cargo` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `descricao` VARCHAR(60) NOT NULL,
   `data_cargo` DATE NULL,
-  `matricula` VARCHAR(10) NULL,
+  -- `matricula` VARCHAR(10) NULL,
   `referencia` VARCHAR(45) NULL,
   `docente_id` INT NOT NULL,
   PRIMARY KEY (`id`, `docente_id`),

@@ -20,21 +20,21 @@ import {
 } from '@chakra-ui/react'
 import { Tabs } from '@/app/components/Tabs'
 import { useState, useEffect } from 'react'
-import { DadosDocente } from '@/types/docente'
+import { DadosDocente, Docente } from '@/types/docente'
 import { User, Mail, MapPin, Calendar, Briefcase } from 'lucide-react'
-import { label } from 'framer-motion/client'
+import { DocenteService } from '../docentes/functions'
 
 export default function DocentesPage() {
   const [docentes, setDocentes] = useState<DadosDocente[]>([])
   const [formData, setFormData] = useState<DadosDocente>({
+    id: 0,
     nome: '',
     data_nascimento: '',
     endereco: '',
     matricula: '',
     email: '',
-    telefones: [''],
-    cpf: '',
-    rg: '',
+    telefones: [{ id: 0, telefone: '', tipo: '', docente_id: 0 }],
+    documentos: [],
     data_admissao: '',
     regime_juridico: '',
     regime_trabalho: '',
@@ -54,8 +54,7 @@ export default function DocentesPage() {
   }, [])
 
   const carregarDocentes = async () => {
-    const response = await fetch('/api/docentes')
-    const data = await response.json()
+    const data = await DocenteService.carregaDocente()
     setDocentes(data)
   }
 
@@ -78,11 +77,16 @@ export default function DocentesPage() {
 
     setIsLoading(true)
     try {
-      await fetch('/api/docentes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
+      const savedDocente = await DocenteService.createDocente(formData)
+
+      // Save phones
+      if (formData.telefones && formData.telefones.length > 0) {
+        const phonePromises = formData.telefones.map(telefone =>
+          DocenteService.createTelefone(savedDocente.id, telefone.telefone, telefone.tipo)
+        )
+        await Promise.all(phonePromises)
+      }
+
       toast({
         title: 'Docente cadastrado com sucesso',
         status: 'success',
@@ -109,25 +113,34 @@ export default function DocentesPage() {
 
     setIsLoading(true)
     try {
-      await fetch('/api/docentes', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
+      await DocenteService.updateDocente(formData)
+
+      // Update phones
+      if (formData.telefones && formData.telefones.length > 0) {
+        const phonePromises = formData.telefones.map(telefone => {
+          if (telefone.id) {
+            return DocenteService.updateTelefone(telefone)
+          } else {
+            return DocenteService.createTelefone(formData.id!, telefone.telefone, telefone.tipo)
+          }
+        })
+        await Promise.all(phonePromises)
+      }
+
       toast({
         title: 'Docente atualizado com sucesso',
         status: 'success',
       })
       setEditando(false)
       setFormData({
+        id: 0,
         nome: '',
         data_nascimento: '',
         endereco: '',
         matricula: '',
         email: '',
-        telefones: [''],
-        cpf: '',
-        rg: '',
+        telefones: [{ id: 0, telefone: '', tipo: '', docente_id: 0 }],
+        documentos: [],
         data_admissao: '',
         regime_juridico: '',
         regime_trabalho: '',
@@ -150,9 +163,7 @@ export default function DocentesPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm('Tem certeza que deseja excluir este docente?')) {
       try {
-        await fetch(`/api/docentes?id=${id}`, {
-          method: 'DELETE',
-        })
+        await DocenteService.deleteDocente(id)
         toast({
           title: 'Docente excluído com sucesso',
           status: 'success',
@@ -250,12 +261,66 @@ export default function DocentesPage() {
                     </Field.Root>
 
                     <Field.Root>
-                      <Field.Label>Telefone</Field.Label>
-
-                      <Input
-                        value={formData.telefones?.[0]}
-                        onChange={e => setFormData({ ...formData, telefones: [e.target.value] })}
-                      />
+                      <Field.Label>Telefones</Field.Label>
+                      {formData.telefones?.map((telefone, index) => (
+                        <Grid key={index} templateColumns="1fr auto" gap={2} mb={2}>
+                          <Input
+                            value={telefone.telefone}
+                            onChange={e => {
+                              const newTelefones = [...(formData.telefones || [])]
+                              newTelefones[index] = {
+                                ...newTelefones[index],
+                                telefone: e.target.value,
+                              }
+                              setFormData({ ...formData, telefones: newTelefones })
+                            }}
+                            placeholder="Número do telefone"
+                          />
+                          <Select.Root
+                            value={[telefone.tipo]}
+                            onValueChange={e => {
+                              const newTelefones = [...(formData.telefones || [])]
+                              newTelefones[index] = {
+                                ...newTelefones[index],
+                                tipo: e.value[0],
+                              }
+                              setFormData({ ...formData, telefones: newTelefones })
+                            }}>
+                            <Select.Control>
+                              <Select.Trigger>
+                                <Select.ValueText placeholder="Tipo" />
+                              </Select.Trigger>
+                            </Select.Control>
+                            <Select.Positioner>
+                              <Select.Content>
+                                <Select.ItemGroup>
+                                  <Select.Item value="Celular">Celular</Select.Item>
+                                  <Select.Item value="Residencial">Residencial</Select.Item>
+                                  <Select.Item value="Comercial">Comercial</Select.Item>
+                                </Select.ItemGroup>
+                              </Select.Content>
+                            </Select.Positioner>
+                          </Select.Root>
+                          <Button
+                            size="sm"
+                            colorScheme="red"
+                            onClick={() => {
+                              const newTelefones = formData.telefones?.filter((_, i) => i !== index)
+                              setFormData({ ...formData, telefones: newTelefones })
+                            }}>
+                            Remover
+                          </Button>
+                        </Grid>
+                      ))}
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          const newTelefones = [...(formData.telefones || [])]
+                          newTelefones.push({ id: 0, telefone: '', tipo: '', docente_id: formData.id || 0 })
+                          setFormData({ ...formData, telefones: newTelefones })
+                        }}>
+                        Adicionar Telefone
+                      </Button>
                     </Field.Root>
                   </Grid>
 

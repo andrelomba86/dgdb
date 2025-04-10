@@ -29,67 +29,49 @@ import { DadosDocente, Docente } from '@/types/docente'
 import { User, Mail, MapPin, Calendar, Briefcase, Info } from 'lucide-react'
 import { label } from 'framer-motion/client'
 import { InfoField } from '@/app/components/InfoField'
-import { carregaDocente, carregaDadosDocente, carregaDocumentosDocente } from './functions'
+import { DocenteService } from './functions'
 
 export default function DocentesPage() {
   const [idDocenteSelecionado, setIdDocenteSelecionado] = useState<number>(0)
   const [dadosDocente, setDadosDocente] = useState<DadosDocente>({ id: -1, nome: '' })
-  const [listaDeDocentes, setListaDeDocentes] = useState<ListCollection<never>>(
-    createListCollection({ items: [] })
+  const [listaDeDocentes, setListaDeDocentes] = useState<ListCollection<any>>(
+    createListCollection<any>({ items: [] })
   )
 
-  // const toast = useToast()
-  // const { isOpen, onOpen, onClose } = useDisclosure()
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  //TODO: corrigir reloads desnecessários
   useEffect(() => {
     const carregaDados = async () => {
-      const docentes: Docente = await carregaDocente()
-      setListaDeDocentes(
-        createListCollection({
-          items: docentes.map((docente: Docente) => ({
-            label: docente.nome,
-            value: docente.id,
-          })),
-        })
-      )
+      const docentes: Docente[] = await DocenteService.carregaDocente()
+      const items: CollectionOptions = {
+        items: docentes.map((docente: Docente) => ({
+          label: docente.nome,
+          value: docente.id,
+        })),
+      }
+      const lista = createListCollection(items)
+      setListaDeDocentes(lista)
     }
+    console.log('itens carregados')
 
     carregaDados()
-    // setListaDeDocentes(docentes)
   }, [])
 
   useEffect(() => {
     if (idDocenteSelecionado === -1) return
     const carregaDados = async () => {
       setIsLoading(true)
-      //TODO: chechar se ocorre erro ao enviar id de docente não existente
-      const dadosDocente = await carregaDadosDocente(idDocenteSelecionado)
-      const documentosDocente = await carregaDocumentosDocente(idDocenteSelecionado)
+      const dadosDocente = await DocenteService.carregaDadosDocente(idDocenteSelecionado)
       if (!dadosDocente) return
-      const docente: DadosDocente = {
-        ...dadosDocente,
-        documentos: documentosDocente,
-      }
-      console.log(documentosDocente)
-      setDadosDocente(docente)
+      setDadosDocente(dadosDocente)
       setIsLoading(false)
     }
 
     carregaDados()
   }, [idDocenteSelecionado])
 
-  // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value } = event.target
-  //   setDocente(prevDocente => ({
-  //     ...prevDocente,
-  //     [name]: value,
-  //   }))
-  // }
-  // console.log(listaDeDocentes)
-
+  console.log(dadosDocente.cargos || 'não tem cargos')
   return (
     <Container layerStyle="container">
       <Stack layerStyle="vstack" backgroundColor="white">
@@ -97,7 +79,7 @@ export default function DocentesPage() {
           <User size={24} />
           Docentes
         </Heading>
-        <Stack px={20} mt={5}>
+        <Stack px={12} mt={5}>
           <Select.Root
             collection={listaDeDocentes}
             onValueChange={e => {
@@ -128,7 +110,7 @@ export default function DocentesPage() {
             </Select.Positioner>
           </Select.Root>
         </Stack>
-        {/* ----------------------------- */}
+        {/* ------------ VISUALIZAÇÃO DOS DADOS ----------------- */}
         <Card.Root width="100%" borderWidth={0} borderRadius={0}>
           <Card.Body>
             {isLoading ? (
@@ -148,16 +130,25 @@ export default function DocentesPage() {
                       formatter={date => (date ? new Date(date).toLocaleDateString() : '')}
                     />
                     <InfoField label="Endereço" value={dadosDocente.endereco} />
-                    <InfoField label="Email" value={dadosDocente.email} />
-                    <InfoField label="Telefone" value={dadosDocente.telefones?.[0]} />
                   </Grid>
-
+                  <Heading size="md" mt={6} mb={4}>
+                    Contatos
+                  </Heading>
+                  <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
+                    <InfoField label="Email" value={dadosDocente.email} />
+                    {dadosDocente.telefones?.map((telefone, index) => (
+                      <InfoField key={telefone.id} label={`${telefone.tipo}`} value={telefone.telefone} />
+                    ))}
+                  </Grid>
                   <Heading size="md" mt={6} mb={4}>
                     Documentos
                   </Heading>
                   <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
-                    {/* <InfoField label="CPF" value={dadosDocente.cpf} />
-                    <InfoField label="RG" value={dadosDocente.rg} /> */}
+                    {dadosDocente.documentos?.length
+                      ? dadosDocente.documentos?.map((documento, index) => (
+                          <InfoField key={index} label={documento.tipo} value={documento.documento} />
+                        ))
+                      : '-'}
                   </Grid>
 
                   <Heading size="md" mt={6} mb={4}>
@@ -170,6 +161,27 @@ export default function DocentesPage() {
                       formatter={date => (date ? new Date(date).toLocaleDateString() : '')}
                     />
                     <InfoField label="Regime de Trabalho" value={dadosDocente.regime_trabalho} />
+
+                    <InfoField label="Regime Jurídico" value={dadosDocente.regime_juridico} />
+                    <InfoField
+                      label="Data de Aplicação"
+                      value={dadosDocente.regime_data_aplicacao}
+                      formatter={date => (date ? new Date(date).toLocaleDateString() : '')}
+                    />
+
+                    <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
+                      {dadosDocente.cargos?.map((cargo, index) => (
+                        <Box key={index}>
+                          <InfoField label="Cargo" value={cargo.descricao} />
+                          <InfoField
+                            label="Data do Cargo"
+                            value={cargo.data_cargo}
+                            formatter={date => (date ? new Date(date).toLocaleDateString() : '')}
+                          />
+                          <InfoField label="Referência" value={cargo.referencia} />
+                        </Box>
+                      ))}
+                    </Grid>
                   </Grid>
 
                   <Heading size="md" mt={6} mb={4}>
@@ -189,42 +201,6 @@ export default function DocentesPage() {
         <Button mt={6} colorScheme="blue" width="full" type="submit" disabled={isLoading}>
           {isLoading ? 'Carregando...' : 'Editar'}
         </Button>
-        {/* <Tab.Contents>
-            <Box overflowX="auto">
-              <Table variant="simple" bg="white" shadow="sm">
-                <Thead bg="gray.50">
-                  <Tr>
-                    <Th>Nome</Th>
-                    <Th>Email</Th>
-                    <Th>Regime</Th>
-                    <Th width="200px">Ações</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {docentes.map(docente => (
-                    <Tr key={docente.id}>
-                      <Td>{docente.nome}</Td>
-                      <Td>{docente.email}</Td>
-                      <Td>{docente.regime_trabalho}</Td>
-                      <Td>
-                        <Button size="sm" colorScheme="yellow" onClick={() => handleEdit(docente)} mr={2}>
-                          Editar
-                        </Button>
-                        <Button
-                          size="sm"
-                          colorScheme="red"
-                          onClick={() => {
-                            onOpen()
-                          }}>
-                          Excluir
-                        </Button>
-                      </Td>
-                    </Tr>
-                  ))}
-                </Tbody>
-              </Table>
-            </Box>
-          </Tab.Contents> */}
       </Stack>
     </Container>
   )
