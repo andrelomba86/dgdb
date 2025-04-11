@@ -11,12 +11,20 @@ export async function GET(request: Request) {
     }
 
     const conn = await conectarDB()
-    const [rows] = await conn.execute('SELECT * FROM cargo WHERE docente_id = ?', [docente_id])
+    const [rows] = await conn.execute('SELECT * FROM cargo WHERE docente_id = ? ORDER BY data_inicio DESC', [
+      docente_id,
+    ])
     await conn.end()
 
     return NextResponse.json(rows)
   } catch (error) {
     console.error('Erro ao buscar cargos do docente:', error)
-    return NextResponse.json({ error: 'Erro ao buscar cargos' }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: 'Erro ao buscar cargos',
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    )
   }
 }

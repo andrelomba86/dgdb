@@ -23,9 +23,9 @@ const layerStyles = defineLayerStyles({
   vstack: {
     value: {
       paddingTop: 0,
-      borderColor: 'gray.300',
+      borderColor: 'gray.500',
       borderWidth: 1,
-      borderRadius: 'sm',
+      borderRadius: 'lg',
       width: '100%',
       boxShadow: 'lg',
       boxShadowColor: 'gray.900',
@@ -36,7 +36,7 @@ const layerStyles = defineLayerStyles({
 export const config = defineConfig({
   globalCss: {
     body: {
-      background: 'linear-gradient(45deg,rgb(218, 210, 173),rgb(179, 191, 216),rgb(219, 211, 208))',
+      background: 'linear-gradient(45deg,rgb(218, 210, 173),rgb(163, 187, 173),rgb(219, 211, 208))',
     },
     html: {
       backgroundColor: 'gray.900',

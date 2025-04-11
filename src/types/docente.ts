@@ -20,7 +20,8 @@ export interface Telefone {
 export interface Cargo {
   id: number
   descricao: string
-  data_cargo: string
+  funcao: string
+  data_inicio: string
   referencia: string
   docente_id: number
 }
