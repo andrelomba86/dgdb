@@ -2,6 +2,9 @@
 import { Docente, DadosDocente, Documento, Telefone } from '@/types/docente'
 import { createListCollection } from '@chakra-ui/react'
 
+//TODO: mudar nome do arquivo function.tsx para um nome mais apropriado
+//TODO: eliminar código redundante neste arquivo
+//TODO: eliminar o termo Docente doé métodos da classe DocenteService
 export class DocenteService {
   static async carregaDocente(): Promise<Docente[]> {
     const response = await fetch('/api/docentes/nomes')
@@ -15,9 +18,10 @@ export class DocenteService {
     try {
       const response = await fetch(`/api/docentes?id=${id}`)
       const dadosDocente = await response.json()
-      const telefones = await this.carregaTelefonesDocente(id)
-      const documentos = await this.carregaDocumentosDocente(id)
-      const cargos = await this.carregaCargosDocente(id)
+
+      const telefones = await this.carregaTelefones(id)
+      const documentos = await this.carregaDocumentos(id)
+      const cargos = await this.carregaCargos(id)
 
       return {
         ...dadosDocente,
@@ -31,7 +35,7 @@ export class DocenteService {
     return
   }
 
-  static async carregaDocumentosDocente(id: number): Promise<Documento[] | []> {
+  static async carregaDocumentos(id: number): Promise<Documento[] | []> {
     try {
       const response = await fetch(`/api/docentes/documentos?docente_id=${id}`)
       const data = await response.json()
@@ -42,7 +46,7 @@ export class DocenteService {
     return []
   }
 
-  static async carregaTelefonesDocente(id: number): Promise<Telefone[] | []> {
+  static async carregaTelefones(id: number): Promise<Telefone[] | []> {
     try {
       const response = await fetch(`/api/docentes/telefones?docente_id=${id}`)
       const data = await response.json()
@@ -51,6 +55,18 @@ export class DocenteService {
       console.error('Erro ao carregar telefones do docente:', error)
     }
     return []
+  }
+
+  static async carregaCargos(id: number): Promise<any[]> {
+    try {
+      const response = await fetch(`/api/docentes/cargos?docente_id=${id}`)
+      const data = await response.json()
+      console.log('CARGOS: ', data)
+      return data
+    } catch (error) {
+      console.error('Erro ao carregar cargos do docente:', error)
+      return []
+    }
   }
 
   static async deletaTelefoneDocente(id: number): Promise<void> {
@@ -101,16 +117,5 @@ export class DocenteService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(telefone),
     })
-  }
-
-  static async carregaCargosDocente(id: number): Promise<any[]> {
-    try {
-      const response = await fetch(`/api/docentes/cargos?docente_id=${id}`)
-      const data = await response.json()
-      return data
-    } catch (error) {
-      console.error('Erro ao carregar cargos do docente:', error)
-      return []
-    }
   }
 }

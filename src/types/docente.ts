@@ -21,7 +21,7 @@ export interface Cargo {
   id: number
   descricao: string
   funcao: string
-  data_inicio: string
+  data_inicio: Date
   referencia: string
   docente_id: number
 }

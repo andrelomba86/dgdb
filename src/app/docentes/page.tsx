@@ -34,6 +34,7 @@ import { User, Mail, MapPin, Calendar, Briefcase, Info } from 'lucide-react'
 import { label } from 'framer-motion/client'
 import { InfoField } from '@/app/components/InfoField'
 import { DocenteService } from './functions'
+import { DataTable } from '@/app/components/DataTable'
 
 export default function DocentesPage() {
   const [idDocenteSelecionado, setIdDocenteSelecionado] = useState<number>(0)
@@ -75,7 +76,6 @@ export default function DocentesPage() {
     carregaDados()
   }, [idDocenteSelecionado])
 
-  console.log(dadosDocente.cargos || 'não tem cargos')
   return (
     <Container layerStyle="container">
       <Stack layerStyle="vstack" backgroundColor="white">
@@ -125,7 +125,7 @@ export default function DocentesPage() {
                   <Heading size="md" mb={4}>
                     Dados Gerais
                   </Heading>
-                  <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={2}>
+                  <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={1}>
                     <InfoField label="Nome" value={dadosDocente.nome} />
                     <InfoField label="Matrícula" value={dadosDocente.matricula} />
                     <InfoField
@@ -138,7 +138,7 @@ export default function DocentesPage() {
                   <Heading size="md" mt={6} mb={4}>
                     Contatos
                   </Heading>
-                  <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
+                  <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={1}>
                     <InfoField label="Email" value={dadosDocente.email} />
                     {dadosDocente.telefones?.map((telefone, index) => (
                       <InfoField key={telefone.id} label={`${telefone.tipo}`} value={telefone.telefone} />
@@ -147,7 +147,7 @@ export default function DocentesPage() {
                   <Heading size="md" mt={6} mb={4}>
                     Documentos
                   </Heading>
-                  <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
+                  <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={1}>
                     {dadosDocente.documentos?.length
                       ? dadosDocente.documentos?.map((documento, index) => (
                           <InfoField key={index} label={documento.tipo} value={documento.documento} />
@@ -158,7 +158,7 @@ export default function DocentesPage() {
                   <Heading size="md" mt={6} mb={4}>
                     Dados Contratuais
                   </Heading>
-                  <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
+                  <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={1}>
                     <InfoField
                       label="Data de Admissão"
                       value={dadosDocente.data_admissao}
@@ -178,64 +178,8 @@ export default function DocentesPage() {
                   </Heading>
                   {dadosDocente.cargos && dadosDocente.cargos.length > 0 && (
                     <>
-                      <Table.Root variant="line" mb={4}>
-                        <Table.Header>
-                          <Table.Row>
-                            <Table.ColumnHeader>Descrição</Table.ColumnHeader>
-                            <Table.ColumnHeader>Função</Table.ColumnHeader>
-                            <Table.ColumnHeader>Data Início</Table.ColumnHeader>
-                            <Table.ColumnHeader>Referência</Table.ColumnHeader>
-                          </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                          <Table.Row>
-                            <Table.Cell>{dadosDocente.cargos[0].descricao}</Table.Cell>
-                            <Table.Cell>{dadosDocente.cargos[0].funcao}</Table.Cell>
-                            <Table.Cell>
-                              {new Date(dadosDocente.cargos[0].data_inicio).toLocaleDateString()}
-                            </Table.Cell>
-                            <Table.Cell>{dadosDocente.cargos[0].referencia}</Table.Cell>
-                          </Table.Row>
-                        </Table.Body>
-                      </Table.Root>
-
-                      {dadosDocente.cargos.length > 1 && (
-                        <Accordion.Root multiple>
-                          <Accordion.Item key={0} value="historico">
-                            <Accordion.ItemTrigger>
-                              <Accordion.ItemIndicator />
-                              <Span flex="1" fontWeight="bold" fontSize="sm">
-                                Ver histórico de carreira
-                              </Span>
-                              {/* <Accordion.Icon /> */}
-                            </Accordion.ItemTrigger>
-                            <Accordion.ItemContent>
-                              <Table.Root variant="line">
-                                <Table.Header>
-                                  <Table.Row>
-                                    <Table.ColumnHeader>Descrição</Table.ColumnHeader>
-                                    <Table.ColumnHeader>Função</Table.ColumnHeader>
-                                    <Table.ColumnHeader>Data Início</Table.ColumnHeader>
-                                    <Table.ColumnHeader>Referência</Table.ColumnHeader>
-                                  </Table.Row>
-                                </Table.Header>
-                                <Table.Body>
-                                  {dadosDocente.cargos.slice(1).map((cargo, index) => (
-                                    <Table.Row key={index}>
-                                      <Table.Cell>{cargo.descricao}</Table.Cell>
-                                      <Table.Cell>{cargo.funcao}</Table.Cell>
-                                      <Table.Cell>
-                                        {new Date(cargo.data_inicio).toLocaleDateString()}
-                                      </Table.Cell>
-                                      <Table.Cell>{cargo.referencia}</Table.Cell>
-                                    </Table.Row>
-                                  ))}
-                                </Table.Body>
-                              </Table.Root>
-                            </Accordion.ItemContent>
-                          </Accordion.Item>
-                        </Accordion.Root>
-                      )}
+                      {/* exibe apenas a primeira linha e deixa o restante em componente retraído */}
+                      <DataTable data={dadosDocente.cargos} />
                     </>
                   )}
 

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { conectarDB } from '@/lib/db'
+import { Cargo } from '@/types/docente'
 
 export async function GET(request: Request) {
   try {
@@ -14,6 +15,7 @@ export async function GET(request: Request) {
     const [rows] = await conn.execute('SELECT * FROM cargo WHERE docente_id = ? ORDER BY data_inicio DESC', [
       docente_id,
     ])
+
     await conn.end()
 
     return NextResponse.json(rows)

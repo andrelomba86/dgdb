@@ -13,7 +13,6 @@ export async function conectarDB() {
     if (!process.env.DB_HOST || !process.env.DB_USER) {
       throw new DatabaseError('Configurações de banco de dados incompletas')
     }
-
     const connection = await mysql.createConnection({
       host: process.env.DB_HOST || 'localhost',
       user: process.env.DB_USER || 'root',

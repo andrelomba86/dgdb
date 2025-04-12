@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     }
 
     const conn = await conectarDB()
-    const [rows] = await conn.execute('SELECT * FROM documentos WHERE docente_id = ?', [docente_id])
+    const [rows] = await conn.execute('SELECT * FROM documento WHERE docente_id = ?', [docente_id])
     await conn.end()
 
     return NextResponse.json(rows)
