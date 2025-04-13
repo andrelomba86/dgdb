@@ -104,7 +104,7 @@ CREATE TABLE `contrato` (
   PRIMARY KEY (`id`),
   KEY `contrato_docente_FK` (`docente_id`),
   CONSTRAINT `contrato_docente_FK` FOREIGN KEY (`docente_id`) REFERENCES `docente` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -119,6 +119,7 @@ INSERT INTO `contrato` VALUES
 (3,'CLT','40h','2015-01-10',NULL,3),
 (4,'Estatutário','30h','2012-06-20',NULL,4),
 (5,'CLT','40h','2009-09-01',NULL,5),
+(6,NULL,NULL,NULL,NULL,6);
 /*!40000 ALTER TABLE `contrato` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -136,10 +137,6 @@ CREATE TABLE `docente` (
   `data_nascimento` date DEFAULT NULL,
   `matricula` varchar(10) DEFAULT NULL,
   `email` varchar(80) DEFAULT NULL,
-  `data_admissao` date DEFAULT NULL,
-  `regime_juridico` varchar(15) DEFAULT NULL,
-  `regime_trabalho` varchar(15) DEFAULT NULL,
-  `regime_data_aplicacao` date DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -151,12 +148,12 @@ CREATE TABLE `docente` (
 LOCK TABLES `docente` WRITE;
 /*!40000 ALTER TABLE `docente` DISABLE KEYS */;
 INSERT INTO `docente` VALUES
-(1,'Carlos Silva','Rua A, 123','1980-05-10','D001','carlos@exemplo.com','2010-03-15','CLT','40h','2010-03-15'),
-(2,'Maria Souza','Av. B, 456','1975-11-22','D002','maria@exemplo.com','2008-07-01','Estatutário','20h','2008-07-01'),
-(3,'João Pereira','Rua C, 789','1990-01-30','D003','joao@exemplo.com','2015-01-10','CLT','40h','2015-01-10'),
-(4,'Ana Lima','Trav. D, 321','1988-09-12','D004','ana@exemplo.com','2012-06-20','Estatutário','30h','2012-06-20'),
-(5,'Paulo Rocha','Rua E, 654','1982-03-05','D005','paulo@exemplo.com','2009-09-01','CLT','40h','2009-09-01'),
-(6,'Marcus Cesar Avezum Alves de Castro','Rua 20, 012391023 - Vl Jatai','2022-10-01','1293890','marcus.castro@unesp.br',NULL,NULL,NULL,NULL);
+(1,'Carlos Silva','Rua A, 123','1980-05-10','D001','carlos@exemplo.com'),
+(2,'Maria Souza','Av. B, 456','1975-11-22','D002','maria@exemplo.com'),
+(3,'João Pereira','Rua C, 789','1990-01-30','D003','joao@exemplo.com'),
+(4,'Ana Lima','Trav. D, 321','1988-09-12','D004','ana@exemplo.com'),
+(5,'Paulo Rocha','Rua E, 654','1982-03-05','D005','paulo@exemplo.com'),
+(6,'Marcus Cesar Avezum Alves de Castro','Rua 20, 012391023 - Vl Jatai','2022-10-01','1293890','marcus.castro@unesp.br');
 /*!40000 ALTER TABLE `docente` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -241,4 +238,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-13 11:07:18
+-- Dump completed on 2025-04-13 12:31:11
