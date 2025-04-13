@@ -1,6 +1,6 @@
 'use client'
 
-import { ChakraProvider, createSystem, defaultConfig, defineConfig, Theme } from '@chakra-ui/react'
+import { ChakraProvider, createSystem, defaultConfig, Theme } from '@chakra-ui/react'
 
 import { ReactNode } from 'react'
 import { config } from './styles'

@@ -1,54 +1,39 @@
 'use client'
 
 import {
-  Box,
   Button,
   Container,
-  Field,
-  Input,
   Stack,
   Select,
   Grid,
   Heading,
   Card,
-  CardBody,
-  useDisclosure,
   Spinner,
-  InputGroup,
   createListCollection,
-  NativeSelect,
-  Bleed,
-  Flex,
-  Text,
-  HStack,
-  Table,
-  Accordion,
-  Span,
 } from '@chakra-ui/react'
 import { CollectionOptions, ListCollection, CollectionItem } from '@zag-js/collection'
 
-import { Tabs } from '@/app/components/Tabs'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { DadosDocente, Docente } from '@/types/docente'
-import { User, Mail, MapPin, Calendar, Briefcase, Info } from 'lucide-react'
-import { label } from 'framer-motion/client'
+import { User } from 'lucide-react'
 import { InfoField } from '@/app/components/InfoField'
-import { DocenteService } from './functions'
+import { DocenteService } from '../services/DocenteService'
 import { DataTable } from '@/app/components/DataTable'
+import { useRouter } from 'next/navigation'
 
 export default function DocentesPage() {
-  const [idDocenteSelecionado, setIdDocenteSelecionado] = useState<number>(0)
-  const [dadosDocente, setDadosDocente] = useState<DadosDocente>({ id: -1, nome: '' })
-  const [listaDeDocentes, setListaDeDocentes] = useState<ListCollection<any>>(
-    createListCollection<any>({ items: [] })
+  const router = useRouter()
+  const [idDocenteSelecionado, setIdDocenteSelecionado] = useState<number>(-1)
+  const [dadosDocente, setDadosDocente] = useState<DadosDocente>({ nome: '' })
+  const [listaDeDocentes, setListaDeDocentes] = useState<ListCollection<Docente>>(
+    createListCollection<Docente>({ items: [] })
   )
 
   const [isLoading, setIsLoading] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    const carregaDados = async () => {
-      const docentes: Docente[] = await DocenteService.carregaDocente()
+    const carregaNomes = async () => {
+      const docentes: Docente[] = await DocenteService.carregaLista()
       const items: CollectionOptions = {
         items: docentes.map((docente: Docente) => ({
           label: docente.nome,
@@ -60,14 +45,14 @@ export default function DocentesPage() {
     }
     console.log('itens carregados')
 
-    carregaDados()
+    carregaNomes()
   }, [])
 
   useEffect(() => {
     if (idDocenteSelecionado === -1) return
     const carregaDados = async () => {
       setIsLoading(true)
-      const dadosDocente = await DocenteService.carregaDadosDocente(idDocenteSelecionado)
+      const dadosDocente = await DocenteService.carregaDados(idDocenteSelecionado)
       if (!dadosDocente) return
       setDadosDocente(dadosDocente)
       setIsLoading(false)
@@ -120,7 +105,7 @@ export default function DocentesPage() {
             {isLoading ? (
               <Spinner />
             ) : (
-              dadosDocente.id !== -1 && (
+              idDocenteSelecionado !== -1 && (
                 <>
                   <Heading size="md" mb={4}>
                     Dados Gerais
@@ -130,8 +115,7 @@ export default function DocentesPage() {
                     <InfoField label="Matrícula" value={dadosDocente.matricula} />
                     <InfoField
                       label="Data de Nascimento"
-                      value={dadosDocente.data_nascimento}
-                      formatter={date => (date ? new Date(date).toLocaleDateString() : '')}
+                      value={dadosDocente.data_nascimento?.toLocaleDateString()}
                     />
                     <InfoField label="Endereço" value={dadosDocente.endereco} />
                   </Grid>
@@ -140,7 +124,7 @@ export default function DocentesPage() {
                   </Heading>
                   <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={1}>
                     <InfoField label="Email" value={dadosDocente.email} />
-                    {dadosDocente.telefones?.map((telefone, index) => (
+                    {dadosDocente.telefones?.map(telefone => (
                       <InfoField key={telefone.id} label={`${telefone.tipo}`} value={telefone.telefone} />
                     ))}
                   </Grid>
@@ -161,16 +145,14 @@ export default function DocentesPage() {
                   <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={1}>
                     <InfoField
                       label="Data de Admissão"
-                      value={dadosDocente.data_admissao}
-                      formatter={date => (date ? new Date(date).toLocaleDateString() : '')}
+                      value={dadosDocente.data_admissao?.toLocaleDateString()}
                     />
                     <InfoField label="Regime de Trabalho" value={dadosDocente.regime_trabalho} />
 
                     <InfoField label="Regime Jurídico" value={dadosDocente.regime_juridico} />
                     <InfoField
                       label="Data de Aplicação"
-                      value={dadosDocente.regime_data_aplicacao}
-                      formatter={date => (date ? new Date(date).toLocaleDateString() : '')}
+                      value={dadosDocente.regime_data_aplicacao?.toLocaleDateString()}
                     />
                   </Grid>
                   <Heading size="md" mt={6} mb={4}>
@@ -196,10 +178,18 @@ export default function DocentesPage() {
             )}
           </Card.Body>
         </Card.Root>
-
-        <Button mt={6} colorScheme="blue" width="full" type="submit" disabled={isLoading}>
-          {isLoading ? 'Carregando...' : 'Editar'}
-        </Button>
+        <Grid templateColumns="repeat(4, 1fr)" gap={4} mx={6} my={4}>
+          <div />
+          <div />
+          <div />
+          <Button
+            colorScheme="blue"
+            width="full"
+            disabled={isLoading || idDocenteSelecionado === -1}
+            onClick={() => router.push(`/docentes/form/${idDocenteSelecionado}`)}>
+            {isLoading ? 'Carregando...' : 'Editar'}
+          </Button>
+        </Grid>
       </Stack>
     </Container>
   )

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { conectarDB } from '@/lib/db'
-import { Cargo } from '@/types/docente'
 
 export async function GET(request: Request) {
   try {

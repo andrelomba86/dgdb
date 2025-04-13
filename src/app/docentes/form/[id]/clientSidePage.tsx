@@ -1,182 +1,113 @@
 'use client'
 
 import {
-  Box,
   Button,
   Container,
   Field,
   Input,
-  VStack,
   Select,
   Grid,
   Heading,
   Card,
-  CardBody,
-  useDisclosure,
-  Spinner,
   InputGroup,
   createListCollection,
   Stack,
 } from '@chakra-ui/react'
 import { Tabs } from '@/app/components/Tabs'
 import { useState, useEffect } from 'react'
-import { DadosDocente, Docente } from '@/types/docente'
-import { User, Mail, MapPin, Calendar, Briefcase } from 'lucide-react'
-import { DocenteService } from '../docentes/functions'
+import { DadosDocente } from '@/types/docente'
+// import { DadosDocente, DocenteFormProps } from '@/types/docente'
+import { User, Mail } from 'lucide-react'
+import { DocenteService } from '../../../services/DocenteService'
+import { useRouter as useNextRouter } from 'next/navigation'
 
-export default function DocentesPage() {
-  const [docentes, setDocentes] = useState<DadosDocente[]>([])
+type DocentePageParams = {
+  idDocente: number
+}
+export default function DocentesPage({ idDocente }: DocentePageParams) {
+  const router = useNextRouter()
+  // export default function DocentesPage() {
   const [formData, setFormData] = useState<DadosDocente>({
-    id: 0,
     nome: '',
-    data_nascimento: '',
+    data_nascimento: undefined,
     endereco: '',
     matricula: '',
     email: '',
     telefones: [{ id: 0, telefone: '', tipo: '', docente_id: 0 }],
     documentos: [],
-    data_admissao: '',
+    data_admissao: undefined,
     regime_juridico: '',
     regime_trabalho: '',
-    regime_data_aplicacao: '',
+    regime_data_aplicacao: undefined,
     banco: '',
     agencia: '',
     conta: '',
   })
-  const [editando, setEditando] = useState(false)
-  // const toast = useToast()
-  // const { isOpen, onOpen, onClose } = useDisclosure()
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  useEffect(() => {
-    carregarDocentes()
-  }, [])
+  const editando = true //searchParams?.editand === 'true'
 
-  const carregarDocentes = async () => {
-    const data = await DocenteService.carregaDocente()
-    setDocentes(data)
-  }
+  useEffect(() => {
+    async function carregaDados() {
+      const data = await DocenteService.carregaDados(idDocente)
+      setFormData(data)
+      console.log(data)
+    }
+    setIsLoading(true)
+    carregaDados()
+    setIsLoading(false)
+  }, [idDocente])
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
     if (!formData.nome.trim()) newErrors.nome = 'Nome é obrigatório'
-    if (!formData.email.trim()) newErrors.email = 'Email é obrigatório'
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Email inválido'
-    }
+    if (formData.email && !formData.email.trim()) newErrors.email = 'Email é obrigatório'
+
+    //TODO: fazer função em arquivo separado para checar validade de email
+    // if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    //   newErrors.email = 'Email inválido'
+    // }
 
     setErrors(newErrors)
+    console.log(errors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validateForm()) return
-
-    setIsLoading(true)
-    try {
-      const savedDocente = await DocenteService.createDocente(formData)
-
-      // Save phones
-      if (formData.telefones && formData.telefones.length > 0) {
-        const phonePromises = formData.telefones.map(telefone =>
-          DocenteService.createTelefone(savedDocente.id, telefone.telefone, telefone.tipo)
-        )
-        await Promise.all(phonePromises)
-      }
-
-      toast({
-        title: 'Docente cadastrado com sucesso',
-        status: 'success',
-      })
-      carregarDocentes()
-      setIsLoading(false)
-    } catch (error) {
-      setIsLoading(false)
-      toast({
-        title: 'Erro ao cadastrar docente',
-        status: 'error',
-      })
-    }
+    // setIsLoading(true)
+    // try {
+    //   const savedDocente = await DocenteService.createDocente(formData)
+    //   // Save phones
+    //   if (formData.telefones && formData.telefones.length > 0) {
+    //     const phonePromises = formData.telefones.map(telefone =>
+    //       DocenteService.createTelefone(savedDocente.id, telefone.telefone, telefone.tipo)
+    //     )
+    //     await Promise.all(phonePromises)
+    //   }
+    //   toast({
+    //     title: 'Docente cadastrado com sucesso',
+    //     status: 'success',
+    //   })
+    //   carregarDocentes()
+    //   setIsLoading(false)
+    // } catch (error) {
+    //   setIsLoading(false)
+    //   toast({
+    //     title: 'Erro ao cadastrar docente',
+    //     status: 'error',
+    //   })
+    // }
   }
-
-  const handleEdit = (docente: Docente) => {
-    setFormData(docente)
-    setEditando(true)
-  }
-
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validateForm()) return
-
-    setIsLoading(true)
-    try {
-      await DocenteService.updateDocente(formData)
-
-      // Update phones
-      if (formData.telefones && formData.telefones.length > 0) {
-        const phonePromises = formData.telefones.map(telefone => {
-          if (telefone.id) {
-            return DocenteService.updateTelefone(telefone)
-          } else {
-            return DocenteService.createTelefone(formData.id!, telefone.telefone, telefone.tipo)
-          }
-        })
-        await Promise.all(phonePromises)
-      }
-
-      toast({
-        title: 'Docente atualizado com sucesso',
-        status: 'success',
-      })
-      setEditando(false)
-      setFormData({
-        id: 0,
-        nome: '',
-        data_nascimento: '',
-        endereco: '',
-        matricula: '',
-        email: '',
-        telefones: [{ id: 0, telefone: '', tipo: '', docente_id: 0 }],
-        documentos: [],
-        data_admissao: '',
-        regime_juridico: '',
-        regime_trabalho: '',
-        regime_data_aplicacao: '',
-        banco: '',
-        agencia: '',
-        conta: '',
-      })
-      carregarDocentes()
-      setIsLoading(false)
-    } catch (error) {
-      setIsLoading(false)
-      toast({
-        title: 'Erro ao atualizar docente',
-        status: 'error',
-      })
-    }
+    alert('ok')
   }
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('Tem certeza que deseja excluir este docente?')) {
-      try {
-        await DocenteService.deleteDocente(id)
-        toast({
-          title: 'Docente excluído com sucesso',
-          status: 'success',
-        })
-        carregarDocentes()
-      } catch (error) {
-        toast({
-          title: 'Erro ao excluir docente',
-          status: 'error',
-        })
-      }
-    }
-  }
   //TODO: Eliminar lista hardcoded; dar um fetch na lista de regimes de trabalho do banco de dados
   const regimes_de_trabalho = createListCollection({
     items: [
@@ -187,7 +118,7 @@ export default function DocentesPage() {
 
   return (
     <Container layerStyle="container">
-      <Stack layerStyle="vstack">
+      <Stack layerStyle="vstack" backgroundColor="white">
         <Heading size="md" layerStyle="heading" display="flex" alignItems="center" gap={3}>
           <User size={24} />
           Cadastro de docente
@@ -231,8 +162,10 @@ export default function DocentesPage() {
 
                       <Input
                         type="date"
-                        value={formData.data_nascimento}
-                        onChange={e => setFormData({ ...formData, data_nascimento: e.target.value })}
+                        value={formData.data_nascimento?.toLocaleDateString()}
+                        onChange={e =>
+                          setFormData({ ...formData, data_nascimento: new Date(e.target.value) })
+                        }
                       />
                     </Field.Root>
 
@@ -257,10 +190,8 @@ export default function DocentesPage() {
                           value={formData.email}
                           onChange={e => setFormData({ ...formData, email: e.target.value })}
                         />
-                      </InputGroup>
-                    </Field.Root>
 
-                    <Field.Root>
+                        {/* <Field.Root>
                       <Field.Label>Telefones</Field.Label>
                       {formData.telefones?.map((telefone, index) => (
                         <Grid key={index} templateColumns="1fr auto" gap={2} mb={2}>
@@ -321,29 +252,78 @@ export default function DocentesPage() {
                         }}>
                         Adicionar Telefone
                       </Button>
+                    </Field.Root> */}
+                      </InputGroup>
                     </Field.Root>
+
+                    {/* <Field.Root>
+                      <Field.Label>Telefones</Field.Label>
+                      {formData.telefones?.map((telefone, index) => (
+                        <Grid key={index} templateColumns="1fr auto" gap={2} mb={2}>
+                          <Input
+                            value={telefone.telefone}
+                            onChange={e => {
+                              const newTelefones = [...(formData.telefones || [])]
+                              newTelefones[index] = {
+                                ...newTelefones[index],
+                                telefone: e.target.value,
+                              }
+                              setFormData({ ...formData, telefones: newTelefones })
+                            }}
+                            placeholder="Número do telefone"
+                          />
+                          <Select.Root
+                            value={[telefone.tipo]}
+                            onValueChange={e => {
+                              const newTelefones = [...(formData.telefones || [])]
+                              newTelefones[index] = {
+                                ...newTelefones[index],
+                                tipo: e.value[0],
+                              }
+                              setFormData({ ...formData, telefones: newTelefones })
+                            }}>
+                            <Select.Control>
+                              <Select.Trigger>
+                                <Select.ValueText placeholder="Tipo" />
+                              </Select.Trigger>
+                            </Select.Control>
+                            <Select.Positioner>
+                              <Select.Content>
+                                <Select.ItemGroup>
+                                  <Select.Item value="Celular">Celular</Select.Item>
+                                  <Select.Item value="Residencial">Residencial</Select.Item>
+                                  <Select.Item value="Comercial">Comercial</Select.Item>
+                                </Select.ItemGroup>
+                              </Select.Content>
+                            </Select.Positioner>
+                          </Select.Root>
+                          <Button
+                            size="sm"
+                            colorScheme="red"
+                            onClick={() => {
+                              const newTelefones = formData.telefones?.filter((_, i) => i !== index)
+                              setFormData({ ...formData, telefones: newTelefones })
+                            }}>
+                            Remover
+                          </Button>
+                        </Grid>
+                      ))}
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          const newTelefones = [...(formData.telefones || [])]
+                          newTelefones.push({ id: 0, telefone: '', tipo: '', docente_id: formData.id || 0 })
+                          setFormData({ ...formData, telefones: newTelefones })
+                        }}>
+                        Adicionar Telefone
+                      </Button>
+                    </Field.Root> */}
                   </Grid>
 
                   <Heading size="md" mt={6} mb={4}>
                     Documentos
                   </Heading>
-                  <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
-                    <Field.Root>
-                      <Field.Label>CPF</Field.Label>
-                      <Input
-                        value={formData.cpf}
-                        onChange={e => setFormData({ ...formData, cpf: e.target.value })}
-                      />
-                    </Field.Root>
-
-                    <Field.Root>
-                      <Field.Label>RG</Field.Label>
-                      <Input
-                        value={formData.rg}
-                        onChange={e => setFormData({ ...formData, rg: e.target.value })}
-                      />
-                    </Field.Root>
-                  </Grid>
+                  <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}></Grid>
                 </Card.Body>
               </Card.Root>
             </form>
@@ -357,8 +337,8 @@ export default function DocentesPage() {
                     <Field.Label>Data de Admissão</Field.Label>
                     <Input
                       type="date"
-                      value={formData.data_admissao}
-                      onChange={e => setFormData({ ...formData, data_admissao: e.target.value })}
+                      value={formData.data_admissao?.toLocaleDateString()}
+                      onChange={e => setFormData({ ...formData, data_admissao: new Date(e.target.value) })}
                     />
                   </Field.Root>
 
@@ -418,47 +398,25 @@ export default function DocentesPage() {
               </Card.Body>
             </Card.Root>
           </Tabs.Content>
-          <Button mt={6} colorScheme="blue" width="full" type="submit" isLoading={isLoading}>
-            {editando ? 'Atualizar' : 'Cadastrar'}
-          </Button>
+          <Grid templateColumns="repeat(4, 1fr)" gap={4} mx={6} my={4}>
+            <div />
+            <div />
 
-          {/* <Tab.Contents>
-            <Box overflowX="auto">
-              <Table variant="simple" bg="white" shadow="sm">
-                <Thead bg="gray.50">
-                  <Tr>
-                    <Th>Nome</Th>
-                    <Th>Email</Th>
-                    <Th>Regime</Th>
-                    <Th width="200px">Ações</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {docentes.map(docente => (
-                    <Tr key={docente.id}>
-                      <Td>{docente.nome}</Td>
-                      <Td>{docente.email}</Td>
-                      <Td>{docente.regime_trabalho}</Td>
-                      <Td>
-                        <Button size="sm" colorScheme="yellow" onClick={() => handleEdit(docente)} mr={2}>
-                          Editar
-                        </Button>
-                        <Button
-                          size="sm"
-                          colorScheme="red"
-                          onClick={() => {
-                            onOpen()
-                          }}>
-                          Excluir
-                        </Button>
-                      </Td>
-                    </Tr>
-                  ))}
-                </Tbody>
-              </Table>
-            </Box>
-          </Tab.Contents> */}
+            <Button colorPalette="blue" size="sm" type="submit" loading={isLoading} w="full">
+              {/* {editando ? 'Atualizar' : 'Cadastrar'} */}
+              Atualizar
+            </Button>
+            <Button
+              colorPalette="gray"
+              size="sm"
+              onClick={() => router.push('/docentes')}
+              w="full"
+              loading={isLoading}>
+              Voltar
+            </Button>
+          </Grid>
         </Tabs.Root>
+
         {/* 
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />

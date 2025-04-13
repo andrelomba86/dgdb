@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { conectarDB } from '@/lib/db'
-import { DadosDocente, Docente } from '@/types/docente'
 import { OkPacketParams } from 'mysql2'
+import { FieldPacket, RowDataPacket } from 'mysql2'
 
 export async function GET(request: Request) {
   try {
@@ -12,12 +12,13 @@ export async function GET(request: Request) {
     }
 
     const conn = await conectarDB()
-    const [rows]: any[] = await conn.execute('SELECT * FROM docente WHERE id = ?', [id])
+    const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.execute(
+      'SELECT * FROM docente WHERE id = ?',
+      [id]
+    )
     await conn.end()
 
-    if (!rows[0]) {
-      return NextResponse.json({ error: 'Docente não encontrado' }, { status: 404 })
-    }
+    if (!rows.length) return NextResponse.json({ error: 'Docente não encontrado' }, { status: 404 })
 
     return NextResponse.json(rows[0])
   } catch (error) {
@@ -166,6 +167,7 @@ export async function DELETE(request: Request) {
     await conn.end()
     return NextResponse.json(result)
   } catch (error) {
+    console.error('Erro ao excluir docente:', error)
     return NextResponse.json({ error: 'Erro ao excluir docente' }, { status: 500 })
   }
 }

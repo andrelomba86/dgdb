@@ -1,3 +1,4 @@
+// import { AppProps } from "next/app"
 export interface Docente {
   id: number
   nome: string
@@ -26,19 +27,29 @@ export interface Cargo {
   docente_id: number
 }
 
-export interface DadosDocente extends Docente {
-  data_nascimento?: string
+export interface DadosDocente {
+  nome: string
+  data_nascimento?: Date
   endereco?: string
   matricula?: string
   email?: string
   telefones?: Telefone[]
   documentos?: Documento[]
   cargos?: Cargo[]
-  data_admissao?: string
+  data_admissao?: Date
   regime_trabalho?: string
   regime_juridico?: string
-  regime_data_aplicacao?: string
+  regime_data_aplicacao?: Date
   banco?: string
   agencia?: string
   conta?: string
+}
+
+export interface DocenteFormProps {
+  params: Promise<{
+    id: string
+  }>
+  searchParams?: Promise<{
+    editando?: string
+  }>
 }

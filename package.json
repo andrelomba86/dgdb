@@ -27,6 +27,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5"
   }
 }

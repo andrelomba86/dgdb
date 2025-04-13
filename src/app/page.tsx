@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Box, Container, Heading, VStack, Card, CardHeader, CardBody, Text } from '@chakra-ui/react'
+import { Container, Heading, VStack, Card, CardHeader, CardBody, Text } from '@chakra-ui/react'
 
 export default function Home() {
   return (

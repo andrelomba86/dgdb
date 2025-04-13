@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Cargo } from '@/types/docente'
 
 type DataTableProps = { data: Cargo[] }
-type KeyOfCargo = keyof Cargo
+// type KeyOfCargo = keyof Cargo
 export function DataTable({ data }: DataTableProps) {
   const [hidden, setHidden] = useState(true)
   const headers = {
@@ -12,12 +12,13 @@ export function DataTable({ data }: DataTableProps) {
     data_inicio: 'Data Início',
     referencia: 'Referência',
   }
-  const formatter = (value: any) => {
-    console.log(value, value instanceof Date)
+  //TODO: criar tipo para esse formatador
+  const formatter = (value: Date | object): string => {
+    // console.log(value, value instanceof Date)
     if (value instanceof Date) {
-      return value.toLocaleDateString()
+      return (value as Date).toLocaleDateString()
     }
-    return value
+    return String(value)
   }
   return (
     <>
@@ -30,10 +31,10 @@ export function DataTable({ data }: DataTableProps) {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {data.map((row, rowIndex) => (
+          {data.map((row: Cargo, rowIndex) => (
             <Table.Row key={rowIndex} hidden={rowIndex > 0 && hidden}>
-              {Object.keys(headers).map((key: string, cellIndex) => (
-                <Table.Cell key={cellIndex}>{formatter(row['data_inicio'] as Date)}</Table.Cell>
+              {Object.keys(headers).map((key, cellIndex) => (
+                <Table.Cell key={cellIndex}>{formatter(row[key as keyof Cargo] as Date | object)}</Table.Cell>
               ))}
             </Table.Row>
           ))}

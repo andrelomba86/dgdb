@@ -25,7 +25,7 @@ export async function conectarDB() {
 
     await connection.connect()
     return connection
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Erro ao conectar ao banco de dados:', error)
     throw new DatabaseError(error instanceof Error ? error.message : 'Erro desconhecido na conexão')
   }

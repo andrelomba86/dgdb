@@ -1,4 +1,4 @@
-import { defineConfig, defineLayerStyles, defineStyle } from '@chakra-ui/react'
+import { defineConfig, defineLayerStyles } from '@chakra-ui/react'
 
 const layerStyles = defineLayerStyles({
   container: {
