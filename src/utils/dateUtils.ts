@@ -1,7 +1,11 @@
-type DateOrUndefined = Date | undefined
+'use client'
+//type DateOrNull = Date | null
 
-export const formatDateFromString = (dateString: string | undefined): DateOrUndefined => {
-  return dateString ? new Date(dateString) : undefined
+export const formatDateFromString = (dateString: string): Date | undefined => {
+  // console.log('data::::::::', dateString != null ? new Date(dateString) : undefined)
+  // console.log(typeof dateString)
+
+  return dateString !== 'null' ? new Date(dateString) : undefined
 }
 
 // export const formatDatesFromObject = <T extends Record<string, unknown>>(

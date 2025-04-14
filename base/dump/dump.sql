@@ -62,14 +62,13 @@ DROP TABLE IF EXISTS `conta_bancaria`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `conta_bancaria` (
-  `id` int(11) NOT NULL,
+  `docente_id` int(11) NOT NULL,
   `banco` varchar(3) DEFAULT NULL,
   `agencia` varchar(8) DEFAULT NULL,
   `conta` varchar(15) DEFAULT NULL,
-  `docente_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`,`docente_id`),
+  PRIMARY KEY (`docente_id`),
   KEY `fk_conta_bancaria_docente1_idx` (`docente_id`),
-  CONSTRAINT `fk_conta_bancaria_docente1` FOREIGN KEY (`docente_id`) REFERENCES `docente` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `conta_bancaria_docente_FK` FOREIGN KEY (`docente_id`) REFERENCES `docente` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -80,10 +79,10 @@ CREATE TABLE `conta_bancaria` (
 LOCK TABLES `conta_bancaria` WRITE;
 /*!40000 ALTER TABLE `conta_bancaria` DISABLE KEYS */;
 INSERT INTO `conta_bancaria` VALUES
-(1,'001','1234-5','000123-4',5),
-(2,'237','5678-9','000567-8',4),
-(3,'104','0001-2','000789-0',3),
-(5,'033','4321-0','000987-1',1);
+(1,'033','4321-0','000987-1'),
+(3,'104','0001-2','000789-0'),
+(4,'237','5678-9','000567-8'),
+(5,'001','1234-5','000123-4');
 /*!40000 ALTER TABLE `conta_bancaria` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -95,16 +94,15 @@ DROP TABLE IF EXISTS `contrato`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `contrato` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `docente_id` int(11) NOT NULL,
+  `matricula` varchar(10) DEFAULT NULL,
   `regime_juridico` varchar(15) DEFAULT NULL,
   `regime_trabalho` varchar(15) DEFAULT NULL,
   `regime_data_aplicacao` date DEFAULT NULL,
   `data_admissao` date DEFAULT NULL,
-  `docente_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `contrato_docente_FK` (`docente_id`),
+  PRIMARY KEY (`docente_id`),
   CONSTRAINT `contrato_docente_FK` FOREIGN KEY (`docente_id`) REFERENCES `docente` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -114,12 +112,12 @@ CREATE TABLE `contrato` (
 LOCK TABLES `contrato` WRITE;
 /*!40000 ALTER TABLE `contrato` DISABLE KEYS */;
 INSERT INTO `contrato` VALUES
-(1,'CLT','40h','2010-03-15',NULL,1),
-(2,'Estatutário','20h','2008-07-01',NULL,2),
-(3,'CLT','40h','2015-01-10',NULL,3),
-(4,'Estatutário','30h','2012-06-20',NULL,4),
-(5,'CLT','40h','2009-09-01',NULL,5),
-(6,NULL,NULL,NULL,NULL,6);
+(1,'D001','CLT','40h','2010-03-15','2010-03-15'),
+(2,'D002','Estatutário','20h','2008-07-01',NULL),
+(3,'D003','CLT','40h','2015-01-10',NULL),
+(4,'D004','Estatutário','30h','2012-06-20',NULL),
+(5,'D005','CLT','40h','2009-09-01',NULL),
+(6,'1293890',NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `contrato` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -148,7 +146,7 @@ CREATE TABLE `docente` (
 LOCK TABLES `docente` WRITE;
 /*!40000 ALTER TABLE `docente` DISABLE KEYS */;
 INSERT INTO `docente` VALUES
-(1,'Carlos Silva','Rua A, 123','1980-05-10','D001','carlos@exemplo.com'),
+(1,'Carlos Silva','Rua A, 123',NULL,'D001','carlos@exemplo.com'),
 (2,'Maria Souza','Av. B, 456','1975-11-22','D002','maria@exemplo.com'),
 (3,'João Pereira','Rua C, 789','1990-01-30','D003','joao@exemplo.com'),
 (4,'Ana Lima','Trav. D, 321','1988-09-12','D004','ana@exemplo.com'),
@@ -238,4 +236,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-13 12:31:11
+-- Dump completed on 2025-04-14 19:06:42

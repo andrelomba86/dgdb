@@ -12,10 +12,14 @@ export async function GET(request: Request) {
     }
 
     const conn = await conectarDB()
-    const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.execute(
-      'SELECT * FROM docente WHERE id = ?',
-      [id]
-    )
+    const sql =
+      'SELECT * FROM docente d \
+                JOIN contrato c \
+                ON d.id=c.docente_id \
+                JOIN conta_bancaria cb \
+                ON d.id=cb.docente_id \
+                WHERE id = ?'
+    const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.execute(sql, [id])
     await conn.end()
 
     if (!rows.length) return NextResponse.json({ error: 'Docente não encontrado' }, { status: 404 })

@@ -1,4 +1,4 @@
-'use client'
+// 'use client'
 import { Docente, DadosDocente, Documento, Telefone, Cargo } from '@/types/docente'
 import { formatDatesFromObject } from '@/utils/dateUtils'
 
