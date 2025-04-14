@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import {
   Button,
@@ -10,61 +10,61 @@ import {
   Card,
   Spinner,
   createListCollection,
-} from '@chakra-ui/react';
-import { CollectionOptions, ListCollection, CollectionItem } from '@zag-js/collection';
+} from '@chakra-ui/react'
+import { CollectionOptions, ListCollection, CollectionItem } from '@zag-js/collection'
 
-import { useState, useEffect } from 'react';
-import { DadosDocente, Docente } from '@/types/docente';
-import { User } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react'
+import { DadosDocente, Docente } from '@/types/docente'
+import { User } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 //TODO: fazer um export para todos os componentes, para que seja importado em uma única linha aqui:
 
-import { InfoField } from '@/app/components/InfoField';
-import { DocenteService } from '../services/DocenteService';
-import { DataTable } from '@/app/components/DataTable';
-import { Heading } from '@/app/components/Heading';
-import { Stack } from '@/app/components/Stack';
+import { InfoField } from '@/app/components/InfoField'
+import { DocenteService } from '../services/DocenteService'
+import { DataTable } from '@/app/components/DataTable'
+import { Heading } from '@/app/components/Heading'
+import { Stack } from '@/app/components/Stack'
 
 export default function DocentesPage() {
-  const router = useRouter();
-  const [idDocenteSelecionado, setIdDocenteSelecionado] = useState<number>(-1);
-  const [dadosDocente, setDadosDocente] = useState<DadosDocente>({ nome: '' });
+  const router = useRouter()
+  const [idDocenteSelecionado, setIdDocenteSelecionado] = useState<number>(-1)
+  const [dadosDocente, setDadosDocente] = useState<DadosDocente>({ nome: '' })
   const [listaDeDocentes, setListaDeDocentes] = useState<ListCollection<Docente>>(
     createListCollection<Docente>({ items: [] })
-  );
+  )
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const carregaNomes = async () => {
-      const docentes: Docente[] = await DocenteService.carregaLista();
+      const docentes: Docente[] = await DocenteService.carregaLista()
       const items: CollectionOptions = {
         items: docentes.map((docente: Docente) => ({
           label: docente.nome,
           value: docente.id,
         })),
-      };
-      const lista = createListCollection(items);
-      setListaDeDocentes(lista);
-    };
-    console.log('itens carregados');
+      }
+      const lista = createListCollection(items)
+      setListaDeDocentes(lista)
+    }
+    console.log('itens carregados')
 
-    carregaNomes();
-  }, []);
+    carregaNomes()
+  }, [])
 
   useEffect(() => {
-    if (idDocenteSelecionado === -1) return;
+    if (idDocenteSelecionado === -1) return
     const carregaDados = async () => {
-      setIsLoading(true);
-      const dadosDocente = await DocenteService.carregaDados(idDocenteSelecionado);
-      if (!dadosDocente) return;
-      setDadosDocente(dadosDocente);
-      setIsLoading(false);
-    };
+      setIsLoading(true)
+      const dadosDocente = await DocenteService.carregaDados(idDocenteSelecionado)
+      if (!dadosDocente) return
+      setDadosDocente(dadosDocente)
+      setIsLoading(false)
+    }
 
-    carregaDados();
-  }, [idDocenteSelecionado]);
+    carregaDados()
+  }, [idDocenteSelecionado])
 
   return (
     <Container layerStyle="container">
@@ -77,8 +77,8 @@ export default function DocentesPage() {
           <Select.Root
             collection={listaDeDocentes}
             onValueChange={e => {
-              const docenteId = parseInt(e.value[0]);
-              setIdDocenteSelecionado(docenteId);
+              const docenteId = parseInt(e.value[0])
+              setIdDocenteSelecionado(docenteId)
             }}
           >
             <Select.Label>Docente:</Select.Label>
@@ -166,5 +166,5 @@ export default function DocentesPage() {
         </Grid>
       </ChakraStack>
     </Container>
-  );
+  )
 }
