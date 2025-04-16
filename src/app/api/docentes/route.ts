@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { conectarDB } from '@/lib/db'
 import { OkPacketParams } from 'mysql2'
 import { FieldPacket, RowDataPacket } from 'mysql2'
+import { logError } from '@/lib/logger'
 
 export async function GET(request: Request) {
   try {
@@ -10,22 +11,24 @@ export async function GET(request: Request) {
     if (!id) {
       return NextResponse.json({ error: 'ID não fornecido' }, { status: 400 })
     }
-
     const conn = await conectarDB()
     const sql =
       'SELECT * FROM docente d \
-                JOIN contrato c \
+                LEFT JOIN contrato c \
                 ON d.id=c.docente_id \
-                JOIN conta_bancaria cb \
+                LEFT JOIN conta_bancaria cb \
                 ON d.id=cb.docente_id \
                 WHERE id = ?'
     const [rows]: [RowDataPacket[], FieldPacket[]] = await conn.execute(sql, [id])
     await conn.end()
 
-    if (!rows.length) return NextResponse.json({ error: 'Docente não encontrado' }, { status: 404 })
+    if (!rows.length) {
+      return NextResponse.json({ error: 'Dados não encontrados' }, { status: 404 })
+    }
 
     return NextResponse.json(rows[0])
   } catch (error) {
+    logError('Erro ao buscar docente', error)
     console.error('Erro ao buscar docente:', error)
     return NextResponse.json({ error: 'Erro ao buscar docente' }, { status: 500 })
   }
@@ -88,6 +91,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ...result, id: (result as OkPacketParams).insertId })
   } catch (error) {
+    logError('Erro ao criar docente', error)
     console.error('Erro ao criar docente:', error)
     return NextResponse.json({ error: 'Erro ao criar docente' }, { status: 500 })
   }
@@ -152,6 +156,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json(result)
   } catch (error) {
+    logError('Erro ao atualizar docente', error)
     console.error('Erro ao atualizar docente:', error)
     return NextResponse.json({ error: 'Erro ao atualizar docente' }, { status: 500 })
   }
@@ -171,6 +176,7 @@ export async function DELETE(request: Request) {
     await conn.end()
     return NextResponse.json(result)
   } catch (error) {
+    logError('Erro ao excluir docente', error)
     console.error('Erro ao excluir docente:', error)
     return NextResponse.json({ error: 'Erro ao excluir docente' }, { status: 500 })
   }

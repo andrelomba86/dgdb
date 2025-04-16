@@ -1,11 +1,17 @@
-// 'use client'
-import { Docente, DadosDocente, Documento, Telefone, Cargo } from '@/types/docente'
+//'use client'
+import { Docente, DadosDocente, Documento, Telefone, Cargo, ApiResponse } from '@/types/docente'
 import { formatDatesFromObject } from '@/utils/dateUtils'
-
 export class DocenteService {
   private static async get<T>(url: string): Promise<T> {
     const response = await fetch(url)
-    return await response.json()
+    const result = await response.json()
+
+    if (!response.ok) {
+      console.log(result.error)
+      throw new Error(result.error)
+    }
+
+    return result
   }
 
   private static async post<T>(url: string, data: T): Promise<T> {
@@ -33,25 +39,29 @@ export class DocenteService {
     return await this.get<Docente[]>('/api/docentes/nomes')
   }
 
-  static async carregaDados(id: number): Promise<DadosDocente> {
-    if (id == -1) {
-      return Promise.reject(new Error('ID inválido'))
-    }
-
+  static async carregaDados(id: number): Promise<ApiResponse<DadosDocente>> {
     try {
+      if (id < 0) {
+        return {
+          result: { nome: '' },
+          error: new Error('ID recebido não é valido'),
+        }
+      }
       const dados = await this.carregaDadosGerais(id)
       const telefones = await this.carregaTelefones(id)
       const documentos = await this.carregaDocumentos(id)
       const cargos = await this.carregaCargos(id)
-      return { ...dados, telefones, documentos, cargos }
+      return {
+        result: { ...dados, telefones, documentos, cargos },
+      }
     } catch (error) {
-      console.error('Erro ao carregar dados:', error)
-      return Promise.reject(error)
+      console.error('Erro ao carregar dados', error)
+      return { result: { nome: '' }, error: new Error('Erro ao carregar dados', { cause: (error as Error).message }) }
     }
   }
 
   static async carregaDadosGerais(id: number): Promise<DadosDocente> {
-    const result: DadosDocente = await this.get<DadosDocente>(`/api/docentes?id=${id}`)
+    const result = await this.get<DadosDocente>(`/api/docentes?id=${id}`)
 
     return formatDatesFromObject(result, ['data_admissao', 'data_nascimento', 'regime_data_aplicacao'])
   }

@@ -7,8 +7,6 @@ import {
   Grid,
   Heading as ChakraHeading,
   Stack as ChakraStack,
-  Card,
-  Spinner,
   createListCollection,
 } from '@chakra-ui/react'
 import { CollectionOptions, ListCollection, CollectionItem } from '@zag-js/collection'
@@ -17,14 +15,9 @@ import { useState, useEffect } from 'react'
 import { DadosDocente, Docente } from '@/types/docente'
 import { User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-
-//TODO: fazer um export para todos os componentes, para que seja importado em uma única linha aqui:
-
-import { InfoField } from '@/app/components/InfoField'
+import { Toaster, toaster } from '@/components/ui/toaster'
 import { DocenteService } from '../services/DocenteService'
-import { DataTable } from '@/app/components/DataTable'
-import { Heading } from '@/app/components/Heading'
-import { Stack } from '@/app/components/Stack'
+import { InfoField, DataTable, Heading, Stack } from '@/app/components'
 
 export default function DocentesPage() {
   const router = useRouter()
@@ -48,7 +41,6 @@ export default function DocentesPage() {
       const lista = createListCollection(items)
       setListaDeDocentes(lista)
     }
-    console.log('itens carregados')
 
     carregaNomes()
   }, [])
@@ -57,9 +49,14 @@ export default function DocentesPage() {
     if (idDocenteSelecionado === -1) return
     const carregaDados = async () => {
       setIsLoading(true)
-      const dadosDocente = await DocenteService.carregaDados(idDocenteSelecionado)
-      if (!dadosDocente) return
-      setDadosDocente(dadosDocente)
+      const { result, error } = await DocenteService.carregaDados(idDocenteSelecionado)
+      console.log('---------> ', result, error)
+      if (error) {
+        //TODO: não está exibindo o erro (erro.cause)
+        toaster.create({ title: 'Falha no banco de dados', description: error.cause, type: 'error' })
+        return
+      }
+      setDadosDocente(result)
       setIsLoading(false)
     }
 
@@ -68,6 +65,7 @@ export default function DocentesPage() {
 
   return (
     <Container layerStyle="container">
+      <Toaster />
       <ChakraStack layerStyle="vstack" backgroundColor="white">
         <ChakraHeading size="md" layerStyle="heading" display="flex" alignItems="center" gap={3}>
           <User size={24} />

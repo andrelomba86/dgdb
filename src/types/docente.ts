@@ -1,4 +1,3 @@
-// import { AppProps } from "next/app"
 export interface Docente {
   id: number
   nome: string
@@ -52,4 +51,9 @@ export interface DocenteFormProps {
   searchParams?: Promise<{
     editando?: string
   }>
+}
+
+export type ApiResponse<T> = {
+  result: T
+  error?: Error
 }
