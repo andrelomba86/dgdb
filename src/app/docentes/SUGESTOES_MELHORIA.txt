@@ -1,0 +1,101 @@
+Sugestões de Melhoria para o código de DocentesPage
+
+1. Tipagem explícita
+   - Declare explicitamente os tipos das funções assíncronas e dos estados.
+
+2. Tratamento de erros e loading
+   - Garanta que o estado isLoading seja sempre atualizado, mesmo em caso de erro, usando finally.
+
+3. Evite parseInt sem fallback
+   - No onValueChange, use um fallback para evitar NaN caso o valor não seja numérico.
+
+4. Extraia componentes
+   - Seções como o Select de docentes e os grids de dados podem ser extraídos para componentes menores.
+
+5. Chave única
+   - Evite usar o índice como chave em listas, prefira um identificador único.
+
+6. Evite múltiplos returns em hooks
+   - Centralize retornos e early returns para facilitar leitura.
+
+7. Loading visual
+   - Adicione um spinner ou skeleton enquanto carrega dados.
+
+8. Feedback visual de carregamento
+   - Mostre um spinner ou skeleton nos campos enquanto isLoading for true.
+
+9. Evite múltiplas requisições desnecessárias
+   - Se o usuário selecionar o mesmo docente novamente, evite recarregar os dados.
+
+10. Memoize funções e valores
+    - Use useCallback e useMemo para funções e valores derivados que não precisam ser recalculados a cada renderização.
+
+11. Centralize mensagens de erro
+    - Crie um componente para exibir mensagens de erro, facilitando manutenção e padronização.
+
+12. Validação de dados
+    - Garanta que os dados recebidos do backend estejam no formato esperado antes de renderizar.
+
+13. Acessibilidade
+    - Adicione atributos como aria-label nos botões e campos para melhorar a acessibilidade.
+
+14. Separação de responsabilidades
+    - Separe a lógica de busca de dados em hooks customizados, como useDocentes e useDocenteDetalhe.
+
+Exemplo de hooks customizados:
+
+// useDocentes.ts
+import { useEffect, useState } from 'react'
+import { Docente } from '@/types/docente'
+import { DocenteService } from '@/app/services/DocenteService'
+import { createListCollection } from '@chakra-ui/react'
+import { CollectionOptions, ListCollection } from '@zag-js/collection'
+
+export function useDocentes() {
+  const [listaDeDocentes, setListaDeDocentes] = useState<ListCollection<Docente>>(createListCollection({ items: [] }))
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const carregaNomes = async () => {
+      setIsLoading(true)
+      const docentes: Docente[] = await DocenteService.carregaLista()
+      const items: CollectionOptions = {
+        items: docentes.map((docente: Docente) => ({
+          label: docente.nome,
+          value: docente.id,
+        })),
+      }
+      setListaDeDocentes(createListCollection(items))
+      setIsLoading(false)
+    }
+    carregaNomes()
+  }, [])
+
+  return { listaDeDocentes, isLoading }
+}
+
+// useDocenteDetalhe.ts
+import { useEffect, useState } from 'react'
+import { DadosDocente } from '@/types/docente'
+import { DocenteService } from '@/app/services/DocenteService'
+
+export function useDocenteDetalhe(idDocenteSelecionado: number) {
+  const [dadosDocente, setDadosDocente] = useState<DadosDocente>({ nome: '' })
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    if (idDocenteSelecionado === -1) return
+    const carregaDados = async () => {
+      setIsLoading(true)
+      try {
+        const { result, error } = await DocenteService.carregaDados(idDocenteSelecionado)
+        if (!error) setDadosDocente(result)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    carregaDados()
+  }, [idDocenteSelecionado])
+
+  return { dadosDocente, isLoading }
+}

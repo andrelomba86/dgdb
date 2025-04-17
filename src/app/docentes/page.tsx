@@ -3,7 +3,6 @@
 import {
   Button,
   Container,
-  Select,
   Grid,
   Heading as ChakraHeading,
   Stack as ChakraStack,
@@ -17,7 +16,7 @@ import { User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Toaster, toaster } from '@/components/ui/toaster'
 import { DocenteService } from '../services/DocenteService'
-import { InfoField, DataTable, Heading, Stack } from '@/app/components'
+import { InfoField, DataTable, Heading, Stack, Select } from '@/app/components'
 
 export default function DocentesPage() {
   const router = useRouter()
@@ -49,15 +48,17 @@ export default function DocentesPage() {
     if (idDocenteSelecionado === -1) return
     const carregaDados = async () => {
       setIsLoading(true)
-      const { result, error } = await DocenteService.carregaDados(idDocenteSelecionado)
-      console.log('---------> ', result, error)
-      if (error) {
-        //TODO: não está exibindo o erro (erro.cause)
-        toaster.create({ title: 'Falha no banco de dados', description: error.cause, type: 'error' })
-        return
+      try {
+        const { result, error } = await DocenteService.carregaDados(idDocenteSelecionado)
+        console.log('---------> ', result, error)
+        if (error) {
+          toaster.create({ title: 'Falha no banco de dados', description: error.cause, type: 'error' })
+          return
+        }
+        setDadosDocente(result)
+      } finally {
+        setIsLoading(false)
       }
-      setDadosDocente(result)
-      setIsLoading(false)
     }
 
     carregaDados()
@@ -72,36 +73,7 @@ export default function DocentesPage() {
           Docentes
         </ChakraHeading>
         <ChakraStack px={12} mt={5}>
-          <Select.Root
-            collection={listaDeDocentes}
-            onValueChange={e => {
-              const docenteId = parseInt(e.value[0])
-              setIdDocenteSelecionado(docenteId)
-            }}
-          >
-            <Select.Label>Docente:</Select.Label>
-            <Select.Control>
-              <Select.Trigger>
-                <Select.ValueText placeholder="Selecione" />
-              </Select.Trigger>
-              <Select.IndicatorGroup>
-                <Select.ClearTrigger />
-                <Select.Indicator />
-              </Select.IndicatorGroup>
-            </Select.Control>
-            <Select.Positioner>
-              <Select.Content>
-                <Select.ItemGroup>
-                  {listaDeDocentes.items.map((docente: CollectionItem) => (
-                    <Select.Item item={docente} key={docente.value}>
-                      {docente.label}
-                      <Select.ItemIndicator />
-                    </Select.Item>
-                  ))}
-                </Select.ItemGroup>
-              </Select.Content>
-            </Select.Positioner>
-          </Select.Root>
+          <Select listCollection={listaDeDocentes} onChange={setIdDocenteSelecionado} />
         </ChakraStack>
         <Stack>
           {/*---------------- DADOS GERAIS -------------------*/}
@@ -124,13 +96,13 @@ export default function DocentesPage() {
           <Heading>Documentos</Heading>
           <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={1}>
             {dadosDocente.documentos?.length
-              ? dadosDocente.documentos?.map((documento, index) => (
-                  <InfoField key={index} label={documento.tipo} value={documento.documento} />
+              ? dadosDocente.documentos?.map(documento => (
+                  <InfoField key={documento.id} label={documento.tipo} value={documento.documento} />
                 ))
               : '-'}
           </Grid>
-          {/*---------------- DADOS CONTRATUAIS ---------------*/}
-          <Heading>Dados Contratuais</Heading>
+          {/*---------------- DADOS FUNCIONAIS ----------------*/}
+          <Heading>Dados Funcionais</Heading>
           <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={1}>
             <InfoField label="Matrícula" value={dadosDocente.matricula} />
             <InfoField label="Data de Admissão" value={dadosDocente.data_admissao?.toLocaleDateString()} />
