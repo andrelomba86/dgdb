@@ -1,0 +1,21 @@
+/* styles.module.css */
+.button {
+  /* background-color: blue;
+  color: white;
+  padding: 10px;
+  transition: background-color 0.3s; */
+  visibility: hidden;
+  opacity: 0;
+  /* transition: visibility 0s 2s, opacity 2s linear; */
+}
+
+/* .button:hover {
+  visibility: visible;
+} */
+
+.btnParent:hover .button {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.3s linear;
+  cursor: pointer;
+}

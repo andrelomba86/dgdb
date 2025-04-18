@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     await conn.end()
 
     if (!rows.length) {
-      return NextResponse.json({ error: 'Dados não encontrados' }, { status: 404 })
+      throw new Error(`Dados não encontrados para o ID "${id}"`)
     }
 
     return NextResponse.json(rows[0])

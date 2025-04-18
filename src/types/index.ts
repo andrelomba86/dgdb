@@ -54,6 +54,8 @@ export interface DocenteFormProps {
 }
 
 export type ApiResponse<T> = {
-  result: T
+  result?: T
   error?: Error
 }
+
+export type ProviderProps = { children: ReactNode }

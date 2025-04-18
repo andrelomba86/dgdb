@@ -8,19 +8,20 @@ import {
   Stack as ChakraStack,
   createListCollection,
 } from '@chakra-ui/react'
-import { CollectionOptions, ListCollection, CollectionItem } from '@zag-js/collection'
-
+import { CollectionOptions, ListCollection } from '@zag-js/collection'
 import { useState, useEffect } from 'react'
-import { DadosDocente, Docente } from '@/types/docente'
+import { DadosDocente, Docente } from '@/types'
 import { User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Toaster, toaster } from '@/components/ui/toaster'
-import { ProfessorService } from '../services/DocenteService'
 import { InfoField, DataTable, Heading, Stack, Select } from '@/app/components'
+import { useProfessorService } from '@/app/context/ServiceContext'
 
 //TODO: desativar botão editar quando der algum erro
 export default function DocentesPage() {
   const router = useRouter()
+  const professorService = useProfessorService()
+
   const [idDocenteSelecionado, setIdDocenteSelecionado] = useState<number>(-1)
   const [dadosDocente, setDadosDocente] = useState<DadosDocente>({ nome: '' })
   const [listaDeDocentes, setListaDeDocentes] = useState<ListCollection<Docente>>(
@@ -31,7 +32,7 @@ export default function DocentesPage() {
 
   useEffect(() => {
     const carregaNomes = async () => {
-      const docentes: Docente[] = await ProfessorService.fetchNames()
+      const docentes: Docente[] = await professorService.fetchNames()
       const items: CollectionOptions = {
         items: docentes.map((docente: Docente) => ({
           label: docente.nome,
@@ -43,27 +44,26 @@ export default function DocentesPage() {
     }
 
     carregaNomes()
-  }, [])
+  }, [professorService])
 
   useEffect(() => {
     if (idDocenteSelecionado === -1) return
     const carregaDados = async () => {
       setIsLoading(true)
       try {
-        const { result, error } = await ProfessorService.carregaDados(idDocenteSelecionado)
-        console.log('---------> ', result, error)
+        const { result, error } = await professorService.fetchData(idDocenteSelecionado)
         if (error) {
           toaster.create({ title: error.message, description: error.cause, type: 'error' })
           return
         }
-        setDadosDocente(result)
+        setDadosDocente(result || { nome: '' })
       } finally {
         setIsLoading(false)
       }
     }
 
     carregaDados()
-  }, [idDocenteSelecionado])
+  }, [idDocenteSelecionado, professorService])
 
   return (
     <Container layerStyle="container">

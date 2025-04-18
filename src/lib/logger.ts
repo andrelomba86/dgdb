@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
+//TODO: limitar tamanho do arquivo
 const logDir = path.join(process.cwd(), 'logs')
 const logPath = path.join(logDir, 'app.log')
 

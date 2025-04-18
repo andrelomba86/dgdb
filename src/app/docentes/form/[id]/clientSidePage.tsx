@@ -15,10 +15,10 @@ import {
 } from '@chakra-ui/react'
 import { Tabs } from '@/app/components/Tabs'
 import { useState, useEffect } from 'react'
-import { DadosDocente } from '@/types/docente'
+import { DadosDocente } from '@/types'
 // import { DadosDocente, DocenteFormProps } from '@/types/docente'
 import { User, Mail } from 'lucide-react'
-import { ProfessorService } from '../../../services/DocenteService'
+import { ProfessorService } from '../../../services/ProfessorService'
 import { useRouter as useNextRouter } from 'next/navigation'
 
 type DocentePageParams = {

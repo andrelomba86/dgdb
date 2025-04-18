@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { conectarDB } from '@/lib/db'
+import { logError } from '@/lib/logger'
 
 export async function GET() {
   try {
@@ -8,7 +9,7 @@ export async function GET() {
     await conn.end()
     return NextResponse.json(rows)
   } catch (error) {
-    console.error('Erro ao buscar docentes:', error)
+    logError('Erro ao buscar docentes', error)
     return NextResponse.json({ error: 'Erro ao buscar docentes' }, { status: 500 })
   }
 }

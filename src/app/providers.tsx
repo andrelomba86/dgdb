@@ -2,19 +2,17 @@
 
 import { ChakraProvider, createSystem, defaultConfig, Theme } from '@chakra-ui/react'
 
-import { ReactNode } from 'react'
+import { ProviderProps } from '@/types'
 import { config } from './styles'
-
+import { ServiceProvider } from '@/app/context/ServiceContext'
 const system = createSystem(defaultConfig, config)
 
-interface ProvidersProps {
-  children: ReactNode
-}
-
-export function Providers({ children }: ProvidersProps) {
+export function Providers({ children }: ProviderProps) {
   return (
     <ChakraProvider value={system}>
-      <Theme backgroundColor="transparent">{children}</Theme>
+      <ServiceProvider>
+        <Theme backgroundColor="transparent">{children}</Theme>
+      </ServiceProvider>
     </ChakraProvider>
   )
 }

@@ -1,9 +1,10 @@
 import { Button, Table, Flex } from '@chakra-ui/react'
 import { useState } from 'react'
-import { Cargo } from '@/types/docente'
+import { Cargo } from '@/types'
 
 type DataTableProps = { data: Cargo[] }
-// type KeyOfCargo = keyof Cargo
+
+//TODO: renomear para CargoTable ou algo assim
 export function DataTable({ data }: DataTableProps) {
   const [hidden, setHidden] = useState(true)
   const headers = {
@@ -18,7 +19,7 @@ export function DataTable({ data }: DataTableProps) {
     if (value instanceof Date) {
       return (value as Date).toLocaleDateString()
     }
-    return String(value)
+    return value ? String(value) : ''
   }
   return (
     <>
