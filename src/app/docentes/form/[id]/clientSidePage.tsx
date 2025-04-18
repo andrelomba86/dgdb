@@ -18,7 +18,7 @@ import { useState, useEffect } from 'react'
 import { DadosDocente } from '@/types/docente'
 // import { DadosDocente, DocenteFormProps } from '@/types/docente'
 import { User, Mail } from 'lucide-react'
-import { DocenteService } from '../../../services/DocenteService'
+import { ProfessorService } from '../../../services/DocenteService'
 import { useRouter as useNextRouter } from 'next/navigation'
 
 type DocentePageParams = {
@@ -50,7 +50,7 @@ export default function DocentesPage({ idDocente }: DocentePageParams) {
 
   useEffect(() => {
     async function carregaDados() {
-      const data = await DocenteService.carregaDados(idDocente)
+      const data = await ProfessorService.carregaDados(idDocente)
       setFormData(data)
       console.log(data)
     }
@@ -142,10 +142,7 @@ export default function DocentesPage({ idDocente }: DocentePageParams) {
                         <Field.RequiredIndicator />
                       </Field.Label>
                       {/* <InputGroup startElement={<User size={18} />}> */}
-                      <Input
-                        value={formData.nome}
-                        onChange={e => setFormData({ ...formData, nome: e.target.value })}
-                      />
+                      <Input value={formData.nome} onChange={e => setFormData({ ...formData, nome: e.target.value })} />
                       {/* </InputGroup> */}
                     </Field.Root>
 
@@ -163,9 +160,7 @@ export default function DocentesPage({ idDocente }: DocentePageParams) {
                       <Input
                         type="date"
                         value={formData.data_nascimento?.toLocaleDateString()}
-                        onChange={e =>
-                          setFormData({ ...formData, data_nascimento: new Date(e.target.value) })
-                        }
+                        onChange={e => setFormData({ ...formData, data_nascimento: new Date(e.target.value) })}
                       />
                     </Field.Root>
 
@@ -373,10 +368,7 @@ export default function DocentesPage({ idDocente }: DocentePageParams) {
                 <Grid templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }} gap={4}>
                   <Field.Root>
                     <Field.Label>Banco</Field.Label>
-                    <Input
-                      value={formData.banco}
-                      onChange={e => setFormData({ ...formData, banco: e.target.value })}
-                    />
+                    <Input value={formData.banco} onChange={e => setFormData({ ...formData, banco: e.target.value })} />
                   </Field.Root>
 
                   <Field.Root>
@@ -389,10 +381,7 @@ export default function DocentesPage({ idDocente }: DocentePageParams) {
 
                   <Field.Root>
                     <Field.Label>Conta</Field.Label>
-                    <Input
-                      value={formData.conta}
-                      onChange={e => setFormData({ ...formData, conta: e.target.value })}
-                    />
+                    <Input value={formData.conta} onChange={e => setFormData({ ...formData, conta: e.target.value })} />
                   </Field.Root>
                 </Grid>
               </Card.Body>
@@ -406,12 +395,7 @@ export default function DocentesPage({ idDocente }: DocentePageParams) {
               {/* {editando ? 'Atualizar' : 'Cadastrar'} */}
               Atualizar
             </Button>
-            <Button
-              colorPalette="gray"
-              size="sm"
-              onClick={() => router.push('/docentes')}
-              w="full"
-              loading={isLoading}>
+            <Button colorPalette="gray" size="sm" onClick={() => router.push('/docentes')} w="full" loading={isLoading}>
               Voltar
             </Button>
           </Grid>

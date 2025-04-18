@@ -1,19 +1,22 @@
 //'use client'
 import { Docente, DadosDocente, Documento, Telefone, Cargo, ApiResponse } from '@/types/docente'
 import { formatDatesFromObject } from '@/utils/dateUtils'
-import { logError } from '@/lib/logger'
+import { ServiceError } from './errors/ServiceError'
 
-export class DocenteService {
+export class ProfessorService {
   private static async get<T>(url: string): Promise<T> {
-    const response = await fetch(url)
-    const result = await response.json()
+    try {
+      const response = await fetch(url)
+      const result = await response.json()
 
-    if (!response.ok) {
-      logError(`Erro na requisição GET para ${url}`, result.error)
-      throw new Error(result.error)
+      if (!response.ok) {
+        throw new ServiceError(result.error || 'Request failed', response.status)
+      }
+
+      return result
+    } catch (error) {
+      throw this.handleError(error, `GET ${url}`)
     }
-
-    return result
   }
 
   private static async post<T>(url: string, data: T): Promise<T> {
@@ -25,12 +28,12 @@ export class DocenteService {
       })
       if (!response.ok) {
         const result = await response.json()
-        logError(`Erro na requisição POST para ${url}`, result.error)
+        console.error(`Error in POST request to ${url}`, result.error)
         throw new Error(result.error)
       }
       return await response.json()
     } catch (error) {
-      logError(`Exceção em POST para ${url}`, error)
+      console.error(`Exceção em POST para ${url}`, error)
       throw error
     }
   }
@@ -44,11 +47,11 @@ export class DocenteService {
       })
       if (!response.ok) {
         const result = await response.json()
-        logError(`Erro na requisição PUT para ${url}`, result.error)
+        console.error(`Erro na requisição PUT para ${url}`, result.error)
         throw new Error(result.error)
       }
     } catch (error) {
-      logError(`Exceção em PUT para ${url}`, error)
+      console.error(`Exceção em PUT para ${url}`, error)
       throw error
     }
   }
@@ -58,20 +61,29 @@ export class DocenteService {
       const response = await fetch(url, { method: 'DELETE' })
       if (!response.ok) {
         const result = await response.json()
-        logError(`Erro na requisição DELETE para ${url}`, result.error)
+        console.error(`Erro na requisição DELETE para ${url}`, result.error)
         throw new Error(result.error)
       }
     } catch (error) {
-      logError(`Exceção em DELETE para ${url}`, error)
+      console.error(`Exceção em DELETE para ${url}`, error)
       throw error
     }
   }
 
-  static async carregaLista(): Promise<Docente[]> {
+  private static handleError(error: unknown, context: string): ServiceError {
+    if (error instanceof ServiceError) {
+      return error
+    }
+
+    console.error(`Erro em ${context}:`, error)
+    return new ServiceError(`Falha na operação: ${context}`, undefined, error)
+  }
+
+  static async fetchNames(): Promise<Docente[]> {
     try {
       return await this.get<Docente[]>('/api/docentes/nomes')
     } catch (error) {
-      logError('Erro ao carregar lista de docentes', error)
+      console.error('Erro ao carregar lista de docentes', error)
       return []
     }
   }
@@ -80,7 +92,7 @@ export class DocenteService {
     try {
       if (id < 0) {
         const err = new Error('ID recebido não é valido')
-        logError('ID inválido em carregaDados', err)
+        console.error('ID inválido em carregaDados', err)
         return {
           result: { nome: '' },
           error: err,
@@ -98,7 +110,7 @@ export class DocenteService {
         result: { ...dados, telefones, documentos, cargos },
       }
     } catch (error) {
-      logError('Erro ao carregar dados', error)
+      console.error('Erro ao carregar dados', error)
       return { result: { nome: '' }, error: new Error('Erro ao carregar dados', { cause: (error as Error).message }) }
     }
   }
@@ -108,8 +120,7 @@ export class DocenteService {
       const result = await this.get<DadosDocente>(`/api/docentes?id=${id}`)
       return formatDatesFromObject(result, ['data_admissao', 'data_nascimento', 'regime_data_aplicacao'])
     } catch (error) {
-      logError('Erro ao carregar dados gerais', error)
-      return { nome: '' } as DadosDocente
+      throw this.handleError(error, 'carregaDadosGerais')
     }
   }
 
@@ -117,7 +128,7 @@ export class DocenteService {
     try {
       return await this.get<Documento[]>(`/api/docentes/documentos?docente_id=${id}`)
     } catch (error) {
-      logError('Erro ao carregar documentos', error)
+      console.error('Erro ao carregar documentos', error)
       return []
     }
   }
@@ -126,7 +137,7 @@ export class DocenteService {
     try {
       return await this.get<Telefone[]>(`/api/docentes/telefones?docente_id=${id}`)
     } catch (error) {
-      logError('Erro ao carregar telefones', error)
+      console.error('Erro ao carregar telefones', error)
       return []
     }
   }
@@ -139,7 +150,7 @@ export class DocenteService {
         data_inicio: new Date(row.data_inicio),
       }))
     } catch (error) {
-      logError('Erro ao carregar cargos', error)
+      console.error('Erro ao carregar cargos', error)
       return []
     }
   }
@@ -148,7 +159,7 @@ export class DocenteService {
     try {
       return await this.post<DadosDocente>('/api/docentes', dados)
     } catch (error) {
-      logError('Erro ao criar docente', error)
+      console.error('Erro ao criar docente', error)
       throw error
     }
   }
@@ -157,7 +168,7 @@ export class DocenteService {
     try {
       await this.put('/api/docentes', dados)
     } catch (error) {
-      logError('Erro ao atualizar docente', error)
+      console.error('Erro ao atualizar docente', error)
       throw error
     }
   }
@@ -166,7 +177,7 @@ export class DocenteService {
     try {
       await this.delete(`/api/docentes?id=${id}`)
     } catch (error) {
-      logError('Erro ao deletar docente', error)
+      console.error('Erro ao deletar docente', error)
       throw error
     }
   }
@@ -175,7 +186,7 @@ export class DocenteService {
     try {
       await this.post('/api/docentes/telefones', { docente_id, telefone, tipo })
     } catch (error) {
-      logError('Erro ao criar telefone', error)
+      console.error('Erro ao criar telefone', error)
       throw error
     }
   }
@@ -184,7 +195,7 @@ export class DocenteService {
     try {
       await this.put('/api/docentes/telefones', telefone)
     } catch (error) {
-      logError('Erro ao atualizar telefone', error)
+      console.error('Erro ao atualizar telefone', error)
       throw error
     }
   }
@@ -193,7 +204,7 @@ export class DocenteService {
     try {
       await this.delete(`/api/docentes/telefones?id=${id}`)
     } catch (error) {
-      logError('Erro ao deletar telefone', error)
+      console.error('Erro ao deletar telefone', error)
       throw error
     }
   }

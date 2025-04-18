@@ -28,9 +28,11 @@ export async function GET(request: Request) {
 
     return NextResponse.json(rows[0])
   } catch (error) {
-    logError('Erro ao buscar docente', error)
-    console.error('Erro ao buscar docente:', error)
-    return NextResponse.json({ error: 'Erro ao buscar docente' }, { status: 500 })
+    logError('Erro ao buscar dados de docente', error)
+    return NextResponse.json(
+      { error: 'Erro ao buscar dados de docente. Verifique os logs para mais informações.' },
+      { status: 500 }
+    )
   }
 }
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Container, Heading, VStack, Card, CardHeader, CardBody, Text } from '@chakra-ui/react'
-
+//TODO: inserir uma pagina de logs
 export default function Home() {
   return (
     <Container maxWidth="container.2xl" py={12}>
@@ -19,7 +19,8 @@ export default function Home() {
               transition: 'transform 0.2s',
               cursor: 'pointer',
               shadow: 'md',
-            }}>
+            }}
+          >
             <CardHeader>
               <Heading size="md">Área do Docente</Heading>
             </CardHeader>

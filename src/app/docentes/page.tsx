@@ -15,9 +15,10 @@ import { DadosDocente, Docente } from '@/types/docente'
 import { User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Toaster, toaster } from '@/components/ui/toaster'
-import { DocenteService } from '../services/DocenteService'
+import { ProfessorService } from '../services/DocenteService'
 import { InfoField, DataTable, Heading, Stack, Select } from '@/app/components'
 
+//TODO: desativar botão editar quando der algum erro
 export default function DocentesPage() {
   const router = useRouter()
   const [idDocenteSelecionado, setIdDocenteSelecionado] = useState<number>(-1)
@@ -30,7 +31,7 @@ export default function DocentesPage() {
 
   useEffect(() => {
     const carregaNomes = async () => {
-      const docentes: Docente[] = await DocenteService.carregaLista()
+      const docentes: Docente[] = await ProfessorService.fetchNames()
       const items: CollectionOptions = {
         items: docentes.map((docente: Docente) => ({
           label: docente.nome,
@@ -49,10 +50,10 @@ export default function DocentesPage() {
     const carregaDados = async () => {
       setIsLoading(true)
       try {
-        const { result, error } = await DocenteService.carregaDados(idDocenteSelecionado)
+        const { result, error } = await ProfessorService.carregaDados(idDocenteSelecionado)
         console.log('---------> ', result, error)
         if (error) {
-          toaster.create({ title: 'Falha no banco de dados', description: error.cause, type: 'error' })
+          toaster.create({ title: error.message, description: error.cause, type: 'error' })
           return
         }
         setDadosDocente(result)
