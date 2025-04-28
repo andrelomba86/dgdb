@@ -1,0 +1,12 @@
+/* styles.module.css */
+.button {
+  visibility: hidden;
+  opacity: 0;
+}
+
+:hover > .button {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.3s linear;
+  cursor: pointer;
+}

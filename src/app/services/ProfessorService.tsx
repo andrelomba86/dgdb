@@ -1,5 +1,5 @@
 // 'use client'
-import { Docente, DadosDocente, Documento, Telefone, Cargo, ApiResponse } from '@/types'
+import { Docente, ProfessorData, Documento, Telefone, Cargo, ApiResponse } from '@/types'
 import { formatDateFields } from '@/utils/dateUtils'
 import { HttpRequest } from './HttpRequest'
 
@@ -36,20 +36,20 @@ export class ProfessorService extends HttpRequest {
     this.fetch<T>(url, init)
   }
 
-  private async carregaDadosGerais(id: number): Promise<DadosDocente> {
-    const result = await this.get<DadosDocente>(`/api/docentes?id=${id}`)
+  private async carregaDadosGerais(id: number): Promise<ProfessorData> {
+    const result = await this.get<ProfessorData>(`/api/docentes?id=${id}`)
     return formatDateFields(result, ['data_admissao', 'data_nascimento', 'regime_data_aplicacao'])
   }
 
-  private async carregaDocumentos(id: number): Promise<Documento[]> {
+  private async loadIDDocuments(id: number): Promise<Documento[]> {
     return await this.get<Documento[]>(`/api/docentes/documentos?docente_id=${id}`)
   }
 
-  private async carregaTelefones(id: number): Promise<Telefone[]> {
+  private async fetchPhones(id: number): Promise<Telefone[]> {
     return await this.get<Telefone[]>(`/api/docentes/telefones?docente_id=${id}`)
   }
 
-  private async carregaCargos(id: number): Promise<Cargo[]> {
+  private async loadJobTitles(id: number): Promise<Cargo[]> {
     const result = await this.get<Cargo[]>(`/api/docentes/cargos?docente_id=${id}`)
     return result.map((row: Cargo) => formatDateFields(row, ['data_inicio']))
   }
@@ -57,13 +57,13 @@ export class ProfessorService extends HttpRequest {
     return await this.get<Docente[]>('/api/docentes/nomes')
   }
 
-  async fetchData(id: number): Promise<ApiResponse<DadosDocente>> {
+  async fetchData(id: number): Promise<ApiResponse<ProfessorData>> {
     try {
       const [dados, telefones, documentos, cargos] = await Promise.all([
         this.carregaDadosGerais(id),
-        this.carregaTelefones(id),
-        this.carregaDocumentos(id),
-        this.carregaCargos(id),
+        this.fetchPhones(id),
+        this.loadIDDocuments(id),
+        this.loadJobTitles(id),
       ])
       return {
         result: { ...dados, telefones, documentos, cargos },
@@ -74,16 +74,16 @@ export class ProfessorService extends HttpRequest {
     }
   }
 
-  async criar(dados: DadosDocente): Promise<DadosDocente> {
+  async criar(dados: ProfessorData): Promise<ProfessorData> {
     try {
-      return await this.post<DadosDocente>('/api/docentes', dados)
+      return await this.post<ProfessorData>('/api/docentes', dados)
     } catch (error) {
       console.error('Erro ao criar docente', error)
       throw error
     }
   }
 
-  async atualizar(dados: DadosDocente): Promise<void> {
+  async atualizar(dados: ProfessorData): Promise<void> {
     try {
       await this.put('/api/docentes', dados)
     } catch (error) {

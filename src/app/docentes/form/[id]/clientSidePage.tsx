@@ -15,25 +15,28 @@ import {
 } from '@chakra-ui/react'
 import { Tabs } from '@/app/components/Tabs'
 import { useState, useEffect } from 'react'
-import { DadosDocente } from '@/types'
+import { ProfessorData } from '@/types'
 // import { DadosDocente, DocenteFormProps } from '@/types/docente'
 import { User, Mail } from 'lucide-react'
-import { ProfessorService } from '../../../services/ProfessorService'
+// import { ProfessorService } from '../../../services/ProfessorService'
+import { useProfessorService } from '@/app/contexts/ServiceContext'
+
 import { useRouter as useNextRouter } from 'next/navigation'
 
 type DocentePageParams = {
   idDocente: number
 }
 export default function DocentesPage({ idDocente }: DocentePageParams) {
+  const professorService = useProfessorService()
   const router = useNextRouter()
   // export default function DocentesPage() {
-  const [formData, setFormData] = useState<DadosDocente>({
+  const [formData, setFormData] = useState<ProfessorData>({
     nome: '',
     data_nascimento: undefined,
     endereco: '',
     matricula: '',
     email: '',
-    telefones: [{ id: 0, telefone: '', tipo: '', docente_id: 0 }],
+    telefones: [],
     documentos: [],
     data_admissao: undefined,
     regime_juridico: '',
@@ -50,14 +53,19 @@ export default function DocentesPage({ idDocente }: DocentePageParams) {
 
   useEffect(() => {
     async function carregaDados() {
-      const data = await ProfessorService.carregaDados(idDocente)
-      setFormData(data)
-      console.log(data)
+      const { result, error } = await professorService.fetchData(idDocente)
+      if (error) {
+        // toaster.create({ title: error.message, description: error.cause, type: 'error' })
+        return
+      }
+      // setDadosDocente(result || { nome: '' })
+      setFormData(result || { nome: '' })
+      // console.log(data)
     }
     setIsLoading(true)
     carregaDados()
     setIsLoading(false)
-  }, [idDocente])
+  }, [idDocente, professorService])
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}

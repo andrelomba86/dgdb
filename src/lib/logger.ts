@@ -10,8 +10,8 @@ if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir, { recursive: true })
 }
 
-export function logError(message: string, error: unknownd) {
-  const errorMessage = `${new Date().toISOString()} - ${message} - ${error.stack || error}\n`
+export function logError(message: string, error: unknown) {
+  const errorMessage = `${new Date().toISOString()} - ${message} - ${(error as Error).stack || error}\n`
   fs.appendFile(logPath, errorMessage, err => {
     if (err) console.error('Erro ao escrever log:', err)
   })

@@ -1,12 +1,18 @@
 import { Button, Table, Flex } from '@chakra-ui/react'
-import { useState } from 'react'
 import { Cargo } from '@/types'
+import { CopyValue } from './CopyValue'
+import { useStateContext } from '@/app/contexts/StateContext'
 
-type DataTableProps = { data: Cargo[] }
+interface DataTableProps {
+  data: Cargo[]
+  // showAll: boolean
+}
 
 //TODO: renomear para CargoTable ou algo assim
 export function DataTable({ data }: DataTableProps) {
-  const [hidden, setHidden] = useState(true)
+  // const [showAll, setShowAll] = useState(true)
+  const { state, setState } = useStateContext()
+
   const headers = {
     descricao: 'Descrição',
     funcao: 'Função',
@@ -33,18 +39,31 @@ export function DataTable({ data }: DataTableProps) {
         </Table.Header>
         <Table.Body>
           {data.map((row: Cargo, rowIndex) => (
-            <Table.Row key={rowIndex} hidden={rowIndex > 0 && hidden}>
-              {Object.keys(headers).map((key, cellIndex) => (
-                <Table.Cell key={cellIndex}>{formatter(row[key as keyof Cargo] as Date | object)}</Table.Cell>
-              ))}
+            <Table.Row key={rowIndex} hidden={rowIndex > 0 && !state.showAllJobTitles}>
+              {Object.keys(headers).map((key, cellIndex) => {
+                const value = formatter(row[key as keyof Cargo] as Date | object)
+                return (
+                  <Table.Cell key={cellIndex} alignItems="center">
+                    <Flex alignItems="center">
+                      {value}
+                      <CopyValue value={value} />
+                    </Flex>
+                  </Table.Cell>
+                )
+              })}
             </Table.Row>
           ))}
         </Table.Body>
       </Table.Root>
       {data.length > 1 && (
         <Flex textAlign="right">
-          <Button colorPalette="orange" variant="ghost" size="2xs" onClick={() => setHidden(!hidden)}>
-            {hidden ? 'Mostrar Todos' : 'Mostrar somente o mais recente'}
+          <Button
+            colorPalette="orange"
+            variant="ghost"
+            size="2xs"
+            onClick={() => setState({ ...state, showAllJobTitles: !state.showAllJobTitles })}
+          >
+            {state.showAllJobTitles ? 'Mostrar somente o mais recente' : 'Mostrar Todos'}
           </Button>
         </Flex>
       )}

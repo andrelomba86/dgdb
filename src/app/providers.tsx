@@ -4,14 +4,17 @@ import { ChakraProvider, createSystem, defaultConfig, Theme } from '@chakra-ui/r
 
 import { ProviderProps } from '@/types'
 import { config } from './styles'
-import { ServiceProvider } from '@/app/context/ServiceContext'
+import { ServiceProvider, StateProvider } from '@/app/contexts'
+
 const system = createSystem(defaultConfig, config)
 
 export function Providers({ children }: ProviderProps) {
   return (
     <ChakraProvider value={system}>
       <ServiceProvider>
-        <Theme backgroundColor="transparent">{children}</Theme>
+        <StateProvider>
+          <Theme backgroundColor="transparent">{children}</Theme>/
+        </StateProvider>
       </ServiceProvider>
     </ChakraProvider>
   )

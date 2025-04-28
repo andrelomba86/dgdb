@@ -1,3 +1,5 @@
+import { ReactNode } from 'react'
+
 export interface Docente {
   id: number
   nome: string
@@ -26,7 +28,7 @@ export interface Cargo {
   docente_id: number
 }
 
-export interface DadosDocente {
+export interface ProfessorData {
   nome: string
   data_nascimento?: Date
   endereco?: string
@@ -59,3 +61,9 @@ export type ApiResponse<T> = {
 }
 
 export type ProviderProps = { children: ReactNode }
+
+export type SelectProps = {
+  label: string
+  value: string
+  // options: string[]
+}
