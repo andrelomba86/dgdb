@@ -1,10 +1,12 @@
 import { createContext, useContext, useState } from 'react'
-import { ProfessorData, ProviderProps } from '@/types'
+import { ProfessorData, ProviderProps, SelectProps } from '@/types'
+import { createListCollection, ListCollection } from '@chakra-ui/react'
 
 interface StateProps {
   showAllJobTitles: boolean
   selectedProfessorID: number
   professorData: ProfessorData
+  professorList: ListCollection<SelectProps>
 }
 interface StateContextProps {
   state: StateProps
@@ -16,6 +18,7 @@ const initialState = {
   showAllJobTitles: false,
   selectedProfessorID: -1,
   professorData: { name: '' },
+  professorList: createListCollection<SelectProps>({ items: [] }),
 }
 const StateContext = createContext<StateContextProps | null>(null)
 

@@ -8,9 +8,9 @@ import {
   Stack as ChakraStack,
   createListCollection,
 } from '@chakra-ui/react'
-import { CollectionOptions, ListCollection } from '@zag-js/collection'
-import { useState, useEffect } from 'react'
-import { ProfessorData, Docente, SelectProps } from '@/types'
+import { CollectionOptions } from '@zag-js/collection'
+import { useState, useEffect, useCallback } from 'react'
+import { Docente, SelectProps } from '@/types'
 import { User } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Toaster, toaster } from '@/components/ui/toaster'
@@ -22,20 +22,14 @@ export default function DocentesPage() {
   const router = useRouter()
   const professorService = useProfessorService()
 
-  // const decaco: NotNull<Docente> = { dend: '' }
-  // console.log(decaco)
   const {
-    state: { selectedProfessorID, professorData },
-
+    state: { selectedProfessorID, professorData, professorList },
     setProp,
   } = useStateContext()
 
-  const [professorData, setProfessorData] = useState<ProfessorData>({ nome: '' })
-  const [professorList, setProfessorList] = useState<ListCollection<SelectProps>>(
-    createListCollection<SelectProps>({ items: [] })
-  )
-
   const [isLoading, setIsLoading] = useState(false)
+	const [isLoading, setIsLoading] = useState(false)
+
 
   useEffect(() => {
     const loadNames = async () => {
@@ -46,32 +40,51 @@ export default function DocentesPage() {
           value: docente.id.toString(),
         })),
       }
-      const lista = createListCollection(collection)
-      setProfessorList(lista)
+      const namesList = createListCollection(collection)
+      setProp('professorList')(namesList)
     }
-
     loadNames()
   }, [professorService])
 
-  useEffect(() => {
-    if (selectedProfessorID === -1) return
-    const loadData = async () => {
-      setIsLoading(true)
-      try {
-        const { result, error } = await professorService.fetchData(selectedProfessorID)
-        if (error) {
-          toaster.create({ title: error.message, description: error.cause, type: 'error' })
-          return
-        }
-        setProfessorData(result || { nome: '' })
-      } finally {
-        setIsLoading(false)
+  // useEffect(() => {
+  //   if (selectedProfessorID === -1) return
+  //   const loadData = async () => {
+  //     setIsLoading(true)
+  //     try {
+  //       const { result, error } = await professorService.fetchData(selectedProfessorID)
+  //       if (error) {
+  //         toaster.create({ title: error.message, description: error.cause, type: 'error' })
+  //         return
+  //       }
+  //       // setProfessorData(result || { nome: '' })
+  //       setProp('professorData')(result || { nome: '' })
+  //     } finally {
+  //       setIsLoading(false)
+  //     }
+  //   }
+  //   loadData()
+  // }, [selectedProfessorID, professorService])
+  const loadProfessorData = useCallback(async (professorId: number) => {
+    if (professorId === -1) return
+    setIsLoading(true)
+    try {
+      const { result, error } = await professorService.fetchData(professorId)
+      if (error) {
+        toaster.create({ title: error.message, description: error.cause, type: 'error' })
+        return
       }
+      setProp('selectedProfessorID')(professorId)
+      setProp('professorData')(result || { nome: '' })
+    } finally {
+      setIsLoading(false)
     }
+  }, [])
 
-    loadData()
-  }, [selectedProfessorID, professorService])
+  useEffect(() => {
+    loadProfessorData(selectedProfessorID)
+  }, [selectedProfessorID])
 
+  /// SELECT: onChange={setProp('selectedProfessorID')}
   return (
     <Container layerStyle="container">
       <Toaster />
@@ -84,7 +97,11 @@ export default function DocentesPage() {
           <Select
             listCollection={professorList}
             selectedId={selectedProfessorID}
-            onChange={setProp('selectedProfessorID')}
+            //onChange={setProp('selectedProfessorID')}
+            onChange={value => {
+              // setProp('selectedProfessorID')(Number(value))
+              loadProfessorData(Number(value))
+            }}
           />
         </ChakraStack>
         <Stack>
