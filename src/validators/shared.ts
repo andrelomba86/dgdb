@@ -35,6 +35,7 @@ const toOptionalTrimmedString = (value: unknown) => {
 }
 
 const toDate = (value: unknown) => {
+  console.log('Value being processed by toDate:', value)
   if (value == null || value === '') {
     return value
   }
@@ -72,7 +73,7 @@ export const requiredMinString = (label: string, minLength: number, maxLength: n
       .max(maxLength, `${label} deve ter no máximo ${maxLength} caracteres.`),
   )
 
-export const requiredEmail = (label: string, maxLength: number) =>
+export const email = (label: string, maxLength: number) =>
   z.preprocess(
     toTrimmedString,
     z

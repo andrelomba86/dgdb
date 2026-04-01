@@ -10,7 +10,7 @@ import {
   pageSchema,
   pageSizeSchema,
   requiredDate,
-  requiredEmail,
+  email,
   requiredString,
 } from '@/validators/shared'
 import { telefoneInputSchema } from '@/validators/telefone'
@@ -22,9 +22,9 @@ export const docenteBaseSchema = z.object({
   nome: requiredString('Nome', 100),
   endereco: nullableString(200),
   dataNascimento: nullableDate,
-  matricula: requiredString('Matrícula', 10),
-  email: requiredEmail('E-mail', 80),
-  dataAdmissao: requiredDate('Data de admissão'),
+  matricula: nullableString(10),
+  email: email('E-mail', 80),
+  dataAdmissao: nullableDate,
   regimeJuridico: nullableString(15),
   regimeTrabalho: nullableString(15),
   regimeDataAplicacao: nullableDate,
@@ -56,4 +56,4 @@ export const docenteIdSchema = z.object({
 
 export type CreateDocenteInput = z.input<typeof createDocenteSchema>
 export type UpdateDocenteInput = z.input<typeof updateDocenteSchema>
-export type DocenteListInput = z.input<typeof docenteListSchema>
+export type DocenteListInput = z.infer<typeof docenteListSchema>

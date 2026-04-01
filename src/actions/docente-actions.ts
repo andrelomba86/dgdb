@@ -353,8 +353,8 @@ export async function createDocenteAction(formData: FormData): Promise<void> {
 
   if (!parsed.success) {
     const errorMessages = Object.entries(parsed.error.flatten().fieldErrors)
-      .map(([field, errors]) => `${field}: ${errors?.join(', ')}`)
-      .join('; ')
+      .map(([field, errors]) => `${errors?.join(', ')}`)
+      .join(' ')
     return redirect(`/docentes/novo?erro=${encodeURIComponent(errorMessages)}`)
   }
 

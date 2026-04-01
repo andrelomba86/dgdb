@@ -117,13 +117,12 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
 
             <HStack gap="10px" align="center" wrap="wrap">
               <NextLink href="/" passHref>
-                <Button as="a" colorPalette="gray" rounded="full" variant="outline">
+                <Button colorPalette="gray" rounded="full" variant="outline">
                   Home
                 </Button>
               </NextLink>
               <NextLink href="/docentes/novo" passHref>
                 <Button
-                  as="a"
                   rounded="full"
                   // colorPalette="cyan"
                   // color="#fff"

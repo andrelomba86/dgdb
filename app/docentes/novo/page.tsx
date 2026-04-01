@@ -118,24 +118,18 @@ export default async function NovoDocentePage({ searchParams }: NovoDocentePageP
 
               <Grid gap="14px">
                 <Box>
-                  <label htmlFor="matricula">
-                    Matrícula <span style={{ color: 'red' }}>*</span>
-                  </label>
-                  <Input id="matricula" name="matricula" type="text" maxLength={10} required p="10px 12px" />
+                  <label htmlFor="matricula">Matrícula</label>
+                  <Input id="matricula" name="matricula" type="text" maxLength={10} p="10px 12px" />
                 </Box>
 
                 <Box>
-                  <label htmlFor="email">
-                    E-mail <span style={{ color: 'red' }}>*</span>
-                  </label>
-                  <Input id="email" name="email" type="email" maxLength={80} required p="10px 12px" />
+                  <label htmlFor="email">E-mail</label>
+                  <Input id="email" name="email" type="email" maxLength={80} p="10px 12px" />
                 </Box>
 
                 <Box>
-                  <label htmlFor="dataAdmissao">
-                    Data de Admissão <span style={{ color: 'red' }}>*</span>
-                  </label>
-                  <Input id="dataAdmissao" name="dataAdmissao" type="date" required p="10px 12px" />
+                  <label htmlFor="dataAdmissao">Data de Admissão</label>
+                  <Input id="dataAdmissao" name="dataAdmissao" type="date" p="10px 12px" />
                 </Box>
 
                 <Box>

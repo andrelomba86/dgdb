@@ -12,9 +12,9 @@ model Docente {
   nome                 String          @db.VarChar(100)
   endereco             String?         @db.VarChar(200)
   dataNascimento       DateTime?       @map("data_nascimento") @db.Date
-  matricula            String          @unique(map: "uq_docente_matricula") @db.VarChar(10)
-  email                String          @unique(map: "uq_docente_email") @db.VarChar(80)
-  dataAdmissao         DateTime        @map("data_admissao") @db.Date
+  matricula            String?         @unique(map: "uq_docente_matricula") @db.VarChar(10)
+  email                String?         @unique(map: "uq_docente_email") @db.VarChar(80)
+  dataAdmissao         DateTime?       @map("data_admissao") @db.Date
   regimeJuridico       String?         @map("regime_juridico") @db.VarChar(15)
   regimeTrabalho       String?         @map("regime_trabalho") @db.VarChar(15)
   regimeDataAplicacao  DateTime?       @map("regime_data_aplicacao") @db.Date
@@ -28,13 +28,13 @@ model Docente {
 }
 
 model Cargo {
-  id         Int      @id @default(autoincrement())
-  descricao  String   @db.VarChar(60)
-  funcao     String?  @db.VarChar(60)
-  dataInicio DateTime @map("data_inicio") @db.Date
-  referencia String?  @db.VarChar(45)
-  docenteId  Int      @map("docente_id")
-  docente    Docente  @relation(fields: [docenteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id         Int       @id @default(autoincrement())
+  descricao  String    @db.VarChar(60)
+  funcao     String?   @db.VarChar(60)
+  dataInicio DateTime? @map("data_inicio") @db.Date
+  referencia String?   @db.VarChar(45)
+  docenteId  Int       @map("docente_id")
+  docente    Docente   @relation(fields: [docenteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([docenteId], map: "fk_cargo_docente1_idx")
   @@map("cargo")
