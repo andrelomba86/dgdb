@@ -6,4 +6,5 @@ coverage
 dist
 *.log
 problemas.md
+prompt*.md
 generated
