@@ -22,6 +22,7 @@ model Docente {
   telefones            Telefone[]
   documentos           Documento[]
   contasBancarias      ContaBancaria[]
+  ativo                Boolean         @default(true)
 
   @@map("docente")
 }

@@ -175,7 +175,7 @@ export default async function DocenteDetailPage({ params, searchParams }: Docent
             </Box>
           </Grid>
 
-          <form action={updateDocenteAction} method="post" style={{ display: 'grid', gap: '18px' }}>
+          <form action={updateDocenteAction} style={{ display: 'grid', gap: '18px' }}>
             <input type="hidden" name="id" value={docente.id} />
 
             <fieldset style={{ border: '1px solid #dbeafe', borderRadius: '18px', padding: '20px' }}>
@@ -316,6 +316,19 @@ export default async function DocenteDetailPage({ params, searchParams }: Docent
             </fieldset>
 
             <DocenteRelatedFields initialData={relatedInitialData} />
+
+            <Box>
+              <label htmlFor="ativo">
+                <input
+                  id="ativo"
+                  name="ativo"
+                  type="checkbox"
+                  defaultChecked={docente.ativo}
+                  style={{ marginRight: '8px' }}
+                />
+                Docente ativo
+              </label>
+            </Box>
 
             <HStack gap="10px" wrap="wrap">
               <PendingSubmitButton

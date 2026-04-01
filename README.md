@@ -56,7 +56,7 @@ O projeto já contém o script consolidado [init-db.sql](init-db.sql).
 Para inicializar o banco:
 
 ```bash
-mysql -u root < init-db.sql
+mysql -u root -p < init-db.sql
 ```
 
 Depois execute o seed do usuário administrador:

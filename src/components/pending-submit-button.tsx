@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@chakra-ui/react'
+import { Button, ButtonProps } from '@chakra-ui/react'
 import type { CSSProperties } from 'react'
 import { useFormStatus } from 'react-dom'
 
@@ -8,14 +8,13 @@ type PendingSubmitButtonProps = {
   idleText: string
   pendingText: string
   style?: CSSProperties
-}
+} & Omit<ButtonProps, 'children' | 'type'>
 
-export function PendingSubmitButton({ idleText, pendingText, style }: PendingSubmitButtonProps) {
+export function PendingSubmitButton({ idleText, pendingText, ...props }: PendingSubmitButtonProps) {
   const { pending } = useFormStatus()
-
   return (
-    <Button type="submit" disabled={pending} aria-disabled={pending} style={style}>
-      {pending ? pendingText : idleText}
+    <Button type="submit" loadingText={pendingText} loading={pending} aria-disabled={pending} {...props}>
+      {idleText}
     </Button>
   )
 }

@@ -36,8 +36,6 @@ export class DocenteService {
     return this.repository.list({
       ...filters,
       nome: filters.nome?.trim() || undefined,
-      matricula: filters.matricula?.trim() || undefined,
-      email: filters.email?.trim().toLowerCase() || undefined,
     })
   }
 
@@ -55,10 +53,7 @@ export class DocenteService {
     return this.repository.listAll(
       {
         nome: filters.nome?.trim() || undefined,
-        matricula: filters.matricula?.trim() || undefined,
-        email: filters.email?.trim().toLowerCase() || undefined,
-        dataAdmissaoInicio: filters.dataAdmissaoInicio,
-        dataAdmissaoFim: filters.dataAdmissaoFim,
+        ativo: filters.ativo,
       },
       filters.sortBy,
       filters.sortOrder,
@@ -67,7 +62,7 @@ export class DocenteService {
 
   async create(input: CreateDocenteInput): Promise<DocenteAggregate> {
     const normalizedInput = this.normalizeCreateInput(input)
-    await this.ensureUniqueDocente(normalizedInput.matricula, normalizedInput.email)
+    await this.ensureUniqueDocente(String(normalizedInput.matricula), String(normalizedInput.email))
     this.ensureUniqueCollections(normalizedInput)
 
     return this.repository.create(this.buildCreatePayload(normalizedInput))
@@ -77,7 +72,8 @@ export class DocenteService {
     await this.getById(input.id)
 
     const normalizedInput = this.normalizeUpdateInput(input)
-    await this.ensureUniqueDocente(normalizedInput.matricula, normalizedInput.email, input.id)
+    console.log(normalizedInput, '***')
+    await this.ensureUniqueDocente(String(normalizedInput.matricula), String(normalizedInput.email), input.id)
     this.ensureUniqueCollections(normalizedInput)
 
     return this.repository.update(input.id, this.buildUpdatePayload(normalizedInput))
@@ -108,22 +104,22 @@ export class DocenteService {
 
   private ensureUniqueCollections(input: NormalizedCreateDocenteInput | NormalizedUpdateDocenteInput) {
     uniqueBy(
-      input.telefones,
-      telefone => normalizeCompactValue(telefone.telefone),
+      input.telefones ?? [],
+      telefone => normalizeCompactValue(String(telefone.telefone)),
       'Há telefones duplicados no cadastro informado.',
     )
 
     uniqueBy(
-      input.documentos,
+      input.documentos ?? [],
       documento =>
-        `${normalizeText(documento.tipo).toUpperCase()}:${normalizeDocumentValue(documento.documento)}`,
+        `${normalizeText(String(documento.tipo)).toUpperCase()}:${normalizeDocumentValue(String(documento.documento))}`,
       'Há documentos duplicados no cadastro informado.',
     )
 
     uniqueBy(
-      input.contasBancarias,
+      input.contasBancarias ?? [],
       conta =>
-        `${normalizeBankCode(conta.banco)}:${normalizeCompactValue(conta.agencia)}:${normalizeCompactValue(conta.conta)}`,
+        `${normalizeBankCode(String(conta.banco))}:${normalizeCompactValue(String(conta.agencia))}:${normalizeCompactValue(String(conta.conta))}`,
       'Há contas bancárias duplicadas no cadastro informado.',
     )
   }
@@ -131,33 +127,33 @@ export class DocenteService {
   private normalizeCreateInput(input: CreateDocenteInput): NormalizedCreateDocenteInput {
     return {
       ...input,
-      nome: normalizeText(input.nome),
-      endereco: normalizeOptionalText(input.endereco),
-      matricula: normalizeCompactValue(input.matricula),
-      email: normalizeEmail(input.email),
-      regimeJuridico: normalizeOptionalText(input.regimeJuridico),
-      regimeTrabalho: normalizeOptionalText(input.regimeTrabalho),
-      cargos: input.cargos.map(cargo => ({
+      nome: normalizeText(String(input.nome)),
+      endereco: normalizeOptionalText(input.endereco ? String(input.endereco) : undefined),
+      matricula: normalizeCompactValue(String(input.matricula)),
+      email: normalizeEmail(String(input.email)),
+      regimeJuridico: normalizeOptionalText(input.regimeJuridico ? String(input.regimeJuridico) : undefined),
+      regimeTrabalho: normalizeOptionalText(input.regimeTrabalho ? String(input.regimeTrabalho) : undefined),
+      cargos: (input.cargos ?? []).map(cargo => ({
         ...cargo,
-        descricao: normalizeText(cargo.descricao),
-        funcao: normalizeOptionalText(cargo.funcao),
-        referencia: normalizeOptionalText(cargo.referencia),
+        descricao: normalizeText(String(cargo.descricao)),
+        funcao: normalizeOptionalText(cargo.funcao ? String(cargo.funcao) : undefined),
+        referencia: normalizeOptionalText(cargo.referencia ? String(cargo.referencia) : undefined),
       })),
-      telefones: input.telefones.map((telefone: any) => ({
+      telefones: (input.telefones ?? []).map((telefone: any) => ({
         ...telefone,
-        telefone: normalizeCompactValue(telefone.telefone as string),
-        tipo: normalizeText(telefone.tipo as string),
+        telefone: normalizeCompactValue(String(telefone.telefone)),
+        tipo: normalizeText(String(telefone.tipo)),
       })),
-      documentos: input.documentos.map(documento => ({
+      documentos: (input.documentos ?? []).map(documento => ({
         ...documento,
-        tipo: normalizeText(documento.tipo),
-        documento: normalizeDocumentValue(documento.documento),
+        tipo: normalizeText(String(documento.tipo)),
+        documento: normalizeDocumentValue(String(documento.documento)),
       })),
-      contasBancarias: input.contasBancarias.map(conta => ({
+      contasBancarias: (input.contasBancarias ?? []).map(conta => ({
         ...conta,
-        banco: normalizeBankCode(conta.banco),
-        agencia: normalizeCompactValue(conta.agencia),
-        conta: normalizeCompactValue(conta.conta),
+        banco: normalizeBankCode(String(conta.banco)),
+        agencia: normalizeCompactValue(String(conta.agencia)),
+        conta: normalizeCompactValue(String(conta.conta)),
       })),
     }
   }
@@ -165,73 +161,74 @@ export class DocenteService {
   private normalizeUpdateInput(input: UpdateDocenteInput): NormalizedUpdateDocenteInput {
     return {
       ...input,
-      nome: normalizeText(input.nome),
-      endereco: normalizeOptionalText(input.endereco),
-      matricula: normalizeCompactValue(input.matricula),
-      email: normalizeEmail(input.email),
-      regimeJuridico: normalizeOptionalText(input.regimeJuridico),
-      regimeTrabalho: normalizeOptionalText(input.regimeTrabalho),
-      cargos: input.cargos.map(cargo => ({
+      nome: normalizeText(String(input.nome)),
+      endereco: normalizeOptionalText(input.endereco ? String(input.endereco) : undefined),
+      matricula: normalizeCompactValue(String(input.matricula)),
+      email: normalizeEmail(String(input.email)),
+      regimeJuridico: normalizeOptionalText(input.regimeJuridico ? String(input.regimeJuridico) : undefined),
+      regimeTrabalho: normalizeOptionalText(input.regimeTrabalho ? String(input.regimeTrabalho) : undefined),
+      cargos: (input.cargos ?? []).map(cargo => ({
         ...cargo,
-        descricao: normalizeText(cargo.descricao),
-        funcao: normalizeOptionalText(cargo.funcao),
-        referencia: normalizeOptionalText(cargo.referencia),
+        descricao: normalizeText(String(cargo.descricao)),
+        funcao: normalizeOptionalText(cargo.funcao ? String(cargo.funcao) : undefined),
+        referencia: normalizeOptionalText(cargo.referencia ? String(cargo.referencia) : undefined),
       })),
-      telefones: input.telefones.map((telefone: any) => ({
+      telefones: (input.telefones ?? []).map((telefone: any) => ({
         ...telefone,
-        telefone: normalizeCompactValue(telefone.telefone as string),
-        tipo: normalizeText(telefone.tipo as string),
+        telefone: normalizeCompactValue(String(telefone.telefone)),
+        tipo: normalizeText(String(telefone.tipo)),
       })),
-      documentos: input.documentos.map(documento => ({
+      documentos: (input.documentos ?? []).map(documento => ({
         ...documento,
-        tipo: normalizeText(documento.tipo),
-        documento: normalizeDocumentValue(documento.documento),
+        tipo: normalizeText(String(documento.tipo)),
+        documento: normalizeDocumentValue(String(documento.documento)),
       })),
-      contasBancarias: input.contasBancarias.map(conta => ({
+      contasBancarias: (input.contasBancarias ?? []).map(conta => ({
         ...conta,
-        banco: normalizeBankCode(conta.banco),
-        agencia: normalizeCompactValue(conta.agencia),
-        conta: normalizeCompactValue(conta.conta),
+        banco: normalizeBankCode(String(conta.banco)),
+        agencia: normalizeCompactValue(String(conta.agencia)),
+        conta: normalizeCompactValue(String(conta.conta)),
       })),
     }
   }
 
   private buildCreatePayload(input: CreateDocenteInput): Prisma.DocenteCreateInput {
     return {
-      nome: input.nome,
-      endereco: input.endereco,
-      dataNascimento: input.dataNascimento,
-      matricula: input.matricula,
-      email: input.email,
-      dataAdmissao: input.dataAdmissao,
-      regimeJuridico: input.regimeJuridico,
-      regimeTrabalho: input.regimeTrabalho,
-      regimeDataAplicacao: input.regimeDataAplicacao,
+      nome: String(input.nome),
+      endereco: input.endereco ? String(input.endereco) : undefined,
+      dataNascimento: input.dataNascimento ? String(input.dataNascimento) : undefined,
+      matricula: String(input.matricula),
+      email: String(input.email),
+      dataAdmissao: input.dataAdmissao ? String(input.dataAdmissao) : '',
+      regimeJuridico: input.regimeJuridico ? String(input.regimeJuridico) : undefined,
+      regimeTrabalho: input.regimeTrabalho ? String(input.regimeTrabalho) : undefined,
+      regimeDataAplicacao: input.regimeDataAplicacao ? String(input.regimeDataAplicacao) : undefined,
+      ativo: typeof input.ativo === 'boolean' ? input.ativo : undefined,
       cargos: {
-        create: input.cargos.map(cargo => ({
-          descricao: cargo.descricao,
-          funcao: cargo.funcao,
-          dataInicio: cargo.dataInicio,
-          referencia: cargo.referencia,
+        create: (input.cargos ?? []).map(cargo => ({
+          descricao: String(cargo.descricao),
+          funcao: cargo.funcao ? String(cargo.funcao) : undefined,
+          dataInicio: cargo.dataInicio ? String(cargo.dataInicio) : '',
+          referencia: cargo.referencia ? String(cargo.referencia) : undefined,
         })),
       },
       telefones: {
-        create: input.telefones.map(telefone => ({
-          telefone: telefone.telefone,
-          tipo: telefone.tipo,
+        create: (input.telefones ?? []).map(telefone => ({
+          telefone: String(telefone.telefone),
+          tipo: String(telefone.tipo),
         })),
       },
       documentos: {
-        create: input.documentos.map(documento => ({
-          tipo: documento.tipo,
-          documento: documento.documento,
+        create: (input.documentos ?? []).map(documento => ({
+          tipo: String(documento.tipo),
+          documento: String(documento.documento),
         })),
       },
       contasBancarias: {
-        create: input.contasBancarias.map(conta => ({
-          banco: conta.banco,
-          agencia: conta.agencia,
-          conta: conta.conta,
+        create: (input.contasBancarias ?? []).map(conta => ({
+          banco: String(conta.banco),
+          agencia: String(conta.agencia),
+          conta: String(conta.conta),
         })),
       },
     }
@@ -239,44 +236,45 @@ export class DocenteService {
 
   private buildUpdatePayload(input: UpdateDocenteInput): Prisma.DocenteUpdateInput {
     return {
-      nome: input.nome,
-      endereco: input.endereco,
-      dataNascimento: input.dataNascimento,
-      matricula: input.matricula,
-      email: input.email,
-      dataAdmissao: input.dataAdmissao,
-      regimeJuridico: input.regimeJuridico,
-      regimeTrabalho: input.regimeTrabalho,
-      regimeDataAplicacao: input.regimeDataAplicacao,
+      nome: String(input.nome),
+      endereco: input.endereco ? String(input.endereco) : undefined,
+      dataNascimento: input.dataNascimento ? String(input.dataNascimento) : undefined,
+      matricula: String(input.matricula),
+      email: String(input.email),
+      dataAdmissao: input.dataAdmissao ? String(input.dataAdmissao) : undefined,
+      regimeJuridico: input.regimeJuridico ? String(input.regimeJuridico) : undefined,
+      regimeTrabalho: input.regimeTrabalho ? String(input.regimeTrabalho) : undefined,
+      regimeDataAplicacao: input.regimeDataAplicacao ? String(input.regimeDataAplicacao) : undefined,
+      ativo: typeof input.ativo === 'boolean' ? input.ativo : undefined,
       cargos: {
         deleteMany: {},
-        create: input.cargos.map(cargo => ({
-          descricao: cargo.descricao,
-          funcao: cargo.funcao,
-          dataInicio: cargo.dataInicio,
-          referencia: cargo.referencia,
+        create: (input.cargos ?? []).map(cargo => ({
+          descricao: String(cargo.descricao),
+          funcao: cargo.funcao ? String(cargo.funcao) : undefined,
+          dataInicio: cargo.dataInicio ? String(cargo.dataInicio) : '',
+          referencia: cargo.referencia ? String(cargo.referencia) : undefined,
         })),
       },
       telefones: {
         deleteMany: {},
-        create: input.telefones.map((telefone: any) => ({
-          telefone: telefone.telefone as string,
-          tipo: telefone.tipo as string,
+        create: (input.telefones ?? []).map((telefone: any) => ({
+          telefone: String(telefone.telefone),
+          tipo: String(telefone.tipo),
         })),
       },
       documentos: {
         deleteMany: {},
-        create: input.documentos.map(documento => ({
-          tipo: documento.tipo,
-          documento: documento.documento,
+        create: (input.documentos ?? []).map(documento => ({
+          tipo: String(documento.tipo),
+          documento: String(documento.documento),
         })),
       },
       contasBancarias: {
         deleteMany: {},
-        create: input.contasBancarias.map(conta => ({
-          banco: conta.banco,
-          agencia: conta.agencia,
-          conta: conta.conta,
+        create: (input.contasBancarias ?? []).map(conta => ({
+          banco: String(conta.banco),
+          agencia: String(conta.agencia),
+          conta: String(conta.conta),
         })),
       },
     }

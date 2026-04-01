@@ -170,16 +170,15 @@ function parseRelatedCollections(formData: FormData) {
 }
 
 function parseListFilters(filters: Partial<DocenteListInput>) {
+  // Remove campos inválidos (matricula, email) se existirem
+  const { nome, ativo, sortBy, sortOrder, page, pageSize } = filters
   return docenteListSchema.safeParse({
-    page: filters.page ?? 1,
-    pageSize: filters.pageSize ?? 10,
-    nome: filters.nome,
-    matricula: filters.matricula,
-    email: filters.email,
-    dataAdmissaoInicio: filters.dataAdmissaoInicio,
-    dataAdmissaoFim: filters.dataAdmissaoFim,
-    sortBy: filters.sortBy,
-    sortOrder: filters.sortOrder,
+    page: page ?? 1,
+    pageSize: pageSize ?? 10,
+    nome,
+    ativo,
+    sortBy,
+    sortOrder,
   })
 }
 
@@ -188,9 +187,7 @@ export async function listDocentesAction(
 ): Promise<ActionResult<DocenteListResult>> {
   try {
     await ensureAuthenticated()
-
     const parsed = parseListFilters(filters)
-
     if (!parsed.success) {
       return {
         success: false,
@@ -325,139 +322,132 @@ export async function getDocenteAction(id: number): Promise<ActionResult<Docente
 }
 
 export async function createDocenteAction(formData: FormData): Promise<void> {
+  await ensureAuthenticated()
+  await assertSameOriginRequest()
+
+  const relationsResult = parseRelatedCollections(formData)
+  if (!relationsResult.success) {
+    return redirect(`/docentes/novo?erro=${encodeURIComponent(relationsResult.error)}`)
+  }
+
+  const parsed = createDocenteSchema.safeParse({
+    nome: formData.get('nome'),
+    endereco: formData.get('endereco') || null,
+    dataNascimento: formData.get('dataNascimento')
+      ? new Date(formData.get('dataNascimento') as string)
+      : null,
+    matricula: formData.get('matricula'),
+    email: formData.get('email'),
+    dataAdmissao: new Date(formData.get('dataAdmissao') as string),
+    regimeJuridico: formData.get('regimeJuridico') || null,
+    regimeTrabalho: formData.get('regimeTrabalho') || null,
+    regimeDataAplicacao: formData.get('regimeDataAplicacao')
+      ? new Date(formData.get('regimeDataAplicacao') as string)
+      : null,
+    cargos: relationsResult.data.cargos,
+    telefones: relationsResult.data.telefones,
+    documentos: relationsResult.data.documentos,
+    contasBancarias: relationsResult.data.contasBancarias,
+    ativo: formData.get('ativo'),
+  })
+
+  if (!parsed.success) {
+    const errorMessages = Object.entries(parsed.error.flatten().fieldErrors)
+      .map(([field, errors]) => `${field}: ${errors?.join(', ')}`)
+      .join('; ')
+    return redirect(`/docentes/novo?erro=${encodeURIComponent(errorMessages)}`)
+  }
+
   try {
-    await ensureAuthenticated()
-    await assertSameOriginRequest()
-
-    const relationsResult = parseRelatedCollections(formData)
-
-    if (!relationsResult.success) {
-      redirect(`/docentes/novo?erro=${encodeURIComponent(relationsResult.error)}`)
-    }
-
-    const parsed = createDocenteSchema.safeParse({
-      nome: formData.get('nome'),
-      endereco: formData.get('endereco') || null,
-      dataNascimento: formData.get('dataNascimento')
-        ? new Date(formData.get('dataNascimento') as string)
-        : null,
-      matricula: formData.get('matricula'),
-      email: formData.get('email'),
-      dataAdmissao: new Date(formData.get('dataAdmissao') as string),
-      regimeJuridico: formData.get('regimeJuridico') || null,
-      regimeTrabalho: formData.get('regimeTrabalho') || null,
-      regimeDataAplicacao: formData.get('regimeDataAplicacao')
-        ? new Date(formData.get('regimeDataAplicacao') as string)
-        : null,
-      cargos: relationsResult.data.cargos,
-      telefones: relationsResult.data.telefones,
-      documentos: relationsResult.data.documentos,
-      contasBancarias: relationsResult.data.contasBancarias,
-    })
-
-    if (!parsed.success) {
-      const errorMessages = Object.entries(parsed.error.flatten().fieldErrors)
-        .map(([field, errors]) => `${field}: ${errors?.join(', ')}`)
-        .join('; ')
-      redirect(`/docentes/novo?erro=${encodeURIComponent(errorMessages)}`)
-    }
-
     await docenteService.create(parsed.data)
-    revalidatePath('/docentes')
-    redirect('/docentes?sucesso=Docente criado com sucesso.')
   } catch (error) {
     if (error instanceof ForbiddenError) {
-      redirect('/docentes/novo?erro=Requisi%C3%A7%C3%A3o%20inv%C3%A1lida')
+      return redirect('/docentes/novo?erro=Requisi%C3%A7%C3%A3o%20inv%C3%A1lida')
     }
-
     if (error instanceof ConflictError) {
-      redirect(`/docentes/novo?erro=${encodeURIComponent(error.message)}`)
+      return redirect(`/docentes/novo?erro=${encodeURIComponent(error.message)}`)
     }
-
     console.error('Erro ao criar docente:', error)
-    redirect(`/docentes/novo?erro=${encodeURIComponent('Erro ao criar docente.')}`)
+    return redirect(`/docentes/novo?erro=${encodeURIComponent('Erro ao criar docente.')}`)
   }
+  revalidatePath('/docentes')
+  return redirect('/docentes?sucesso=Docente criado com sucesso.')
 }
 
 export async function updateDocenteAction(formData: FormData): Promise<void> {
   const id = parseInt(formData.get('id') as string, 10)
 
+  await ensureAuthenticated()
+  await assertSameOriginRequest()
+
+  const relationsResult = parseRelatedCollections(formData)
+  if (!relationsResult.success) {
+    return redirect(`/docentes/${id}?erro=${encodeURIComponent(relationsResult.error)}`)
+  }
+
+  const parsed = updateDocenteSchema.safeParse({
+    id,
+    nome: formData.get('nome'),
+    endereco: formData.get('endereco') || null,
+    dataNascimento: formData.get('dataNascimento')
+      ? new Date(formData.get('dataNascimento') as string)
+      : null,
+    matricula: formData.get('matricula'),
+    email: formData.get('email'),
+    dataAdmissao: new Date(formData.get('dataAdmissao') as string),
+    regimeJuridico: formData.get('regimeJuridico') || null,
+    regimeTrabalho: formData.get('regimeTrabalho') || null,
+    regimeDataAplicacao: formData.get('regimeDataAplicacao')
+      ? new Date(formData.get('regimeDataAplicacao') as string)
+      : null,
+    cargos: relationsResult.data.cargos,
+    telefones: relationsResult.data.telefones,
+    documentos: relationsResult.data.documentos,
+    contasBancarias: relationsResult.data.contasBancarias,
+    ativo: formData.get('ativo'),
+  })
+
+  if (!parsed.success) {
+    const errorMessages = Object.entries(parsed.error.flatten().fieldErrors)
+      .map(([field, errors]) => `${field}: ${errors?.join(', ')}`)
+      .join('; ')
+    return redirect(`/docentes/${id}?erro=${encodeURIComponent(errorMessages)}`)
+  }
+
   try {
-    await ensureAuthenticated()
-    await assertSameOriginRequest()
-
-    const relationsResult = parseRelatedCollections(formData)
-
-    if (!relationsResult.success) {
-      redirect(`/docentes/${id}?erro=${encodeURIComponent(relationsResult.error)}`)
-    }
-
-    const parsed = updateDocenteSchema.safeParse({
-      id,
-      nome: formData.get('nome'),
-      endereco: formData.get('endereco') || null,
-      dataNascimento: formData.get('dataNascimento')
-        ? new Date(formData.get('dataNascimento') as string)
-        : null,
-      matricula: formData.get('matricula'),
-      email: formData.get('email'),
-      dataAdmissao: new Date(formData.get('dataAdmissao') as string),
-      regimeJuridico: formData.get('regimeJuridico') || null,
-      regimeTrabalho: formData.get('regimeTrabalho') || null,
-      regimeDataAplicacao: formData.get('regimeDataAplicacao')
-        ? new Date(formData.get('regimeDataAplicacao') as string)
-        : null,
-      cargos: relationsResult.data.cargos,
-      telefones: relationsResult.data.telefones,
-      documentos: relationsResult.data.documentos,
-      contasBancarias: relationsResult.data.contasBancarias,
-    })
-
-    if (!parsed.success) {
-      const errorMessages = Object.entries(parsed.error.flatten().fieldErrors)
-        .map(([field, errors]) => `${field}: ${errors?.join(', ')}`)
-        .join('; ')
-      redirect(`/docentes/${id}?erro=${encodeURIComponent(errorMessages)}`)
-    }
-
     await docenteService.update(parsed.data)
-    revalidatePath('/docentes')
-    revalidatePath(`/docentes/${id}`)
-    redirect(`/docentes/${id}?sucesso=Docente atualizado com sucesso.`)
   } catch (error) {
     if (error instanceof ForbiddenError) {
-      redirect(`/docentes/${id}?erro=Requisi%C3%A7%C3%A3o%20inv%C3%A1lida`)
+      return redirect(`/docentes/${id}?erro=Requisi%C3%A7%C3%A3o%20inv%C3%A1lida`)
     }
-
     if (error instanceof NotFoundError || error instanceof ConflictError) {
-      redirect(`/docentes/${id}?erro=${encodeURIComponent(error.message)}`)
+      return redirect(`/docentes/${id}?erro=${encodeURIComponent(error.message)}`)
     }
-
     console.error('Erro ao atualizar docente:', error)
-    redirect(`/docentes/${id}?erro=${encodeURIComponent('Erro ao atualizar docente.')}`)
+    return redirect(`/docentes/${id}?erro=${encodeURIComponent('Erro ao atualizar docente.')}`)
   }
+  revalidatePath('/docentes')
+  revalidatePath(`/docentes/${id}`)
+  return redirect(`/docentes/${id}?sucesso=${formData.get('ativo')}.`)
 }
 
 export async function deleteDocenteAction(id: number): Promise<void> {
-  try {
-    await ensureAuthenticated()
-    await assertSameOriginRequest()
+  await ensureAuthenticated()
+  await assertSameOriginRequest()
 
+  try {
     const idParsed = docenteIdSchema.parse({ id })
     await docenteService.delete(idParsed.id)
-
-    revalidatePath('/docentes')
-    redirect('/docentes?sucesso=Docente deletado com sucesso.')
   } catch (error) {
     if (error instanceof ForbiddenError) {
-      redirect('/docentes?erro=Requisi%C3%A7%C3%A3o%20inv%C3%A1lida')
+      return redirect('/docentes?erro=Requisi%C3%A7%C3%A3o%20inv%C3%A1lida')
     }
-
     if (error instanceof NotFoundError) {
-      redirect(`/docentes?erro=${encodeURIComponent(error.message)}`)
+      return redirect(`/docentes?erro=${encodeURIComponent(error.message)}`)
     }
-
     console.error('Erro ao deletar docente:', error)
-    redirect(`/docentes?erro=${encodeURIComponent('Erro ao deletar docente.')}`)
+    return redirect(`/docentes?erro=${encodeURIComponent('Erro ao deletar docente.')}`)
   }
+  revalidatePath('/docentes')
+  return redirect('/docentes?sucesso=Docente deletado com sucesso.')
 }

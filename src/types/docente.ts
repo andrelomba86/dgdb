@@ -4,7 +4,7 @@ import type { CreateDocenteInput, DocenteListInput, UpdateDocenteInput } from '@
 
 export type SortDirection = 'asc' | 'desc'
 
-export type DocenteSortField = 'nome' | 'matricula' | 'email' | 'dataAdmissao'
+export type DocenteSortField = 'nome' | 'dataAdmissao'
 
 export type DocenteAggregate = Docente & {
   cargos: Cargo[]

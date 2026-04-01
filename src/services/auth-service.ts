@@ -15,7 +15,6 @@ export class AuthService {
   ): Promise<{ token: string; session: AuthenticatedSession }> {
     const login = input.login.trim().toLowerCase()
     const user = await this.repository.findUserByLogin(login)
-    console.log(login, user)
     if (!user || !user.ativo) {
       throw new UnauthorizedError('Credenciais inválidas.')
     }

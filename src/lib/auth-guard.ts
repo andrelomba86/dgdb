@@ -15,7 +15,7 @@ export const getAuthenticatedUser = async (): Promise<AuthenticatedUser | null> 
   const session = await authService.validateSession(token)
 
   if (!session) {
-    await clearSessionCookie()
+    // Não limpar o cookie aqui, pois pode não estar em Server Action/Route Handler
     return null
   }
 

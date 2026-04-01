@@ -11,25 +11,13 @@ const docenteInclude = {
   contasBancarias: true,
 } satisfies Prisma.DocenteInclude
 
-type DocenteListFilterQuery = Pick<
-  DocenteListInput,
-  'nome' | 'matricula' | 'email' | 'dataAdmissaoInicio' | 'dataAdmissaoFim'
->
+type DocenteListFilterQuery = Pick<DocenteListInput, 'nome' | 'ativo'>
 
 function buildWhere(filters: DocenteListFilterQuery): Prisma.DocenteWhereInput {
   return {
     AND: [
       filters.nome ? { nome: { contains: filters.nome } } : {},
-      filters.matricula ? { matricula: { contains: filters.matricula } } : {},
-      filters.email ? { email: { contains: filters.email } } : {},
-      filters.dataAdmissaoInicio || filters.dataAdmissaoFim
-        ? {
-            dataAdmissao: {
-              gte: filters.dataAdmissaoInicio ?? undefined,
-              lte: filters.dataAdmissaoFim ?? undefined,
-            },
-          }
-        : {},
+      typeof filters.ativo === 'boolean' ? { ativo: filters.ativo } : {},
     ],
   }
 }
@@ -44,17 +32,22 @@ export class DocenteRepository {
   async list(filters: DocenteListInput): Promise<DocenteListResult> {
     const where = buildWhere(filters)
 
-    const skip = (filters.page - 1) * filters.pageSize
+    const page = filters.page ?? 1
+    const pageSize = filters.pageSize ?? 10
+    const sortBy = (filters.sortBy ?? 'id') as string
+    const sortOrder = filters.sortOrder ?? 'asc'
+
+    const skip = (page - 1) * pageSize
 
     const [items, total] = await prisma.$transaction([
       prisma.docente.findMany({
         include: docenteInclude,
         where,
         orderBy: {
-          [filters.sortBy]: filters.sortOrder,
+          [sortBy]: sortOrder,
         },
         skip,
-        take: filters.pageSize,
+        take: pageSize,
       }),
       prisma.docente.count({ where }),
     ])
@@ -62,8 +55,8 @@ export class DocenteRepository {
     return {
       items: items as DocenteAggregate[],
       total,
-      page: filters.page,
-      pageSize: filters.pageSize,
+      page,
+      pageSize,
     }
   }
 
@@ -72,11 +65,13 @@ export class DocenteRepository {
     sortBy: DocenteListInput['sortBy'],
     sortOrder: DocenteListInput['sortOrder'],
   ): Promise<DocenteAggregate[]> {
+    const orderField = (sortBy ?? 'id') as string
+    const orderDirection = sortOrder ?? 'asc'
     const items = await prisma.docente.findMany({
       include: docenteInclude,
       where: buildWhere(filters),
       orderBy: {
-        [sortBy]: sortOrder,
+        [orderField]: orderDirection,
       },
     })
 

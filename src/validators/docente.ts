@@ -15,7 +15,7 @@ import {
 } from '@/validators/shared'
 import { telefoneInputSchema } from '@/validators/telefone'
 
-const sortBySchema = z.enum(['nome', 'matricula', 'email', 'dataAdmissao']).default('nome')
+const sortBySchema = z.enum(['nome', 'dataAdmissao']).default('nome')
 const sortOrderSchema = z.enum(['asc', 'desc']).default('asc')
 
 export const docenteBaseSchema = z.object({
@@ -32,6 +32,7 @@ export const docenteBaseSchema = z.object({
   telefones: z.array(telefoneInputSchema).default([]),
   documentos: z.array(documentoInputSchema).default([]),
   contasBancarias: z.array(contaBancariaInputSchema).default([]),
+  ativo: z.preprocess(v => v === 'on', z.boolean()).default(false),
 })
 
 export const createDocenteSchema = docenteBaseSchema
@@ -44,10 +45,7 @@ export const docenteListSchema = z.object({
   page: pageSchema,
   pageSize: pageSizeSchema,
   nome: z.string().trim().optional(),
-  matricula: z.string().trim().optional(),
-  email: z.string().trim().optional(),
-  dataAdmissaoInicio: nullableDate.optional(),
-  dataAdmissaoFim: nullableDate.optional(),
+  ativo: z.preprocess(v => (v === undefined ? undefined : v === 'on'), z.boolean().optional()),
   sortBy: sortBySchema,
   sortOrder: sortOrderSchema,
 })
@@ -56,6 +54,6 @@ export const docenteIdSchema = z.object({
   id: idSchema,
 })
 
-export type CreateDocenteInput = z.infer<typeof createDocenteSchema>
-export type UpdateDocenteInput = z.infer<typeof updateDocenteSchema>
-export type DocenteListInput = z.infer<typeof docenteListSchema>
+export type CreateDocenteInput = z.input<typeof createDocenteSchema>
+export type UpdateDocenteInput = z.input<typeof updateDocenteSchema>
+export type DocenteListInput = z.input<typeof docenteListSchema>

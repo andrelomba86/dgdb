@@ -89,7 +89,7 @@ export default async function NovoDocentePage({ searchParams }: NovoDocentePageP
             </Box>
           ) : null}
 
-          <form action={createDocenteAction} method="post" style={{ display: 'grid', gap: '18px' }}>
+          <form action={createDocenteAction} style={{ display: 'grid', gap: '18px' }}>
             <fieldset style={{ border: '1px solid #dbeafe', borderRadius: '18px', padding: '20px' }}>
               <legend style={{ padding: '0 8px', fontWeight: 700 }}>Dados pessoais</legend>
 
@@ -156,6 +156,19 @@ export default async function NovoDocentePage({ searchParams }: NovoDocentePageP
             </fieldset>
 
             <DocenteRelatedFields />
+
+            <Box>
+              <label htmlFor="ativo">
+                <input
+                  id="ativo"
+                  name="ativo"
+                  type="checkbox"
+                  defaultChecked
+                  style={{ marginRight: '8px' }}
+                />
+                Docente ativo
+              </label>
+            </Box>
 
             <HStack gap="10px" wrap="wrap">
               <PendingSubmitButton

@@ -1,6 +1,6 @@
 'use client'
 
-import { HStack, Text } from '@chakra-ui/react'
+import { HStack, Text, Button } from '@chakra-ui/react'
 import { useState, useTransition } from 'react'
 
 import { exportDocentesCsvAction, exportDocentesPdfAction } from '@/actions/docente-actions'
@@ -8,11 +8,8 @@ import type { DocenteExportPayload } from '@/lib/docente-export'
 
 type ExportFilters = {
   nome?: string
-  matricula?: string
-  email?: string
-  dataAdmissaoInicio?: string
-  dataAdmissaoFim?: string
-  sortBy?: 'nome' | 'matricula' | 'email' | 'dataAdmissao'
+  ativo?: boolean
+  sortBy?: 'nome' | 'dataAdmissao'
   sortOrder?: 'asc' | 'desc'
 }
 
@@ -50,12 +47,7 @@ function toActionFilters(filters: ExportFilters) {
     page: 1,
     pageSize: 10,
     nome: filters.nome,
-    matricula: filters.matricula,
-    email: filters.email,
-    dataAdmissaoInicio: filters.dataAdmissaoInicio
-      ? new Date(`${filters.dataAdmissaoInicio}T00:00:00`)
-      : undefined,
-    dataAdmissaoFim: filters.dataAdmissaoFim ? new Date(`${filters.dataAdmissaoFim}T23:59:59`) : undefined,
+    ativo: filters.ativo,
     sortBy: filters.sortBy,
     sortOrder: filters.sortOrder,
   }
@@ -86,34 +78,24 @@ export function DocenteExportButtons({ filters }: DocenteExportButtonsProps) {
 
   return (
     <HStack gap="10px" alignItems="center" flexWrap="wrap">
-      <button
-        type="button"
+      <Button
         onClick={() => triggerExport('csv')}
-        disabled={isPending}
-        style={{
-          padding: '10px 16px',
-          borderRadius: '999px',
-          border: '1px solid #bfdbfe',
-          background: '#eff6ff',
-          color: '#1d4ed8',
-          cursor: isPending ? 'wait' : 'pointer',
-        }}>
-        Exportar CSV
-      </button>
-      <button
-        type="button"
+        loading={isPending}
+        loadingText="Exportando..."
+        colorPalette="blue"
+        rounded="full"
+        variant="outline">
+        Exportar para CSV
+      </Button>
+      <Button
         onClick={() => triggerExport('pdf')}
-        disabled={isPending}
-        style={{
-          padding: '10px 16px',
-          borderRadius: '999px',
-          border: '1px solid #c7d2fe',
-          background: '#eef2ff',
-          color: '#4338ca',
-          cursor: isPending ? 'wait' : 'pointer',
-        }}>
-        Exportar PDF
-      </button>
+        loading={isPending}
+        loadingText="Exportando..."
+        colorPalette="blue"
+        rounded="full"
+        variant="outline">
+        Exportar para PDF
+      </Button>
       {error ? <Text color="#9f1239">{error}</Text> : null}
     </HStack>
   )
