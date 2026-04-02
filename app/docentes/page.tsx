@@ -173,15 +173,6 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
               </Field.Root>
 
               <Field.Root>
-                <Field.Label fontWeight="600">Situação</Field.Label>
-                <Checkbox.Root id="ativo" name="ativo" defaultChecked={ativo === 'on'} colorPalette="blue">
-                  <Checkbox.HiddenInput />
-                  <Checkbox.Control />
-                  <Checkbox.Label>Somente ativos</Checkbox.Label>
-                </Checkbox.Root>
-              </Field.Root>
-
-              <Field.Root>
                 <Field.Label fontWeight="600">Ordenar por</Field.Label>
                 <NativeSelect.Root>
                   <NativeSelect.Field id="sortBy" name="sortBy" defaultValue={baseParams.sortBy}>
@@ -201,6 +192,15 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                   </NativeSelect.Field>
                   <NativeSelect.Indicator />
                 </NativeSelect.Root>
+              </Field.Root>
+
+              <Field.Root>
+                <Field.Label fontWeight="600">Situação</Field.Label>
+                <Checkbox.Root id="ativo" name="ativo" defaultChecked={ativo === 'on'} colorPalette="blue">
+                  <Checkbox.HiddenInput />
+                  <Checkbox.Control />
+                  <Checkbox.Label>Somente ativos</Checkbox.Label>
+                </Checkbox.Root>
               </Field.Root>
 
               <HStack gap="10px" align="flex-end" wrap="wrap">

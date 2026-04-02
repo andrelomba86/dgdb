@@ -23,9 +23,8 @@ function buildWhere(filters: DocenteListFilterQuery): Prisma.DocenteWhereInput {
 }
 
 type DocenteConflictParams = {
-  matricula: string
   email: string
-  excludeId?: number
+  ignoreId?: number
 }
 
 export class DocenteRepository {
@@ -90,8 +89,8 @@ export class DocenteRepository {
   async findConflict(params: DocenteConflictParams) {
     return prisma.docente.findFirst({
       where: {
-        OR: [{ matricula: params.matricula }, { email: params.email }],
-        id: params.excludeId ? { not: params.excludeId } : undefined,
+        email: params.email,
+        id: params.ignoreId ? { not: params.ignoreId } : undefined,
       },
       select: {
         id: true,

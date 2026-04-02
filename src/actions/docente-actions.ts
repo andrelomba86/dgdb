@@ -338,7 +338,7 @@ export async function createDocenteAction(formData: FormData): Promise<void> {
       : null,
     matricula: formData.get('matricula'),
     email: formData.get('email'),
-    dataAdmissao: new Date(formData.get('dataAdmissao') as string),
+    dataAdmissao: formData.get('dataAdmissao') ? new Date(formData.get('dataAdmissao') as string) : null,
     regimeJuridico: formData.get('regimeJuridico') || null,
     regimeTrabalho: formData.get('regimeTrabalho') || null,
     regimeDataAplicacao: formData.get('regimeDataAplicacao')
@@ -394,7 +394,7 @@ export async function updateDocenteAction(formData: FormData): Promise<void> {
       : null,
     matricula: formData.get('matricula'),
     email: formData.get('email'),
-    dataAdmissao: new Date(formData.get('dataAdmissao') as string),
+    dataAdmissao: formData.get('dataAdmissao') ? new Date(formData.get('dataAdmissao') as string) : null,
     regimeJuridico: formData.get('regimeJuridico') || null,
     regimeTrabalho: formData.get('regimeTrabalho') || null,
     regimeDataAplicacao: formData.get('regimeDataAplicacao')
@@ -428,7 +428,7 @@ export async function updateDocenteAction(formData: FormData): Promise<void> {
   }
   revalidatePath('/docentes')
   revalidatePath(`/docentes/${id}`)
-  return redirect(`/docentes/${id}?sucesso=${formData.get('ativo')}.`)
+  return redirect(`/docentes/${id}?sucesso=Docente atualizado com sucesso.`)
 }
 
 export async function deleteDocenteAction(id: number): Promise<void> {

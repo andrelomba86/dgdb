@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `dg`.`docente` (
   `data_nascimento` DATE NULL,
   `matricula` VARCHAR(10) NOT NULL,
   `email` VARCHAR(80) NOT NULL,
-  `data_admissao` DATE NOT NULL,
+  `data_admissao` DATE NULL,
   `regime_juridico` VARCHAR(15) NULL,
   `regime_trabalho` VARCHAR(15) NULL,
   `regime_data_aplicacao` DATE NULL,

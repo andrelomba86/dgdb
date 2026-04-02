@@ -10,7 +10,7 @@ import {
   pageSchema,
   pageSizeSchema,
   requiredDate,
-  email,
+  nullableEmail,
   requiredString,
 } from '@/validators/shared'
 import { telefoneInputSchema } from '@/validators/telefone'
@@ -23,7 +23,7 @@ export const docenteBaseSchema = z.object({
   endereco: nullableString(200),
   dataNascimento: nullableDate,
   matricula: nullableString(10),
-  email: email('E-mail', 80),
+  email: nullableEmail('E-mail', 80),
   dataAdmissao: nullableDate,
   regimeJuridico: nullableString(15),
   regimeTrabalho: nullableString(15),

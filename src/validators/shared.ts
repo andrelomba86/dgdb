@@ -35,7 +35,6 @@ const toOptionalTrimmedString = (value: unknown) => {
 }
 
 const toDate = (value: unknown) => {
-  console.log('Value being processed by toDate:', value)
   if (value == null || value === '') {
     return value
   }
@@ -73,14 +72,16 @@ export const requiredMinString = (label: string, minLength: number, maxLength: n
       .max(maxLength, `${label} deve ter no máximo ${maxLength} caracteres.`),
   )
 
-export const email = (label: string, maxLength: number) =>
+export const nullableEmail = (label: string, maxLength: number) =>
   z.preprocess(
-    toTrimmedString,
-    z
-      .string({ required_error: `${label} é obrigatório.` })
-      .min(1, `${label} é obrigatório.`)
-      .max(maxLength, `${label} deve ter no máximo ${maxLength} caracteres.`)
-      .email(`${label} inválido.`),
+    toNullableTrimmedString,
+    z.union([
+      z
+        .string({ required_error: `${label} é obrigatório.` })
+        .max(maxLength, `${label} deve ter no máximo ${maxLength} caracteres.`)
+        .email(`${label} inválido.`),
+      z.null(),
+    ]),
   )
 
 export const requiredPatternString = (

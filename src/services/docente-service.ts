@@ -32,6 +32,23 @@ const uniqueBy = <T>(items: T[], getKey: (item: T) => string, message: string) =
 export class DocenteService {
   constructor(private readonly repository: DocenteRepository = docenteRepository) {}
 
+  private toDateOrUndefined(value: unknown): Date | undefined {
+    if (value == null || value === '') {
+      return undefined
+    }
+
+    if (value instanceof Date) {
+      return Number.isNaN(value.getTime()) ? undefined : value
+    }
+
+    if (typeof value === 'string' || typeof value === 'number') {
+      const parsed = new Date(value)
+      return Number.isNaN(parsed.getTime()) ? undefined : parsed
+    }
+
+    return undefined
+  }
+
   async list(filters: DocenteListInput): Promise<DocenteListResult> {
     return this.repository.list({
       ...filters,
@@ -62,7 +79,7 @@ export class DocenteService {
 
   async create(input: CreateDocenteInput): Promise<DocenteAggregate> {
     const normalizedInput = this.normalizeCreateInput(input)
-    await this.ensureUniqueDocente(String(normalizedInput.matricula), String(normalizedInput.email))
+    await this.ensureUniqueDocente(String(normalizedInput.email))
     this.ensureUniqueCollections(normalizedInput)
 
     return this.repository.create(this.buildCreatePayload(normalizedInput))
@@ -73,7 +90,7 @@ export class DocenteService {
 
     const normalizedInput = this.normalizeUpdateInput(input)
     console.log(normalizedInput, '***')
-    await this.ensureUniqueDocente(String(normalizedInput.matricula), String(normalizedInput.email), input.id)
+    await this.ensureUniqueDocente(String(normalizedInput.email), input.id)
     this.ensureUniqueCollections(normalizedInput)
 
     return this.repository.update(input.id, this.buildUpdatePayload(normalizedInput))
@@ -84,30 +101,29 @@ export class DocenteService {
     await this.repository.delete(id)
   }
 
-  private async ensureUniqueDocente(matricula: string, email: string, excludeId?: number) {
+  private async ensureUniqueDocente(email: string, ignoreId?: number) {
     const conflict = await this.repository.findConflict({
-      matricula,
       email,
-      excludeId,
+      ignoreId,
     })
 
     if (!conflict) {
       return
     }
 
-    if (conflict.matricula === matricula) {
-      throw new ConflictError('Já existe um docente com esta matrícula.')
-    }
+    // if (conflict.matricula === matricula) {
+    //   throw new ConflictError('Já existe um docente com esta matrícula.')
+    // }
 
     throw new ConflictError('Já existe um docente com este e-mail.')
   }
 
   private ensureUniqueCollections(input: NormalizedCreateDocenteInput | NormalizedUpdateDocenteInput) {
-    uniqueBy(
-      input.telefones ?? [],
-      telefone => normalizeCompactValue(String(telefone.telefone)),
-      'Há telefones duplicados no cadastro informado.',
-    )
+    // uniqueBy(
+    //   input.telefones ?? [],
+    //   telefone => normalizeCompactValue(String(telefone.telefone)),
+    //   'Há telefones duplicados no cadastro informado.',
+    // )
 
     uniqueBy(
       input.documentos ?? [],
@@ -196,19 +212,19 @@ export class DocenteService {
     return {
       nome: String(input.nome),
       endereco: input.endereco ? String(input.endereco) : undefined,
-      dataNascimento: input.dataNascimento ? String(input.dataNascimento) : undefined,
+      dataNascimento: this.toDateOrUndefined(input.dataNascimento),
       matricula: String(input.matricula),
       email: String(input.email),
-      dataAdmissao: input.dataAdmissao ? String(input.dataAdmissao) : '',
+      dataAdmissao: this.toDateOrUndefined(input.dataAdmissao),
       regimeJuridico: input.regimeJuridico ? String(input.regimeJuridico) : undefined,
       regimeTrabalho: input.regimeTrabalho ? String(input.regimeTrabalho) : undefined,
-      regimeDataAplicacao: input.regimeDataAplicacao ? String(input.regimeDataAplicacao) : undefined,
+      regimeDataAplicacao: this.toDateOrUndefined(input.regimeDataAplicacao),
       ativo: typeof input.ativo === 'boolean' ? input.ativo : undefined,
       cargos: {
         create: (input.cargos ?? []).map(cargo => ({
           descricao: String(cargo.descricao),
           funcao: cargo.funcao ? String(cargo.funcao) : undefined,
-          dataInicio: cargo.dataInicio ? String(cargo.dataInicio) : '',
+          dataInicio: this.toDateOrUndefined(cargo.dataInicio),
           referencia: cargo.referencia ? String(cargo.referencia) : undefined,
         })),
       },
@@ -238,20 +254,20 @@ export class DocenteService {
     return {
       nome: String(input.nome),
       endereco: input.endereco ? String(input.endereco) : undefined,
-      dataNascimento: input.dataNascimento ? String(input.dataNascimento) : undefined,
+      dataNascimento: this.toDateOrUndefined(input.dataNascimento),
       matricula: String(input.matricula),
       email: String(input.email),
-      dataAdmissao: input.dataAdmissao ? String(input.dataAdmissao) : undefined,
+      dataAdmissao: this.toDateOrUndefined(input.dataAdmissao),
       regimeJuridico: input.regimeJuridico ? String(input.regimeJuridico) : undefined,
       regimeTrabalho: input.regimeTrabalho ? String(input.regimeTrabalho) : undefined,
-      regimeDataAplicacao: input.regimeDataAplicacao ? String(input.regimeDataAplicacao) : undefined,
+      regimeDataAplicacao: this.toDateOrUndefined(input.regimeDataAplicacao),
       ativo: typeof input.ativo === 'boolean' ? input.ativo : undefined,
       cargos: {
         deleteMany: {},
         create: (input.cargos ?? []).map(cargo => ({
           descricao: String(cargo.descricao),
           funcao: cargo.funcao ? String(cargo.funcao) : undefined,
-          dataInicio: cargo.dataInicio ? String(cargo.dataInicio) : '',
+          dataInicio: this.toDateOrUndefined(cargo.dataInicio),
           referencia: cargo.referencia ? String(cargo.referencia) : undefined,
         })),
       },
