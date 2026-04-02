@@ -336,8 +336,8 @@ export async function createDocenteAction(formData: FormData): Promise<void> {
     dataNascimento: formData.get('dataNascimento')
       ? new Date(formData.get('dataNascimento') as string)
       : null,
-    matricula: formData.get('matricula'),
-    email: formData.get('email'),
+    matricula: formData.get('matricula') || null,
+    email: formData.get('email') || null,
     dataAdmissao: formData.get('dataAdmissao') ? new Date(formData.get('dataAdmissao') as string) : null,
     regimeJuridico: formData.get('regimeJuridico') || null,
     regimeTrabalho: formData.get('regimeTrabalho') || null,

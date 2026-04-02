@@ -23,7 +23,8 @@ function buildWhere(filters: DocenteListFilterQuery): Prisma.DocenteWhereInput {
 }
 
 type DocenteConflictParams = {
-  email: string
+  matricula?: string | null
+  email?: string | null
   ignoreId?: number
 }
 
@@ -89,8 +90,8 @@ export class DocenteRepository {
   async findConflict(params: DocenteConflictParams) {
     return prisma.docente.findFirst({
       where: {
-        email: params.email,
-        id: params.ignoreId ? { not: params.ignoreId } : undefined,
+        OR: [{ matricula: params.matricula }, { email: params.email }],
+        id: params.ignoreId ?? { not: params.ignoreId },
       },
       select: {
         id: true,
@@ -101,6 +102,7 @@ export class DocenteRepository {
   }
 
   async create(data: Prisma.DocenteCreateInput): Promise<DocenteAggregate> {
+    console.log(data, 'create docente data')
     const docente = await prisma.docente.create({
       data,
       include: docenteInclude,

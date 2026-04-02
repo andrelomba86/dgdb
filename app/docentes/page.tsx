@@ -268,7 +268,9 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                           </Text>
                         </Table.Cell>
                         <Table.Cell textAlign="center">
-                          {new Date(doc.dataAdmissao).toLocaleDateString('pt-BR')}
+                          {doc.dataAdmissao
+                            ? new Date(doc.dataAdmissao).toLocaleDateString('pt-BR')
+                            : 'Data não informada'}
                         </Table.Cell>
                         <Table.Cell textAlign="center">
                           {doc.ativo ? (

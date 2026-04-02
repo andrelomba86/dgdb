@@ -33,6 +33,7 @@ export class DocenteService {
   constructor(private readonly repository: DocenteRepository = docenteRepository) {}
 
   private toDateOrUndefined(value: unknown): Date | undefined {
+    console.log(value, 'toDateOrUndefined')
     if (value == null || value === '') {
       return undefined
     }
@@ -79,7 +80,7 @@ export class DocenteService {
 
   async create(input: CreateDocenteInput): Promise<DocenteAggregate> {
     const normalizedInput = this.normalizeCreateInput(input)
-    await this.ensureUniqueDocente(String(normalizedInput.email))
+    await this.ensureUniqueDocente(String(normalizedInput.matricula), String(normalizedInput.email))
     this.ensureUniqueCollections(normalizedInput)
 
     return this.repository.create(this.buildCreatePayload(normalizedInput))
@@ -90,7 +91,7 @@ export class DocenteService {
 
     const normalizedInput = this.normalizeUpdateInput(input)
     console.log(normalizedInput, '***')
-    await this.ensureUniqueDocente(String(normalizedInput.email), input.id)
+    await this.ensureUniqueDocente(String(normalizedInput.matricula), String(normalizedInput.email), input.id)
     this.ensureUniqueCollections(normalizedInput)
 
     return this.repository.update(input.id, this.buildUpdatePayload(normalizedInput))
@@ -101,8 +102,9 @@ export class DocenteService {
     await this.repository.delete(id)
   }
 
-  private async ensureUniqueDocente(email: string, ignoreId?: number) {
+  private async ensureUniqueDocente(matricula: string, email: string, ignoreId?: number) {
     const conflict = await this.repository.findConflict({
+      matricula,
       email,
       ignoreId,
     })
@@ -111,9 +113,9 @@ export class DocenteService {
       return
     }
 
-    // if (conflict.matricula === matricula) {
-    //   throw new ConflictError('Já existe um docente com esta matrícula.')
-    // }
+    if (conflict.matricula === matricula) {
+      throw new ConflictError('Já existe um docente com esta matrícula.')
+    }
 
     throw new ConflictError('Já existe um docente com este e-mail.')
   }
@@ -145,8 +147,8 @@ export class DocenteService {
       ...input,
       nome: normalizeText(String(input.nome)),
       endereco: normalizeOptionalText(input.endereco ? String(input.endereco) : undefined),
-      matricula: normalizeCompactValue(String(input.matricula)),
-      email: normalizeEmail(String(input.email)),
+      matricula: input.matricula ? normalizeCompactValue(String(input.matricula)) : undefined,
+      email: input.email ? normalizeEmail(String(input.email)) : undefined,
       regimeJuridico: normalizeOptionalText(input.regimeJuridico ? String(input.regimeJuridico) : undefined),
       regimeTrabalho: normalizeOptionalText(input.regimeTrabalho ? String(input.regimeTrabalho) : undefined),
       cargos: (input.cargos ?? []).map(cargo => ({
@@ -179,8 +181,8 @@ export class DocenteService {
       ...input,
       nome: normalizeText(String(input.nome)),
       endereco: normalizeOptionalText(input.endereco ? String(input.endereco) : undefined),
-      matricula: normalizeCompactValue(String(input.matricula)),
-      email: normalizeEmail(String(input.email)),
+      matricula: input.matricula ? normalizeCompactValue(String(input.matricula)) : undefined,
+      email: input.email ? normalizeEmail(String(input.email)) : undefined,
       regimeJuridico: normalizeOptionalText(input.regimeJuridico ? String(input.regimeJuridico) : undefined),
       regimeTrabalho: normalizeOptionalText(input.regimeTrabalho ? String(input.regimeTrabalho) : undefined),
       cargos: (input.cargos ?? []).map(cargo => ({
@@ -209,12 +211,13 @@ export class DocenteService {
   }
 
   private buildCreatePayload(input: CreateDocenteInput): Prisma.DocenteCreateInput {
+    console.log(this.toDateOrUndefined(input.dataAdmissao), 'dataAdmissao')
     return {
       nome: String(input.nome),
       endereco: input.endereco ? String(input.endereco) : undefined,
       dataNascimento: this.toDateOrUndefined(input.dataNascimento),
-      matricula: String(input.matricula),
-      email: String(input.email),
+      matricula: input.matricula ? String(input.matricula) : undefined,
+      email: input.email ? String(input.email) : undefined,
       dataAdmissao: this.toDateOrUndefined(input.dataAdmissao),
       regimeJuridico: input.regimeJuridico ? String(input.regimeJuridico) : undefined,
       regimeTrabalho: input.regimeTrabalho ? String(input.regimeTrabalho) : undefined,
@@ -255,8 +258,8 @@ export class DocenteService {
       nome: String(input.nome),
       endereco: input.endereco ? String(input.endereco) : undefined,
       dataNascimento: this.toDateOrUndefined(input.dataNascimento),
-      matricula: String(input.matricula),
-      email: String(input.email),
+      matricula: input.matricula ? String(input.matricula) : undefined,
+      email: input.email ? String(input.email) : undefined,
       dataAdmissao: this.toDateOrUndefined(input.dataAdmissao),
       regimeJuridico: input.regimeJuridico ? String(input.regimeJuridico) : undefined,
       regimeTrabalho: input.regimeTrabalho ? String(input.regimeTrabalho) : undefined,
