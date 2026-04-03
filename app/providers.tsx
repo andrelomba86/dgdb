@@ -3,10 +3,17 @@
 import { ChakraProvider, defaultSystem } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
+import { Toaster } from '@/components/toaster-notifier'
+
 type ProvidersProps = {
   children: ReactNode
 }
 
 export function Providers({ children }: ProvidersProps) {
-  return <ChakraProvider value={defaultSystem}>{children}</ChakraProvider>
+  return (
+    <ChakraProvider value={defaultSystem}>
+      {children}
+      <Toaster />
+    </ChakraProvider>
+  )
 }

@@ -1,15 +1,13 @@
 import { redirect } from 'next/navigation'
 
-import NextLink from 'next/link'
+import { Box, Heading, Text } from '@chakra-ui/react'
 
-import { Box, Grid, Heading, HStack, Link, Text } from '@chakra-ui/react'
-
-import { deleteDocenteAction, getDocenteAction, updateDocenteAction } from '@/actions/docente-actions'
+import { deleteDocenteAction, getDocenteAction } from '@/actions/docente-actions'
 import { ConfirmSubmitButton } from '@/components/confirm-submit-button'
-import { DocenteFormFields, type DocenteFormValues } from '@/components/docente-form-fields'
+import type { DocenteFormValues } from '@/components/docente-form-fields'
 import { DocentePageShell } from '@/components/docente-page-shell'
-import { type RelatedEntitiesInitialData } from '@/components/docente-related-fields'
-import { PendingSubmitButton } from '@/components/pending-submit-button'
+import type { RelatedEntitiesInitialData } from '@/components/docente-related-fields'
+import { UpdateDocenteForm } from '@/components/update-docente-form'
 import { requireAuthenticatedUser } from '@/lib/auth-guard'
 
 function getFirstParam(value: string | string[] | undefined) {
@@ -26,7 +24,8 @@ type DocenteDetailPageProps = {
 }
 
 export default async function DocenteDetailPage({ params, searchParams }: DocenteDetailPageProps) {
-  const user = await requireAuthenticatedUser()
+  await requireAuthenticatedUser()
+
   const { id } = await params
   const resolvedParams = await searchParams
 
@@ -35,8 +34,9 @@ export default async function DocenteDetailPage({ params, searchParams }: Docent
     redirect('/docentes')
   }
 
-  const result = await getDocenteAction(docId)
+  const successMessage = getFirstParam(resolvedParams.sucesso)
 
+  const result = await getDocenteAction(docId)
   if (!result.success || !result.data) {
     return (
       <Box as="main" minH="100vh" p="24px" bg="linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%)">
@@ -44,10 +44,8 @@ export default async function DocenteDetailPage({ params, searchParams }: Docent
       </Box>
     )
   }
-
   const docente = result.data
-  const errorMessage = getFirstParam(resolvedParams.erro)
-  const successMessage = getFirstParam(resolvedParams.sucesso)
+
   const docenteFormValues: DocenteFormValues = {
     nome: docente.nome,
     dataNascimento: toDateInputValue(docente.dataNascimento),
@@ -87,44 +85,13 @@ export default async function DocenteDetailPage({ params, searchParams }: Docent
   }
 
   return (
-    <DocentePageShell
-      badge="Registro docente"
-      title={docente.nome}
-      errorMessage={errorMessage}
-      successMessage={successMessage}>
-      <form action={updateDocenteAction} style={{ display: 'grid', gap: '18px' }}>
-        <input type="hidden" name="id" value={docente.id} />
-
-        <DocenteFormFields values={docenteFormValues} relatedInitialData={relatedInitialData} />
-
-        <HStack gap="10px" wrap="wrap">
-          <PendingSubmitButton
-            idleText="Atualizar docente"
-            pendingText="Atualizando..."
-            style={{
-              padding: '11px 18px',
-              background: 'linear-gradient(135deg, #1d4ed8 0%, #38bdf8 100%)',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '999px',
-              cursor: 'pointer',
-            }}
-          />
-          <Link
-            as={NextLink}
-            href="/docentes"
-            px="18px"
-            py="11px"
-            color="#334155"
-            textDecoration="none"
-            borderRadius="999px"
-            border="1px solid #cbd5e1"
-            display="inline-flex"
-            alignItems="center">
-            Cancelar
-          </Link>
-        </HStack>
-      </form>
+    <DocentePageShell badge="Registro docente" title={docente.nome}>
+      <UpdateDocenteForm
+        id={docente.id}
+        initialValues={docenteFormValues}
+        relatedInitialData={relatedInitialData}
+        initialSuccessMessage={successMessage}
+      />
 
       <Box mt="16px" p="18px" border="1px solid #fecdd3" bg="#fff1f2" borderRadius="18px">
         <form action={deleteDocenteAction.bind(null, docente.id)}>

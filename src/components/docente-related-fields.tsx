@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Button, Grid, Input, Stack } from '@chakra-ui/react'
-import { type ChangeEvent, useState } from 'react'
+import { type ChangeEvent, useEffect, useState } from 'react'
 
 type CargoFormValue = {
   id?: number
@@ -63,6 +63,13 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
   const [contasBancarias, setContasBancarias] = useState<ContaBancariaFormValue[]>(
     initialData.contasBancarias,
   )
+
+  useEffect(() => {
+    setCargos(initialData.cargos)
+    setTelefones(initialData.telefones)
+    setDocumentos(initialData.documentos)
+    setContasBancarias(initialData.contasBancarias)
+  }, [initialData])
 
   return (
     <>

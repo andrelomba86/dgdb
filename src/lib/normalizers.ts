@@ -11,7 +11,14 @@ export const normalizeOptionalText = (value: string | null | undefined) => {
   return normalized.length > 0 ? normalized : null
 }
 
-export const normalizeEmail = (value: string) => collapseWhitespace(value).toLowerCase()
+export const normalizeEmail = (value: string | null | undefined) => {
+  if (value == null) {
+    return null
+  }
+
+  const normalized = collapseWhitespace(value).toLowerCase()
+  return normalized.length > 0 ? normalized : null
+}
 
 export const normalizeDocumentValue = (value: string) => collapseWhitespace(value).toUpperCase()
 

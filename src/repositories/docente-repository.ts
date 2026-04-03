@@ -91,7 +91,10 @@ export class DocenteRepository {
     console.log('OR:', [{ matricula: params.matricula }, { email: params.email }])
     return prisma.docente.findFirst({
       where: {
-        OR: [{ matricula: params.matricula }, { email: params.email }],
+        OR: [
+          { ...(params.matricula ? { matricula: params.matricula } : {}) },
+          { ...(params.email ? { email: params.email } : {}) },
+        ],
         id: params.ignoreId ? { not: params.ignoreId } : undefined,
       },
       select: {

@@ -1,7 +1,6 @@
 import NextLink from 'next/link'
 
 import {
-  Alert,
   Box,
   Button,
   Checkbox,
@@ -140,19 +139,6 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
               </form>
             </HStack>
           </Flex>
-
-          {successMessage ? (
-            <Alert.Root status="success" mb="14px" borderRadius="14px" colorPalette="green">
-              <Alert.Indicator />
-              <Alert.Description>{successMessage}</Alert.Description>
-            </Alert.Root>
-          ) : null}
-          {errorMessage ? (
-            <Alert.Root status="error" mb="14px" borderRadius="14px" colorPalette="red">
-              <Alert.Indicator />
-              <Alert.Description>{errorMessage}</Alert.Description>
-            </Alert.Root>
-          ) : null}
 
           <Box bg="white" border="1px solid #dbe3f0" borderRadius="18px" p="15px" mb="22px">
             <Heading size="md" mt="0">

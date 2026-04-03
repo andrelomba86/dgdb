@@ -27,6 +27,9 @@ import {
   docenteListSchema,
   updateDocenteSchema,
 } from '@/validators/docente'
+import { Docente } from '@prisma/client'
+import { DocenteFormValues } from '@/components/docente-form-fields'
+import { RelatedEntitiesInitialData } from '@/components/docente-related-fields'
 
 type ActionResult<T> = {
   success: boolean
@@ -34,14 +37,28 @@ type ActionResult<T> = {
   error?: string
 }
 
+export type DocenteFormState = {
+  result: {
+    success?: string
+    error?: string
+  }
+  formValues?: DocenteFormValues
+  relatedInitialData?: RelatedEntitiesInitialData
+}
+
 async function ensureAuthenticated() {
   await requireAuthenticatedUser()
 }
 
 function formatZodIssues(error: z.ZodError) {
-  return error.issues
-    .map(issue => `${issue.path.length > 0 ? issue.path.join('.') : 'form'}: ${issue.message}`)
-    .join('; ')
+  console.log(error.issues)
+
+  return (
+    error.issues
+      //código anterior: .map(issue => `${issue.path.length > 0 ? issue.path.join(') ') : 'form'}: ${issue.message}`)
+      .map(issue => `${issue.message}`)
+      .join(' ')
+  )
 }
 
 const toTrimmedString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
@@ -103,7 +120,7 @@ function parseJsonArrayField<T>(
     if (!parsed.success) {
       return {
         success: false as const,
-        error: `${label}: ${formatZodIssues(parsed.error)}`,
+        error: `[${label}]: ${formatZodIssues(parsed.error)}`,
       }
     }
 
@@ -166,6 +183,105 @@ function parseRelatedCollections(formData: FormData) {
       documentos: documentos.data,
       contasBancarias: contasBancarias.data,
     },
+  }
+}
+
+function toDateInputValue(value: Date | null | undefined) {
+  return value ? new Date(value).toISOString().split('T')[0] : ''
+}
+
+function toInputString(value: unknown) {
+  return typeof value === 'string' ? value : value == null ? '' : String(value)
+}
+
+function toOptionalId(value: unknown) {
+  if (typeof value === 'number' && Number.isInteger(value) && value > 0) {
+    return value
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number.parseInt(value, 10)
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+  }
+
+  return undefined
+}
+
+function parseRawArrayField(formData: FormData, fieldName: string) {
+  const rawValue = formData.get(fieldName)
+
+  if (typeof rawValue !== 'string' || rawValue.trim() === '') {
+    return []
+  }
+
+  try {
+    const parsed = JSON.parse(rawValue) as unknown
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+function buildDocenteFormValues(formData: FormData): DocenteFormValues {
+  return {
+    nome: toInputString(formData.get('nome')),
+    dataNascimento: toInputString(formData.get('dataNascimento')),
+    endereco: toInputString(formData.get('endereco')),
+    matricula: toInputString(formData.get('matricula')),
+    email: toInputString(formData.get('email')),
+    dataAdmissao: toInputString(formData.get('dataAdmissao')),
+    regimeJuridico: toInputString(formData.get('regimeJuridico')),
+    regimeTrabalho: toInputString(formData.get('regimeTrabalho')),
+    regimeDataAplicacao: toInputString(formData.get('regimeDataAplicacao')),
+    ativo: formData.get('ativo') === 'on',
+  }
+}
+
+function buildRelatedInitialData(formData: FormData): RelatedEntitiesInitialData {
+  const cargos = parseRawArrayField(formData, 'cargosData')
+  const telefones = parseRawArrayField(formData, 'telefonesData')
+  const documentos = parseRawArrayField(formData, 'documentosData')
+  const contasBancarias = parseRawArrayField(formData, 'contasBancariasData')
+
+  return {
+    cargos: cargos.map(cargo => {
+      const value = cargo as Record<string, unknown>
+      return {
+        id: toOptionalId(value.id),
+        descricao: toInputString(value.descricao),
+        funcao: toInputString(value.funcao),
+        dataInicio: toInputString(value.dataInicio),
+        referencia: toInputString(value.referencia),
+      }
+    }),
+    telefones: telefones.map(telefone => {
+      const value = telefone as Record<string, unknown>
+      const tipo = toInputString(value.tipo)
+      return {
+        id: toOptionalId(value.id),
+        telefone: toInputString(value.telefone),
+        tipo: ['celular', 'comercial', 'residencial'].includes(tipo)
+          ? (tipo as 'celular' | 'comercial' | 'residencial')
+          : 'celular',
+      }
+    }),
+    documentos: documentos.map(documento => {
+      const value = documento as Record<string, unknown>
+      return {
+        id: toOptionalId(value.id),
+        tipo: toInputString(value.tipo),
+        documento: toInputString(value.documento),
+      }
+    }),
+    contasBancarias: contasBancarias.map(conta => {
+      const value = conta as Record<string, unknown>
+      return {
+        id: toOptionalId(value.id),
+        banco: toInputString(value.banco),
+        agencia: toInputString(value.agencia),
+        conta: toInputString(value.conta),
+      }
+    }),
   }
 }
 
@@ -321,13 +437,21 @@ export async function getDocenteAction(id: number): Promise<ActionResult<Docente
   }
 }
 
-export async function createDocenteAction(formData: FormData): Promise<void> {
+export async function createDocenteAction(
+  prevState: DocenteFormState,
+  formData: FormData,
+): Promise<DocenteFormState> {
   await ensureAuthenticated()
   await assertSameOriginRequest()
 
+  const preservedState = {
+    formValues: buildDocenteFormValues(formData),
+    relatedInitialData: buildRelatedInitialData(formData),
+  }
+
   const relationsResult = parseRelatedCollections(formData)
   if (!relationsResult.success) {
-    return redirect(`/docentes/novo?erro=${encodeURIComponent(relationsResult.error)}`)
+    return { result: { error: relationsResult.error }, ...preservedState }
   }
 
   const parsed = createDocenteSchema.safeParse({
@@ -356,34 +480,44 @@ export async function createDocenteAction(formData: FormData): Promise<void> {
       .map(([, errors]) => (Array.isArray(errors) ? errors.join(', ') : ''))
       .filter(Boolean)
       .join(' ')
-    return redirect(`/docentes/novo?erro=${encodeURIComponent(errorMessages)}`)
+    return { result: { error: errorMessages }, ...preservedState }
   }
 
   try {
     await docenteService.create(parsed.data)
   } catch (error) {
     if (error instanceof ForbiddenError) {
-      return redirect('/docentes/novo?erro=Requisi%C3%A7%C3%A3o%20inv%C3%A1lida')
+      return { result: { error: 'Requisição inválida.' }, ...preservedState }
     }
     if (error instanceof ConflictError) {
-      return redirect(`/docentes/novo?erro=${encodeURIComponent(error.message)}`)
+      return { result: { error: error.message }, ...preservedState }
     }
     console.error('Erro ao criar docente:', error)
-    return redirect(`/docentes/novo?erro=${encodeURIComponent('Erro ao criar docente.')}`)
+    return { result: { error: 'Erro ao criar docente.' }, ...preservedState }
   }
   revalidatePath('/docentes')
-  return redirect('/docentes?sucesso=Docente criado com sucesso.')
+  redirect('/docentes?sucesso=Docente criado com sucesso.')
+  return { result: {} }
 }
 
-export async function updateDocenteAction(formData: FormData): Promise<void> {
+export async function updateDocenteAction(
+  prevState: DocenteFormState,
+  formData: FormData,
+): Promise<DocenteFormState> {
   const id = parseInt(formData.get('id') as string, 10)
 
   await ensureAuthenticated()
   await assertSameOriginRequest()
 
+  const preservedState = {
+    formValues: buildDocenteFormValues(formData),
+    relatedInitialData: buildRelatedInitialData(formData),
+  }
+
   const relationsResult = parseRelatedCollections(formData)
   if (!relationsResult.success) {
-    return redirect(`/docentes/${id}?erro=${encodeURIComponent(relationsResult.error)}`)
+    console.error('Erro ao parsear coleções relacionadas:', relationsResult.error)
+    return { result: { error: relationsResult.error }, ...preservedState }
   }
 
   const parsed = updateDocenteSchema.safeParse({
@@ -415,24 +549,32 @@ export async function updateDocenteAction(formData: FormData): Promise<void> {
       )
       .filter(Boolean)
       .join('; ')
-    return redirect(`/docentes/${id}?erro=${encodeURIComponent(errorMessages)}`)
+    return { result: { error: errorMessages }, ...preservedState }
   }
 
   try {
     await docenteService.update(parsed.data)
   } catch (error) {
     if (error instanceof ForbiddenError) {
-      return redirect(`/docentes/${id}?erro=Requisi%C3%A7%C3%A3o%20inv%C3%A1lida`)
+      return { result: { error: 'Requisição inválida.' }, ...preservedState }
     }
-    if (error instanceof NotFoundError || error instanceof ConflictError) {
-      return redirect(`/docentes/${id}?erro=${encodeURIComponent(error.message)}`)
+    if (error instanceof NotFoundError) {
+      return { result: { error: error.message }, ...preservedState }
+    }
+    if (error instanceof ConflictError) {
+      return {
+        result: { error: error.message },
+        ...preservedState,
+      }
     }
     console.error('Erro ao atualizar docente:', error)
-    return redirect(`/docentes/${id}?erro=${encodeURIComponent('Erro ao atualizar docente.')}`)
+    return { result: { error: 'Erro ao atualizar docente.' }, ...preservedState }
   }
+  // return { result: { success: 'Docente atualizado com sucesso.' } }
   revalidatePath('/docentes')
   revalidatePath(`/docentes/${id}`)
-  return redirect(`/docentes/${id}?sucesso=Docente atualizado com sucesso.`)
+  redirect(`/docentes/${id}?sucesso=Docente atualizado com sucesso.`)
+  // return {}
 }
 
 export async function deleteDocenteAction(id: number): Promise<void> {

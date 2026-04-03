@@ -9,18 +9,10 @@ import { PendingSubmitButton } from '@/components/pending-submit-button'
 type DocentePageShellProps = {
   badge: string
   title: string
-  errorMessage?: string
-  successMessage?: string
   children: ReactNode
 }
 
-export function DocentePageShell({
-  badge,
-  title,
-  errorMessage,
-  successMessage,
-  children,
-}: DocentePageShellProps) {
+export function DocentePageShell({ badge, title, children }: DocentePageShellProps) {
   return (
     <Box
       as="main"
@@ -76,30 +68,6 @@ export function DocentePageShell({
               </form>
             </HStack>
           </Flex>
-
-          {successMessage ? (
-            <Box
-              p="14px 16px"
-              mb="14px"
-              bg="#ecfdf5"
-              color="#065f46"
-              border="1px solid #a7f3d0"
-              borderRadius="14px">
-              {successMessage}
-            </Box>
-          ) : null}
-
-          {errorMessage ? (
-            <Box
-              p="14px 16px"
-              mb="14px"
-              bg="#fff1f2"
-              color="#9f1239"
-              border="1px solid #fecdd3"
-              borderRadius="14px">
-              {errorMessage}
-            </Box>
-          ) : null}
 
           {children}
         </Box>

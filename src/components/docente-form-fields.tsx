@@ -18,6 +18,7 @@ export type DocenteFormValues = {
 type DocenteFormFieldsProps = {
   values?: DocenteFormValues
   relatedInitialData?: RelatedEntitiesInitialData
+  formPendingValues?: DocenteFormValues
 }
 
 const defaultValues: DocenteFormValues = {
@@ -33,7 +34,14 @@ const defaultValues: DocenteFormValues = {
   ativo: true,
 }
 
-export function DocenteFormFields({ values = defaultValues, relatedInitialData }: DocenteFormFieldsProps) {
+export function DocenteFormFields({
+  values = defaultValues,
+  relatedInitialData,
+  formPendingValues,
+}: DocenteFormFieldsProps) {
+  if (formPendingValues) {
+    values = formPendingValues
+  }
   return (
     <>
       <fieldset style={{ border: '1px solid #dbeafe', borderRadius: '18px', padding: '20px' }}>

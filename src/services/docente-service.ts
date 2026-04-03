@@ -89,7 +89,6 @@ export class DocenteService {
     await this.getById(input.id)
 
     const normalizedInput = this.normalizeUpdateInput(input)
-    console.log(`ensureUniqueDocente(${normalizedInput.matricula}, ${normalizedInput.email}, ${input.id})`)
     await this.ensureUniqueDocente(normalizedInput.matricula, normalizedInput.email, input.id)
     this.ensureUniqueCollections(normalizedInput)
 
@@ -102,7 +101,6 @@ export class DocenteService {
   }
 
   private async ensureUniqueDocente(matricula: string | null, email: string | null, ignoreId?: number) {
-    console.log('ensureUniqueDocente called with:', { matricula, email, ignoreId })
     const conflict = await this.repository.findConflict({
       matricula,
       email,
@@ -148,7 +146,7 @@ export class DocenteService {
       nome: normalizeText(String(input.nome)),
       endereco: normalizeOptionalText(input.endereco ? String(input.endereco) : undefined),
       matricula: input.matricula ? normalizeCompactValue(String(input.matricula)) : null,
-      email: input.email ? normalizeEmail(String(input.email)) : null,
+      email: normalizeEmail(input.email ? String(input.email) : undefined),
       regimeJuridico: normalizeOptionalText(input.regimeJuridico ? String(input.regimeJuridico) : undefined),
       regimeTrabalho: normalizeOptionalText(input.regimeTrabalho ? String(input.regimeTrabalho) : undefined),
       cargos: (input.cargos ?? []).map(cargo => ({

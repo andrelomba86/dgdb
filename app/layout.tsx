@@ -14,7 +14,7 @@ type RootLayoutProps = {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <body style={{ margin: 0, minHeight: '100vh', background: '#f3f4f6', color: '#111827' }}>
         <Providers>{children}</Providers>
       </body>
