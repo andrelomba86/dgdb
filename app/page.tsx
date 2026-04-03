@@ -67,7 +67,7 @@ export default async function HomePage() {
               Docentes
             </Text>
             <Text fontSize="1.15rem" fontWeight="700" mb="6px">
-              Acessar cadastro consolidado
+              Acessar cadastro de docentes
             </Text>
             <Text color="#475569">
               Consulte, filtre, exporte e mantenha registros com dados relacionados.

@@ -88,10 +88,11 @@ export class DocenteRepository {
   }
 
   async findConflict(params: DocenteConflictParams) {
+    console.log('OR:', [{ matricula: params.matricula }, { email: params.email }])
     return prisma.docente.findFirst({
       where: {
         OR: [{ matricula: params.matricula }, { email: params.email }],
-        id: params.ignoreId ?? { not: params.ignoreId },
+        id: params.ignoreId ? { not: params.ignoreId } : undefined,
       },
       select: {
         id: true,

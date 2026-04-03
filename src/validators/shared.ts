@@ -77,7 +77,7 @@ export const nullableEmail = (label: string, maxLength: number) =>
     toNullableTrimmedString,
     z.union([
       z
-        .string({ required_error: `${label} é obrigatório.` })
+        .string()
         .max(maxLength, `${label} deve ter no máximo ${maxLength} caracteres.`)
         .email(`${label} inválido.`),
       z.null(),

@@ -353,7 +353,8 @@ export async function createDocenteAction(formData: FormData): Promise<void> {
 
   if (!parsed.success) {
     const errorMessages = Object.entries(parsed.error.flatten().fieldErrors)
-      .map(([field, errors]) => `${errors?.join(', ')}`)
+      .map(([, errors]) => (Array.isArray(errors) ? errors.join(', ') : ''))
+      .filter(Boolean)
       .join(' ')
     return redirect(`/docentes/novo?erro=${encodeURIComponent(errorMessages)}`)
   }
@@ -392,8 +393,8 @@ export async function updateDocenteAction(formData: FormData): Promise<void> {
     dataNascimento: formData.get('dataNascimento')
       ? new Date(formData.get('dataNascimento') as string)
       : null,
-    matricula: formData.get('matricula'),
-    email: formData.get('email'),
+    matricula: formData.get('matricula') || null,
+    email: formData.get('email') || null,
     dataAdmissao: formData.get('dataAdmissao') ? new Date(formData.get('dataAdmissao') as string) : null,
     regimeJuridico: formData.get('regimeJuridico') || null,
     regimeTrabalho: formData.get('regimeTrabalho') || null,
@@ -409,7 +410,10 @@ export async function updateDocenteAction(formData: FormData): Promise<void> {
 
   if (!parsed.success) {
     const errorMessages = Object.entries(parsed.error.flatten().fieldErrors)
-      .map(([field, errors]) => `${field}: ${errors?.join(', ')}`)
+      .map(([field, errors]) =>
+        Array.isArray(errors) && errors.length > 0 ? `${field}: ${errors.join(', ')}` : '',
+      )
+      .filter(Boolean)
       .join('; ')
     return redirect(`/docentes/${id}?erro=${encodeURIComponent(errorMessages)}`)
   }

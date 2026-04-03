@@ -53,25 +53,23 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
   const pageParam = getFirstParam(resolvedParams.page)
   const nome = getFirstParam(resolvedParams.nome)
   const ativo = getFirstParam(resolvedParams.ativo)
+  const ativoFilter = ativo === 'on' ? true : undefined
   const sortBy = getFirstParam(resolvedParams.sortBy)
   const sortOrder = getFirstParam(resolvedParams.sortOrder)
 
   const parsedPage = pageParam ? Number.parseInt(pageParam, 10) : 1
   const page = Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage
 
+  //TODO: converter ativo que está em string para booleano?
+
   const result = await listDocentesAction({
     page,
     pageSize: 5,
     nome,
-    ativo,
+    ativo: ativoFilter,
     sortBy: sortBy === 'dataAdmissao' ? sortBy : 'nome',
     sortOrder: sortOrder === 'desc' ? 'desc' : 'asc',
   })
-
-  const exportMenuItems = [
-    { label: 'Exportar para CSV', value: 'csv', action: () => console.log('Exportar para CSV') },
-    { label: 'Exportar para PDF', value: 'pdf', action: () => console.log('Exportar para PDF') },
-  ]
 
   if (!result.success) {
     return (
@@ -269,7 +267,7 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                         </Table.Cell>
                         <Table.Cell textAlign="center">
                           {doc.dataAdmissao
-                            ? new Date(doc.dataAdmissao).toLocaleDateString('pt-BR')
+                            ? new Date(doc.dataAdmissao).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
                             : 'Data não informada'}
                         </Table.Cell>
                         <Table.Cell textAlign="center">

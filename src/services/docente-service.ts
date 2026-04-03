@@ -33,7 +33,6 @@ export class DocenteService {
   constructor(private readonly repository: DocenteRepository = docenteRepository) {}
 
   private toDateOrUndefined(value: unknown): Date | undefined {
-    console.log(value, 'toDateOrUndefined')
     if (value == null || value === '') {
       return undefined
     }
@@ -80,7 +79,7 @@ export class DocenteService {
 
   async create(input: CreateDocenteInput): Promise<DocenteAggregate> {
     const normalizedInput = this.normalizeCreateInput(input)
-    await this.ensureUniqueDocente(String(normalizedInput.matricula), String(normalizedInput.email))
+    await this.ensureUniqueDocente(normalizedInput.matricula, normalizedInput.email)
     this.ensureUniqueCollections(normalizedInput)
 
     return this.repository.create(this.buildCreatePayload(normalizedInput))
@@ -90,8 +89,8 @@ export class DocenteService {
     await this.getById(input.id)
 
     const normalizedInput = this.normalizeUpdateInput(input)
-    console.log(normalizedInput, '***')
-    await this.ensureUniqueDocente(String(normalizedInput.matricula), String(normalizedInput.email), input.id)
+    console.log(`ensureUniqueDocente(${normalizedInput.matricula}, ${normalizedInput.email}, ${input.id})`)
+    await this.ensureUniqueDocente(normalizedInput.matricula, normalizedInput.email, input.id)
     this.ensureUniqueCollections(normalizedInput)
 
     return this.repository.update(input.id, this.buildUpdatePayload(normalizedInput))
@@ -102,7 +101,8 @@ export class DocenteService {
     await this.repository.delete(id)
   }
 
-  private async ensureUniqueDocente(matricula: string, email: string, ignoreId?: number) {
+  private async ensureUniqueDocente(matricula: string | null, email: string | null, ignoreId?: number) {
+    console.log('ensureUniqueDocente called with:', { matricula, email, ignoreId })
     const conflict = await this.repository.findConflict({
       matricula,
       email,
@@ -121,11 +121,11 @@ export class DocenteService {
   }
 
   private ensureUniqueCollections(input: NormalizedCreateDocenteInput | NormalizedUpdateDocenteInput) {
-    // uniqueBy(
-    //   input.telefones ?? [],
-    //   telefone => normalizeCompactValue(String(telefone.telefone)),
-    //   'Há telefones duplicados no cadastro informado.',
-    // )
+    uniqueBy(
+      input.telefones ?? [],
+      telefone => normalizeCompactValue(String(telefone.telefone)),
+      'Há telefones duplicados no cadastro informado.',
+    )
 
     uniqueBy(
       input.documentos ?? [],
@@ -147,8 +147,8 @@ export class DocenteService {
       ...input,
       nome: normalizeText(String(input.nome)),
       endereco: normalizeOptionalText(input.endereco ? String(input.endereco) : undefined),
-      matricula: input.matricula ? normalizeCompactValue(String(input.matricula)) : undefined,
-      email: input.email ? normalizeEmail(String(input.email)) : undefined,
+      matricula: input.matricula ? normalizeCompactValue(String(input.matricula)) : null,
+      email: input.email ? normalizeEmail(String(input.email)) : null,
       regimeJuridico: normalizeOptionalText(input.regimeJuridico ? String(input.regimeJuridico) : undefined),
       regimeTrabalho: normalizeOptionalText(input.regimeTrabalho ? String(input.regimeTrabalho) : undefined),
       cargos: (input.cargos ?? []).map(cargo => ({
@@ -181,8 +181,8 @@ export class DocenteService {
       ...input,
       nome: normalizeText(String(input.nome)),
       endereco: normalizeOptionalText(input.endereco ? String(input.endereco) : undefined),
-      matricula: input.matricula ? normalizeCompactValue(String(input.matricula)) : undefined,
-      email: input.email ? normalizeEmail(String(input.email)) : undefined,
+      matricula: input.matricula ? normalizeCompactValue(String(input.matricula)) : null,
+      email: input.email ? normalizeEmail(String(input.email)) : null,
       regimeJuridico: normalizeOptionalText(input.regimeJuridico ? String(input.regimeJuridico) : undefined),
       regimeTrabalho: normalizeOptionalText(input.regimeTrabalho ? String(input.regimeTrabalho) : undefined),
       cargos: (input.cargos ?? []).map(cargo => ({
@@ -211,7 +211,6 @@ export class DocenteService {
   }
 
   private buildCreatePayload(input: CreateDocenteInput): Prisma.DocenteCreateInput {
-    console.log(this.toDateOrUndefined(input.dataAdmissao), 'dataAdmissao')
     return {
       nome: String(input.nome),
       endereco: input.endereco ? String(input.endereco) : undefined,
@@ -276,7 +275,7 @@ export class DocenteService {
       },
       telefones: {
         deleteMany: {},
-        create: (input.telefones ?? []).map((telefone: any) => ({
+        create: (input.telefones ?? []).map(telefone => ({
           telefone: String(telefone.telefone),
           tipo: String(telefone.tipo),
         })),

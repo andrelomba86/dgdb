@@ -62,8 +62,8 @@ export function buildDocentesCsvExport(docentes: DocenteAggregate[]): ExportPayl
       [
         String(docente.id),
         docente.nome,
-        docente.matricula,
-        docente.email,
+        docente.matricula || '',
+        docente.email || '',
         docente.endereco || '',
         formatDate(docente.dataNascimento),
         formatDate(docente.dataAdmissao),
@@ -168,8 +168,8 @@ async function buildPdfBytes(docentes: DocenteAggregate[]) {
   docentes.forEach((docente, index) => {
     const relations = compactRelationValues(docente)
     const blockLines = [
-      `Matricula: ${docente.matricula}`,
-      `Email: ${docente.email}`,
+      `Matricula: ${docente.matricula || '-'}`,
+      `Email: ${docente.email || '-'}`,
       `Admissao: ${formatDate(docente.dataAdmissao)}`,
       `Nascimento: ${formatDate(docente.dataNascimento) || '-'}`,
       `Regime juridico: ${docente.regimeJuridico || '-'}`,
