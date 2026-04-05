@@ -13,9 +13,6 @@ import { docenteRepository, type DocenteRepository } from '@/repositories/docent
 import type { DocenteAggregate, DocenteListResult } from '@/types/docente'
 import type { CreateDocenteInput, DocenteListInput, UpdateDocenteInput } from '@/validators/docente'
 
-type NormalizedCreateDocenteInput = CreateDocenteInput
-type NormalizedUpdateDocenteInput = UpdateDocenteInput
-
 const uniqueBy = <T>(items: T[], getKey: (item: T) => string, message: string) => {
   const seen = new Set<string>()
 
@@ -78,7 +75,7 @@ export class DocenteService {
   }
 
   async create(input: CreateDocenteInput): Promise<DocenteAggregate> {
-    const normalizedInput = this.normalizeCreateInput(input)
+    const normalizedInput = this.normalizeInput(input)
     await this.ensureUniqueDocente(normalizedInput.matricula, normalizedInput.email)
     this.ensureUniqueCollections(normalizedInput)
 
@@ -88,7 +85,7 @@ export class DocenteService {
   async update(input: UpdateDocenteInput): Promise<DocenteAggregate> {
     await this.getById(input.id)
 
-    const normalizedInput = this.normalizeUpdateInput(input)
+    const normalizedInput = this.normalizeInput(input)
     await this.ensureUniqueDocente(normalizedInput.matricula, normalizedInput.email, input.id)
     this.ensureUniqueCollections(normalizedInput)
 
@@ -118,7 +115,7 @@ export class DocenteService {
     throw new ConflictError('Já existe um docente com este e-mail.')
   }
 
-  private ensureUniqueCollections(input: NormalizedCreateDocenteInput | NormalizedUpdateDocenteInput) {
+  private ensureUniqueCollections(input: CreateDocenteInput | UpdateDocenteInput) {
     uniqueBy(
       input.telefones ?? [],
       telefone => normalizeCompactValue(String(telefone.telefone)),
@@ -140,7 +137,7 @@ export class DocenteService {
     )
   }
 
-  private normalizeCreateInput(input: CreateDocenteInput): NormalizedCreateDocenteInput {
+  private normalizeInput<T extends CreateDocenteInput | UpdateDocenteInput>(input: T): T {
     return {
       ...input,
       nome: normalizeText(String(input.nome)),
@@ -149,62 +146,63 @@ export class DocenteService {
       email: normalizeEmail(input.email ? String(input.email) : undefined),
       regimeJuridico: normalizeOptionalText(input.regimeJuridico ? String(input.regimeJuridico) : undefined),
       regimeTrabalho: normalizeOptionalText(input.regimeTrabalho ? String(input.regimeTrabalho) : undefined),
-      cargos: (input.cargos ?? []).map(cargo => ({
-        ...cargo,
-        descricao: normalizeText(String(cargo.descricao)),
-        funcao: normalizeOptionalText(cargo.funcao ? String(cargo.funcao) : undefined),
-        referencia: normalizeOptionalText(cargo.referencia ? String(cargo.referencia) : undefined),
-      })),
-      telefones: (input.telefones ?? []).map((telefone: any) => ({
-        ...telefone,
-        telefone: normalizeCompactValue(String(telefone.telefone)),
-        tipo: normalizeText(String(telefone.tipo)),
-      })),
-      documentos: (input.documentos ?? []).map(documento => ({
-        ...documento,
-        tipo: normalizeText(String(documento.tipo)),
-        documento: normalizeDocumentValue(String(documento.documento)),
-      })),
-      contasBancarias: (input.contasBancarias ?? []).map(conta => ({
-        ...conta,
-        banco: normalizeBankCode(String(conta.banco)),
-        agencia: normalizeCompactValue(String(conta.agencia)),
-        conta: normalizeCompactValue(String(conta.conta)),
-      })),
+      cargos: (input.cargos ?? []).map(cargo => this.normalizeCargoInput(cargo)),
+      telefones: (input.telefones ?? []).map(telefone => this.normalizeTelefoneInput(telefone)),
+      documentos: (input.documentos ?? []).map(documento => this.normalizeDocumentoInput(documento)),
+      contasBancarias: (input.contasBancarias ?? []).map(conta => this.normalizeContaBancariaInput(conta)),
+    } as T
+  }
+
+  private normalizeCargoInput<
+    T extends { descricao: unknown; funcao?: unknown | null; referencia?: unknown | null },
+  >(cargo: T) {
+    return {
+      ...cargo,
+      descricao: normalizeText(String(cargo.descricao)),
+      funcao: normalizeOptionalText(cargo.funcao ? String(cargo.funcao) : undefined),
+      referencia: normalizeOptionalText(cargo.referencia ? String(cargo.referencia) : undefined),
     }
   }
 
-  private normalizeUpdateInput(input: UpdateDocenteInput): NormalizedUpdateDocenteInput {
+  private normalizeTelefoneInput<T extends { telefone: unknown; tipo: unknown }>(telefone: T) {
     return {
-      ...input,
-      nome: normalizeText(String(input.nome)),
-      endereco: normalizeOptionalText(input.endereco ? String(input.endereco) : undefined),
-      matricula: input.matricula ? normalizeCompactValue(String(input.matricula)) : null,
-      email: input.email ? normalizeEmail(String(input.email)) : null,
-      regimeJuridico: normalizeOptionalText(input.regimeJuridico ? String(input.regimeJuridico) : undefined),
-      regimeTrabalho: normalizeOptionalText(input.regimeTrabalho ? String(input.regimeTrabalho) : undefined),
-      cargos: (input.cargos ?? []).map(cargo => ({
-        ...cargo,
-        descricao: normalizeText(String(cargo.descricao)),
-        funcao: normalizeOptionalText(cargo.funcao ? String(cargo.funcao) : undefined),
-        referencia: normalizeOptionalText(cargo.referencia ? String(cargo.referencia) : undefined),
-      })),
-      telefones: (input.telefones ?? []).map((telefone: any) => ({
-        ...telefone,
-        telefone: normalizeCompactValue(String(telefone.telefone)),
-        tipo: normalizeText(String(telefone.tipo)),
-      })),
-      documentos: (input.documentos ?? []).map(documento => ({
-        ...documento,
-        tipo: normalizeText(String(documento.tipo)),
-        documento: normalizeDocumentValue(String(documento.documento)),
-      })),
-      contasBancarias: (input.contasBancarias ?? []).map(conta => ({
-        ...conta,
-        banco: normalizeBankCode(String(conta.banco)),
-        agencia: normalizeCompactValue(String(conta.agencia)),
-        conta: normalizeCompactValue(String(conta.conta)),
-      })),
+      ...telefone,
+      telefone: normalizeCompactValue(String(telefone.telefone)),
+      tipo: normalizeText(String(telefone.tipo)),
+    }
+  }
+
+  private normalizeDocumentoInput<T extends { tipo: unknown; documento: unknown }>(documento: T) {
+    return {
+      ...documento,
+      tipo: normalizeText(String(documento.tipo)),
+      documento: normalizeDocumentValue(String(documento.documento)),
+    }
+  }
+
+  private normalizeContaBancariaInput<T extends { banco: unknown; agencia: unknown; conta: unknown }>(
+    conta: T,
+  ) {
+    return {
+      ...conta,
+      banco: normalizeBankCode(String(conta.banco)),
+      agencia: normalizeCompactValue(String(conta.agencia)),
+      conta: normalizeCompactValue(String(conta.conta)),
+    }
+  }
+
+  private buildDocenteBaseFields(input: CreateDocenteInput | UpdateDocenteInput) {
+    return {
+      nome: String(input.nome),
+      endereco: input.endereco ? String(input.endereco) : undefined,
+      dataNascimento: this.toDateOrUndefined(input.dataNascimento),
+      matricula: input.matricula ? String(input.matricula) : undefined,
+      email: input.email ? String(input.email) : undefined,
+      dataAdmissao: this.toDateOrUndefined(input.dataAdmissao),
+      regimeJuridico: input.regimeJuridico ? String(input.regimeJuridico) : undefined,
+      regimeTrabalho: input.regimeTrabalho ? String(input.regimeTrabalho) : undefined,
+      regimeDataAplicacao: this.toDateOrUndefined(input.regimeDataAplicacao),
+      ativo: typeof input.ativo === 'boolean' ? input.ativo : undefined,
     }
   }
 
@@ -244,18 +242,14 @@ export class DocenteService {
     }
   }
 
-  private buildDocenteBaseFields(input: CreateDocenteInput | UpdateDocenteInput) {
+  private buildRelationUpsert<T extends { id?: number | null }, R>(items: T[], mapFields: (item: T) => R) {
+    const existing = items.filter(i => i.id != null)
+    const fresh = items.filter(i => i.id == null)
+
     return {
-      nome: String(input.nome),
-      endereco: input.endereco ? String(input.endereco) : undefined,
-      dataNascimento: this.toDateOrUndefined(input.dataNascimento),
-      matricula: input.matricula ? String(input.matricula) : undefined,
-      email: input.email ? String(input.email) : undefined,
-      dataAdmissao: this.toDateOrUndefined(input.dataAdmissao),
-      regimeJuridico: input.regimeJuridico ? String(input.regimeJuridico) : undefined,
-      regimeTrabalho: input.regimeTrabalho ? String(input.regimeTrabalho) : undefined,
-      regimeDataAplicacao: this.toDateOrUndefined(input.regimeDataAplicacao),
-      ativo: typeof input.ativo === 'boolean' ? input.ativo : undefined,
+      deleteMany: { id: { notIn: existing.map(i => i.id!) } },
+      update: existing.map(i => ({ where: { id: i.id! }, data: mapFields(i) })),
+      create: fresh.map(mapFields),
     }
   }
 
@@ -274,17 +268,6 @@ export class DocenteService {
       contasBancarias: {
         create: (input.contasBancarias ?? []).map(conta => this.mapContaBancariaFields(conta)),
       },
-    }
-  }
-
-  private buildRelationUpsert<T extends { id?: number | null }, R>(items: T[], mapFields: (item: T) => R) {
-    const existing = items.filter(i => i.id != null)
-    const fresh = items.filter(i => i.id == null)
-
-    return {
-      deleteMany: { id: { notIn: existing.map(i => i.id!) } },
-      update: existing.map(i => ({ where: { id: i.id! }, data: mapFields(i) })),
-      create: fresh.map(mapFields),
     }
   }
 
