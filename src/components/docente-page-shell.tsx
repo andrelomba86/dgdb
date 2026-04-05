@@ -19,10 +19,7 @@ export function DocentePageShell({ badge, title, children }: DocentePageShellPro
       minH="100vh"
       py={{ base: '24px', md: '32px' }}
       px={{ base: '12px', md: '24px' }}
-      bg="radial-gradient(circle at bottom, rgba(20, 184, 166, 0.16), transparent 25%), linear-gradient(180deg, #f5fffa 0%, #e0fef2 100%)"
-
-      //** */
-    >
+      bg="radial-gradient(circle at bottom, rgba(20, 184, 166, 0.16), transparent 25%), linear-gradient(180deg, #f5fffa 0%, #e0fef2 100%)">
       <Container maxW="5xl">
         <Box
           bg="white"
@@ -39,14 +36,14 @@ export function DocentePageShell({ badge, title, children }: DocentePageShellPro
                 {title}
               </Heading>
             </Box>
-
+            {/* 
             <HStack gap="10px" wrap="wrap">
               <Link
                 as={NextLink}
                 href="/docentes"
                 px="14px"
                 py="10px"
-                borderRadius="999px"
+                rounded="full"
                 textDecoration="none"
                 color="#0f172a"
                 border="1px solid #cbd5e1">
@@ -66,7 +63,7 @@ export function DocentePageShell({ badge, title, children }: DocentePageShellPro
                   }}
                 />
               </form>
-            </HStack>
+            </HStack> */}
           </Flex>
 
           {children}

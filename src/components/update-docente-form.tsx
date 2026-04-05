@@ -1,16 +1,13 @@
 'use client'
 
-import NextLink from 'next/link'
 import { useActionState, useEffect, useRef } from 'react'
 
-import { HStack, Link } from '@chakra-ui/react'
-
 import type { DocenteFormState } from '@/actions/docente-actions'
-import { updateDocenteAction } from '@/actions/docente-actions'
+import { deleteDocenteAction, updateDocenteAction } from '@/actions/docente-actions'
+import { DocenteFormActionBar } from '@/components/docente-form-action-bar'
 import type { DocenteFormValues } from '@/components/docente-form-fields'
 import { DocenteFormFields } from '@/components/docente-form-fields'
 import type { RelatedEntitiesInitialData } from '@/components/docente-related-fields'
-import { PendingSubmitButton } from '@/components/pending-submit-button'
 import { toaster } from '@/components/toaster-notifier'
 
 type UpdateDocenteFormProps = {
@@ -56,7 +53,7 @@ export function UpdateDocenteForm({
   }, [state.result])
 
   return (
-    <form action={action} style={{ display: 'grid', gap: '18px' }}>
+    <form action={action} style={{ display: 'grid', gap: '18px', paddingBottom: '128px' }}>
       <input type="hidden" name="id" value={id} />
 
       <DocenteFormFields
@@ -65,33 +62,13 @@ export function UpdateDocenteForm({
         formPendingValues={state.formValues}
       />
 
-      <HStack gap="10px" wrap="wrap">
-        <PendingSubmitButton
-          idleText="Atualizar docente"
-          pendingText="Atualizando..."
-          style={{
-            padding: '11px 18px',
-            background: 'linear-gradient(135deg, #1d4ed8 0%, #38bdf8 100%)',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '999px',
-            cursor: 'pointer',
-          }}
-        />
-        <Link
-          as={NextLink}
-          href="/docentes"
-          px="18px"
-          py="11px"
-          color="#334155"
-          textDecoration="none"
-          borderRadius="999px"
-          border="1px solid #cbd5e1"
-          display="inline-flex"
-          alignItems="center">
-          Cancelar
-        </Link>
-      </HStack>
+      <DocenteFormActionBar
+        title="Ações do registro"
+        submitIdleText="Atualizar cadastro"
+        submitPendingText="Atualizando..."
+        deleteFormAction={deleteDocenteAction.bind(null, id)}
+        deleteConfirmMessage={`Excluir ${initialValues.nome}? Esta ação remove permanentemente o cadastro e os vínculos relacionados.`}
+      />
     </form>
   )
 }

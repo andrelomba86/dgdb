@@ -2,8 +2,7 @@ import { redirect } from 'next/navigation'
 
 import { Box, Heading, Text } from '@chakra-ui/react'
 
-import { deleteDocenteAction, getDocenteAction } from '@/actions/docente-actions'
-import { ConfirmSubmitButton } from '@/components/confirm-submit-button'
+import { getDocenteAction } from '@/actions/docente-actions'
 import type { DocenteFormValues } from '@/components/docente-form-fields'
 import { DocentePageShell } from '@/components/docente-page-shell'
 import type { RelatedEntitiesInitialData } from '@/components/docente-related-fields'
@@ -92,37 +91,6 @@ export default async function DocenteDetailPage({ params, searchParams }: Docent
         relatedInitialData={relatedInitialData}
         initialSuccessMessage={successMessage}
       />
-
-      <Box mt="16px" p="18px" border="1px solid #fecdd3" bg="#fff1f2" borderRadius="18px">
-        <form action={deleteDocenteAction.bind(null, docente.id)}>
-          <ConfirmSubmitButton
-            idleText="Excluir docente"
-            pendingText="Excluindo..."
-            confirmMessage={`Excluir ${docente.nome}? Esta ação remove permanentemente o cadastro e os vínculos relacionados.`}
-            style={{
-              padding: '11px 18px',
-              color: '#be123c',
-              borderRadius: '999px',
-              border: '1px solid #fda4af',
-              background: '#ffffff',
-              cursor: 'pointer',
-            }}
-          />
-        </form>
-        <Text mt="0" color="#881337">
-          A exclusão é definitiva e remove o docente e os vínculos relacionados do cadastro.
-        </Text>
-      </Box>
-
-      <Box mt="36px" pt="20px" borderTop="1px solid #dbeafe">
-        <Heading size="md" mb="8px">
-          Dados relacionados
-        </Heading>
-        <Text m="0" color="#475569">
-          Cargos, telefones, documentos e contas bancárias agora podem ser editados diretamente no formulário
-          acima.
-        </Text>
-      </Box>
     </DocentePageShell>
   )
 }

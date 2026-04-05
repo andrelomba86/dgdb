@@ -1,3 +1,5 @@
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
+import EditIcon from '@mui/icons-material/Edit'
 import NextLink from 'next/link'
 
 import {
@@ -5,6 +7,7 @@ import {
   Button,
   Checkbox,
   Container,
+  IconButton,
   Field,
   Flex,
   Heading,
@@ -98,7 +101,7 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
       py={{ base: '24px', md: '32px' }}
       px={{ base: '12px', md: '24px' }}
       bg="radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 28%), linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)">
-      <Container maxW="7xl">
+      <Container maxW="6xl">
         <Box
           bg="white"
           border="1px solid #dbe3f0"
@@ -130,8 +133,8 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
               </NextLink>
               <form action={logoutAction}>
                 <PendingSubmitButton
-                  idleText="Sair"
-                  pendingText="Saindo..."
+                  idleText="Encerrar sessão"
+                  pendingText="Encerrando..."
                   colorPalette="red"
                   variant="surface"
                   rounded="full"
@@ -269,28 +272,37 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                         </Table.Cell>
 
                         <Table.Cell>
-                          <HStack justify="center" gap="10px" wrap="wrap">
-                            <Link
-                              as={NextLink}
-                              href={`/docentes/${doc.id}`}
-                              color="#1d4ed8"
-                              textDecoration="none"
-                              fontWeight="600">
-                              Abrir
-                            </Link>
+                          <HStack justify="center" gap="-1" wrap="nowrap">
+                            <IconButton
+                              asChild
+                              variant="outline"
+                              color="blue.600"
+                              borderLeftRadius="50%"
+                              borderRightRadius="0"
+                              size="sm"
+                              title={`Abrir cadastro de ${doc.nome}`}
+                              aria-label={`Abrir cadastro de ${doc.nome}`}>
+                              <NextLink href={`/docentes/${doc.id}`}>
+                                <EditIcon fontSize="small" />
+                              </NextLink>
+                            </IconButton>
                             <form action={deleteDocenteAction.bind(null, doc.id)}>
                               <ConfirmSubmitButton
                                 idleText="Excluir"
-                                pendingText="Excluindo..."
+                                pendingText="..."
                                 confirmMessage={`Excluir ${doc.nome}? Esta ação remove também os vínculos relacionados.`}
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  color: '#be123c',
-                                  cursor: 'pointer',
-                                  fontWeight: 600,
-                                }}
-                              />
+                                iconOnly
+                                borderRightRadius="50%"
+                                borderLeftRadius="0"
+                                borderLeftWidth="0"
+                                variant="outline"
+                                color="red"
+                                // rounded="xs"
+                                size="sm"
+                                title={`Excluir ${doc.nome}`}
+                                aria-label={`Excluir ${doc.nome}`}>
+                                <DeleteForeverIcon fontSize="medium" />
+                              </ConfirmSubmitButton>
                             </form>
                           </HStack>
                         </Table.Cell>
