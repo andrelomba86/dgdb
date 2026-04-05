@@ -208,7 +208,43 @@ export class DocenteService {
     }
   }
 
-  private buildCreatePayload(input: CreateDocenteInput): Prisma.DocenteCreateInput {
+  private mapCargoFields(cargo: {
+    descricao: unknown
+    funcao?: unknown | null
+    dataInicio?: unknown
+    referencia?: unknown | null
+  }) {
+    return {
+      descricao: String(cargo.descricao),
+      funcao: cargo.funcao ? String(cargo.funcao) : undefined,
+      dataInicio: this.toDateOrUndefined(cargo.dataInicio),
+      referencia: cargo.referencia ? String(cargo.referencia) : undefined,
+    }
+  }
+
+  private mapTelefoneFields(telefone: { telefone: unknown; tipo: unknown }) {
+    return {
+      telefone: String(telefone.telefone),
+      tipo: String(telefone.tipo),
+    }
+  }
+
+  private mapDocumentoFields(documento: { tipo: unknown; documento: unknown }) {
+    return {
+      tipo: String(documento.tipo),
+      documento: String(documento.documento),
+    }
+  }
+
+  private mapContaBancariaFields(conta: { banco: unknown; agencia: unknown; conta: unknown }) {
+    return {
+      banco: String(conta.banco),
+      agencia: String(conta.agencia),
+      conta: String(conta.conta),
+    }
+  }
+
+  private buildDocenteBaseFields(input: CreateDocenteInput | UpdateDocenteInput) {
     return {
       nome: String(input.nome),
       endereco: input.endereco ? String(input.endereco) : undefined,
@@ -220,79 +256,51 @@ export class DocenteService {
       regimeTrabalho: input.regimeTrabalho ? String(input.regimeTrabalho) : undefined,
       regimeDataAplicacao: this.toDateOrUndefined(input.regimeDataAplicacao),
       ativo: typeof input.ativo === 'boolean' ? input.ativo : undefined,
+    }
+  }
+
+  private buildCreatePayload(input: CreateDocenteInput): Prisma.DocenteCreateInput {
+    return {
+      ...this.buildDocenteBaseFields(input),
       cargos: {
-        create: (input.cargos ?? []).map(cargo => ({
-          descricao: String(cargo.descricao),
-          funcao: cargo.funcao ? String(cargo.funcao) : undefined,
-          dataInicio: this.toDateOrUndefined(cargo.dataInicio),
-          referencia: cargo.referencia ? String(cargo.referencia) : undefined,
-        })),
+        create: (input.cargos ?? []).map(cargo => this.mapCargoFields(cargo)),
       },
       telefones: {
-        create: (input.telefones ?? []).map(telefone => ({
-          telefone: String(telefone.telefone),
-          tipo: String(telefone.tipo),
-        })),
+        create: (input.telefones ?? []).map(telefone => this.mapTelefoneFields(telefone)),
       },
       documentos: {
-        create: (input.documentos ?? []).map(documento => ({
-          tipo: String(documento.tipo),
-          documento: String(documento.documento),
-        })),
+        create: (input.documentos ?? []).map(documento => this.mapDocumentoFields(documento)),
       },
       contasBancarias: {
-        create: (input.contasBancarias ?? []).map(conta => ({
-          banco: String(conta.banco),
-          agencia: String(conta.agencia),
-          conta: String(conta.conta),
-        })),
+        create: (input.contasBancarias ?? []).map(conta => this.mapContaBancariaFields(conta)),
       },
+    }
+  }
+
+  private buildRelationUpsert<T extends { id?: number | null }, R>(items: T[], mapFields: (item: T) => R) {
+    const existing = items.filter(i => i.id != null)
+    const fresh = items.filter(i => i.id == null)
+
+    return {
+      deleteMany: { id: { notIn: existing.map(i => i.id!) } },
+      update: existing.map(i => ({ where: { id: i.id! }, data: mapFields(i) })),
+      create: fresh.map(mapFields),
     }
   }
 
   private buildUpdatePayload(input: UpdateDocenteInput): Prisma.DocenteUpdateInput {
     return {
-      nome: String(input.nome),
-      endereco: input.endereco ? String(input.endereco) : undefined,
-      dataNascimento: this.toDateOrUndefined(input.dataNascimento),
-      matricula: input.matricula ? String(input.matricula) : undefined,
-      email: input.email ? String(input.email) : undefined,
-      dataAdmissao: this.toDateOrUndefined(input.dataAdmissao),
-      regimeJuridico: input.regimeJuridico ? String(input.regimeJuridico) : undefined,
-      regimeTrabalho: input.regimeTrabalho ? String(input.regimeTrabalho) : undefined,
-      regimeDataAplicacao: this.toDateOrUndefined(input.regimeDataAplicacao),
-      ativo: typeof input.ativo === 'boolean' ? input.ativo : undefined,
-      cargos: {
-        deleteMany: {},
-        create: (input.cargos ?? []).map(cargo => ({
-          descricao: String(cargo.descricao),
-          funcao: cargo.funcao ? String(cargo.funcao) : undefined,
-          dataInicio: this.toDateOrUndefined(cargo.dataInicio),
-          referencia: cargo.referencia ? String(cargo.referencia) : undefined,
-        })),
-      },
-      telefones: {
-        deleteMany: {},
-        create: (input.telefones ?? []).map(telefone => ({
-          telefone: String(telefone.telefone),
-          tipo: String(telefone.tipo),
-        })),
-      },
-      documentos: {
-        deleteMany: {},
-        create: (input.documentos ?? []).map(documento => ({
-          tipo: String(documento.tipo),
-          documento: String(documento.documento),
-        })),
-      },
-      contasBancarias: {
-        deleteMany: {},
-        create: (input.contasBancarias ?? []).map(conta => ({
-          banco: String(conta.banco),
-          agencia: String(conta.agencia),
-          conta: String(conta.conta),
-        })),
-      },
+      ...this.buildDocenteBaseFields(input),
+      cargos: this.buildRelationUpsert(input.cargos ?? [], cargo => this.mapCargoFields(cargo)),
+      telefones: this.buildRelationUpsert(input.telefones ?? [], telefone =>
+        this.mapTelefoneFields(telefone),
+      ),
+      documentos: this.buildRelationUpsert(input.documentos ?? [], documento =>
+        this.mapDocumentoFields(documento),
+      ),
+      contasBancarias: this.buildRelationUpsert(input.contasBancarias ?? [], conta =>
+        this.mapContaBancariaFields(conta),
+      ),
     }
   }
 }
