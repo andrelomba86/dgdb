@@ -1,4 +1,4 @@
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
+import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import NextLink from 'next/link'
 
@@ -17,6 +17,8 @@ import {
   NativeSelect,
   Table,
   Text,
+  Em,
+  CheckboxCard,
 } from '@chakra-ui/react'
 
 import { logoutAction } from '@/actions/auth-actions'
@@ -55,7 +57,7 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
   const pageParam = getFirstParam(resolvedParams.page)
   const nome = getFirstParam(resolvedParams.nome)
   const ativo = getFirstParam(resolvedParams.ativo)
-  const ativoFilter = ativo === 'on' ? true : undefined
+  const ativoFilter = ativo === 'on' ? true : false
   const sortBy = getFirstParam(resolvedParams.sortBy)
   const sortOrder = getFirstParam(resolvedParams.sortOrder)
 
@@ -183,15 +185,20 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
 
               <Field.Root>
                 <Field.Label fontWeight="600">Situação</Field.Label>
-                <Checkbox.Root id="ativo" name="ativo" defaultChecked={ativo === 'on'} colorPalette="blue">
-                  <Checkbox.HiddenInput />
-                  <Checkbox.Control />
-                  <Checkbox.Label>Somente ativos</Checkbox.Label>
-                </Checkbox.Root>
+                <CheckboxCard.Root id="ativo" name="ativo" size="sm" defaultChecked={ativo === 'on'}>
+                  <CheckboxCard.HiddenInput />
+                  <CheckboxCard.Content>
+                    <CheckboxCard.Control>
+                      <CheckboxCard.Label>Somente ativos</CheckboxCard.Label>
+
+                      <CheckboxCard.Indicator />
+                    </CheckboxCard.Control>
+                  </CheckboxCard.Content>
+                </CheckboxCard.Root>
               </Field.Root>
 
               <HStack gap="10px" align="flex-end" wrap="wrap">
-                <Button type="submit" colorPalette="blue" borderRadius="999px">
+                <Button type="submit" colorPalette="teal" borderRadius="999px">
                   Buscar
                 </Button>
                 <NextLink href="/docentes" passHref>
@@ -236,10 +243,11 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
               </Box>
             ) : (
               <Box overflowX="auto" border="1px solid #dbe3f0" borderRadius="18px">
-                <Table.Root minW="920px" bg="white">
-                  <Table.Header bg="#eff6ff">
+                <Table.Root minW="920px" variant="outline">
+                  <Table.Header bg="gray.50">
                     <Table.Row>
                       <Table.ColumnHeader>Nome</Table.ColumnHeader>
+                      <Table.ColumnHeader textAlign="center">Regime de trabalho</Table.ColumnHeader>
                       <Table.ColumnHeader textAlign="center">Data de admissão</Table.ColumnHeader>
                       <Table.ColumnHeader textAlign="center">Situação</Table.ColumnHeader>
                       <Table.ColumnHeader textAlign="center">Ações</Table.ColumnHeader>
@@ -250,9 +258,9 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                       <Table.Row key={doc.id} borderBottom="1px solid #e2e8f0">
                         <Table.Cell>
                           <Text fontWeight="700">{doc.nome}</Text>
-                          <Text color="#64748b" fontSize="0.9rem">
-                            {doc.regimeTrabalho || 'Regime não informado'}
-                          </Text>
+                        </Table.Cell>
+                        <Table.Cell textAlign="center">
+                          <Text>{doc.regimeTrabalho || <Em>Regime não informado</Em>}</Text>
                         </Table.Cell>
                         <Table.Cell textAlign="center">
                           {doc.dataAdmissao
@@ -261,12 +269,12 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                         </Table.Cell>
                         <Table.Cell textAlign="center">
                           {doc.ativo ? (
-                            <Text as="span" color="green.600" fontWeight="700">
+                            <Text as="span" color="black">
                               Ativo
                             </Text>
                           ) : (
-                            <Text as="span" color="red.600" fontWeight="700">
-                              Inativo
+                            <Text as="span" color="gray">
+                              <Em>Inativo</Em>
                             </Text>
                           )}
                         </Table.Cell>
@@ -275,8 +283,9 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                           <HStack justify="center" gap="-1" wrap="nowrap">
                             <IconButton
                               asChild
-                              variant="outline"
-                              color="blue.600"
+                              variant="surface"
+                              // color="blue.600"
+                              colorPalette="blue"
                               borderLeftRadius="50%"
                               borderRightRadius="0"
                               size="sm"
@@ -295,13 +304,14 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                                 borderRightRadius="50%"
                                 borderLeftRadius="0"
                                 borderLeftWidth="0"
-                                variant="outline"
-                                color="red"
+                                variant="surface"
+                                colorPalette="red"
+                                // color="red"
                                 // rounded="xs"
                                 size="sm"
                                 title={`Excluir ${doc.nome}`}
                                 aria-label={`Excluir ${doc.nome}`}>
-                                <DeleteForeverIcon fontSize="medium" />
+                                <DeleteIcon fontSize="medium" />
                               </ConfirmSubmitButton>
                             </form>
                           </HStack>

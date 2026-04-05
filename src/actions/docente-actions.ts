@@ -303,6 +303,7 @@ export async function listDocentesAction(
 ): Promise<ActionResult<DocenteListResult>> {
   try {
     await ensureAuthenticated()
+    console.log(filters)
     const parsed = parseListFilters(filters)
     if (!parsed.success) {
       return {

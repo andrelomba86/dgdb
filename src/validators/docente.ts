@@ -62,7 +62,7 @@ export const docenteListSchema = z.object({
   page: pageSchema,
   pageSize: pageSizeSchema,
   nome: z.string().trim().optional(),
-  ativo: z.preprocess(v => (v === undefined ? undefined : v === 'on'), z.boolean().optional()),
+  ativo: z.preprocess(v => (v === true ? true : undefined), z.boolean().optional()),
   sortBy: sortBySchema,
   sortOrder: sortOrderSchema,
 })

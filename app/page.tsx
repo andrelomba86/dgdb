@@ -25,7 +25,7 @@ export default async function HomePage() {
         p={{ base: '16px', md: '28px' }}>
         <Flex as="header" justify="space-between" gap="16px" align="flex-start" wrap="wrap" mb="24px">
           <Box>
-            <Text m="0" color="#1d4ed8" fontSize="0.92rem" fontWeight="700">
+            <Text m="0" fontSize="0.92rem" fontWeight="700" color="teal">
               Painel principal
             </Text>
             <Heading m="8px 0 6px" fontSize="2rem">
@@ -62,8 +62,8 @@ export default async function HomePage() {
             textDecoration="none"
             color="#0f172a"
             border="1px solid #dbeafe"
-            bg="linear-gradient(180deg, #ffffff 0%, #eff6ff 100%)">
-            <Text color="#1d4ed8" fontWeight="700" mb="8px">
+            bg="linear-gradient(180deg, #ffffff 0%, #effff6 100%)">
+            <Text color="teal" fontWeight="700" mb="8px">
               Docentes
             </Text>
             <Text fontSize="1.15rem" fontWeight="700" mb="6px">
