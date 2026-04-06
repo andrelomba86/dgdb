@@ -1,20 +1,14 @@
 import { redirect } from 'next/navigation'
 
-import { Box, Heading, Text } from '@chakra-ui/react'
+import { Box, Text } from '@chakra-ui/react'
 
 import { getDocenteAction } from '@/actions/docente-actions'
-import type { DocenteFormValues } from '@/components/docente-form-fields'
+import { DocenteDetailView } from '@/components/docente-detail-view'
 import { DocentePageShell } from '@/components/docente-page-shell'
-import type { RelatedEntitiesInitialData } from '@/components/docente-related-fields'
-import { UpdateDocenteForm } from '@/components/update-docente-form'
 import { requireAuthenticatedUser } from '@/lib/auth-guard'
 
 function getFirstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value
-}
-
-function toDateInputValue(value: Date | null) {
-  return value ? new Date(value).toISOString().split('T')[0] : ''
 }
 
 type DocenteDetailPageProps = {
@@ -43,54 +37,12 @@ export default async function DocenteDetailPage({ params, searchParams }: Docent
       </Box>
     )
   }
+
   const docente = result.data
 
-  const docenteFormValues: DocenteFormValues = {
-    nome: docente.nome,
-    dataNascimento: toDateInputValue(docente.dataNascimento),
-    endereco: docente.endereco || '',
-    matricula: docente.matricula || '',
-    email: docente.email || '',
-    dataAdmissao: toDateInputValue(docente.dataAdmissao),
-    regimeJuridico: docente.regimeJuridico || '',
-    regimeTrabalho: docente.regimeTrabalho || '',
-    regimeDataAplicacao: toDateInputValue(docente.regimeDataAplicacao),
-    ativo: docente.ativo,
-  }
-  const relatedInitialData: RelatedEntitiesInitialData = {
-    cargos: docente.cargos.map(cargo => ({
-      id: cargo.id,
-      descricao: cargo.descricao,
-      funcao: cargo.funcao || '',
-      dataInicio: toDateInputValue(cargo.dataInicio),
-      referencia: cargo.referencia || '',
-    })),
-    telefones: docente.telefones.map(telefone => ({
-      id: telefone.id,
-      telefone: telefone.telefone,
-      tipo: telefone.tipo as 'celular' | 'comercial' | 'residencial',
-    })),
-    documentos: docente.documentos.map(documento => ({
-      id: documento.id,
-      tipo: documento.tipo,
-      documento: documento.documento,
-    })),
-    contasBancarias: docente.contasBancarias.map(conta => ({
-      id: conta.id,
-      banco: conta.banco,
-      agencia: conta.agencia,
-      conta: conta.conta,
-    })),
-  }
-
   return (
-    <DocentePageShell badge="Registro docente" title={docente.nome}>
-      <UpdateDocenteForm
-        id={docente.id}
-        initialValues={docenteFormValues}
-        relatedInitialData={relatedInitialData}
-        initialSuccessMessage={successMessage}
-      />
+    <DocentePageShell badge="Visualização de docente" title={docente.nome}>
+      <DocenteDetailView docente={docente} successMessage={successMessage} />
     </DocentePageShell>
   )
 }

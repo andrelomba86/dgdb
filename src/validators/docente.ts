@@ -6,31 +6,13 @@ import { documentoInputSchema } from '@/validators/documento'
 import {
   idSchema,
   nullableDate,
+  nullableEmail,
   nullableString,
   pageSchema,
   pageSizeSchema,
-  // requiredDate,
-  nullableEmail,
   requiredString,
 } from '@/validators/shared'
 import { telefoneInputSchema } from '@/validators/telefone'
-
-type DocenteBaseInput = {
-  nome: string
-  endereco: string | null
-  dataNascimento: Date | null
-  matricula: string | null
-  email: string | null
-  dataAdmissao: Date | null
-  regimeJuridico: string | null
-  regimeTrabalho: string | null
-  regimeDataAplicacao: Date | null
-  cargos: z.infer<typeof cargoInputSchema>[]
-  telefones: z.infer<typeof telefoneInputSchema>[]
-  documentos: z.infer<typeof documentoInputSchema>[]
-  contasBancarias: z.infer<typeof contaBancariaInputSchema>[]
-  ativo: boolean
-}
 
 const sortBySchema = z.enum(['nome', 'dataAdmissao']).default('nome')
 const sortOrderSchema = z.enum(['asc', 'desc']).default('asc')
@@ -71,6 +53,6 @@ export const docenteIdSchema = z.object({
   id: idSchema,
 })
 
-export type CreateDocenteInput = DocenteBaseInput
-export type UpdateDocenteInput = DocenteBaseInput & { id: number }
+export type CreateDocenteInput = z.infer<typeof createDocenteSchema>
+export type UpdateDocenteInput = z.infer<typeof updateDocenteSchema>
 export type DocenteListInput = z.infer<typeof docenteListSchema>

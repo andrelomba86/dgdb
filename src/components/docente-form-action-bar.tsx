@@ -12,6 +12,7 @@ type DocenteFormActionBarProps = {
   title: string
   submitIdleText: string
   submitPendingText: string
+  submitHref?: string
   cancelHref?: string
   deleteFormAction?: ComponentProps<typeof ConfirmSubmitButton>['formAction']
   deleteConfirmMessage?: string
@@ -23,6 +24,7 @@ export function DocenteFormActionBar({
   title,
   submitIdleText,
   submitPendingText,
+  submitHref,
   cancelHref = '/docentes',
   deleteFormAction,
   deleteConfirmMessage,
@@ -50,13 +52,19 @@ export function DocenteFormActionBar({
           </Text>
           <ActionBar.Separator />
 
-          <PendingSubmitButton
-            idleText={submitIdleText}
-            pendingText={submitPendingText}
-            colorPalette="teal"
-            size="sm"
-            rounded="full"
-          />
+          {submitHref ? (
+            <Button asChild colorPalette="teal" size="sm" rounded="full">
+              <NextLink href={submitHref}>{submitIdleText}</NextLink>
+            </Button>
+          ) : (
+            <PendingSubmitButton
+              idleText={submitIdleText}
+              pendingText={submitPendingText}
+              colorPalette="teal"
+              size="sm"
+              rounded="full"
+            />
+          )}
 
           <Button asChild variant="surface" size="sm" rounded="full" colorPalette="gray">
             <NextLink href={cancelHref}>Voltar</NextLink>

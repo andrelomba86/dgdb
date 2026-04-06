@@ -1,5 +1,6 @@
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import NextLink from 'next/link'
 
 import {
@@ -68,7 +69,7 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
 
   const result = await listDocentesAction({
     page,
-    pageSize: 5,
+    pageSize: 10,
     nome,
     ativo: ativoFilter,
     sortBy: sortBy === 'dataAdmissao' ? sortBy : 'nome',
@@ -108,11 +109,12 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
           bg="white"
           border="1px solid #dbe3f0"
           borderRadius="20px"
-          boxShadow="0 18px 50px rgba(15, 23, 42, 0.08)"
+          // boxShadow="0 18px 50px rgba(15, 23, 42, 0.08)"
+          shadow="lg"
           p={{ base: '16px', md: '28px' }}>
           <Flex justify="space-between" gap="16px" align="flex-start" wrap="wrap" mb="24px">
             <Box>
-              <Text m="0" color="blue" fontSize="1rem" fontWeight="700">
+              <Text color="teal" fontSize="1rem" fontWeight="700">
                 Painel de docentes
               </Text>
             </Box>
@@ -284,14 +286,26 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                             <IconButton
                               asChild
                               variant="surface"
-                              // color="blue.600"
-                              colorPalette="blue"
+                              colorPalette="white"
                               borderLeftRadius="50%"
                               borderRightRadius="0"
                               size="sm"
-                              title={`Abrir cadastro de ${doc.nome}`}
-                              aria-label={`Abrir cadastro de ${doc.nome}`}>
+                              title={`Visualizar cadastro de ${doc.nome}`}
+                              aria-label={`Visualizar cadastro de ${doc.nome}`}>
                               <NextLink href={`/docentes/${doc.id}`}>
+                                <VisibilityIcon fontSize="small" />
+                              </NextLink>
+                            </IconButton>
+                            <IconButton
+                              asChild
+                              variant="surface"
+                              colorPalette="white"
+                              borderRadius="0"
+                              borderLeftWidth="0"
+                              size="sm"
+                              title={`Editar cadastro de ${doc.nome}`}
+                              aria-label={`Editar cadastro de ${doc.nome}`}>
+                              <NextLink href={`/docentes/${doc.id}/editar`}>
                                 <EditIcon fontSize="small" />
                               </NextLink>
                             </IconButton>
@@ -305,9 +319,7 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                                 borderLeftRadius="0"
                                 borderLeftWidth="0"
                                 variant="surface"
-                                colorPalette="red"
-                                // color="red"
-                                // rounded="xs"
+                                colorPalette="white"
                                 size="sm"
                                 title={`Excluir ${doc.nome}`}
                                 aria-label={`Excluir ${doc.nome}`}>
