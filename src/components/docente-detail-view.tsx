@@ -1,10 +1,13 @@
-import type { ReactNode } from 'react'
+'use client'
+
+import { useEffect, type ReactNode } from 'react'
 
 import { Box, Em, Fieldset, Grid, Stack, Table, Text } from '@chakra-ui/react'
 
 import { deleteDocenteAction } from '@/actions/docente-actions'
 import { DocenteFormActionBar } from '@/components/docente-form-action-bar'
 import type { DocenteAggregate } from '@/types/docente'
+import { toaster } from './toaster-notifier'
 
 type DocenteDetailViewProps = {
   docente: DocenteAggregate
@@ -39,6 +42,11 @@ function formatText(value: string | null | undefined) {
 }
 
 export function DocenteDetailView({ docente, successMessage }: DocenteDetailViewProps) {
+  useEffect(() => {
+    if (successMessage) {
+      toaster.create({ type: 'success', description: successMessage })
+    }
+  }, [successMessage])
   return (
     <Stack gap="18px" pb="128px">
       {successMessage ? (

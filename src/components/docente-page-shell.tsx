@@ -36,34 +36,6 @@ export function DocentePageShell({ badge, title, children }: DocentePageShellPro
                 {title}
               </Heading>
             </Box>
-            {/* 
-            <HStack gap="10px" wrap="wrap">
-              <Link
-                as={NextLink}
-                href="/docentes"
-                px="14px"
-                py="10px"
-                rounded="full"
-                textDecoration="none"
-                color="#0f172a"
-                border="1px solid #cbd5e1">
-                Voltar
-              </Link>
-              <form action={logoutAction}>
-                <PendingSubmitButton
-                  idleText="Sair"
-                  pendingText="Saindo..."
-                  style={{
-                    padding: '10px 14px',
-                    borderRadius: '999px',
-                    border: '1px solid #fecaca',
-                    background: '#fff1f2',
-                    color: '#be123c',
-                    cursor: 'pointer',
-                  }}
-                />
-              </form>
-            </HStack> */}
           </Flex>
 
           {children}
