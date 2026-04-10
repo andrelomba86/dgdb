@@ -29,21 +29,29 @@ const uniqueBy = <T>(items: T[], getKey: (item: T) => string, message: string) =
 export class DocenteService {
   constructor(private readonly repository: DocenteRepository = docenteRepository) {}
 
-  private toDateOrUndefined(value: unknown): Date | undefined {
+  private toDateOrNull(value: unknown): Date | null {
     if (value == null || value === '') {
-      return undefined
+      return null
     }
 
     if (value instanceof Date) {
-      return Number.isNaN(value.getTime()) ? undefined : value
+      return Number.isNaN(value.getTime()) ? null : value
     }
 
     if (typeof value === 'string' || typeof value === 'number') {
       const parsed = new Date(value)
-      return Number.isNaN(parsed.getTime()) ? undefined : parsed
+      return Number.isNaN(parsed.getTime()) ? null : parsed
     }
 
-    return undefined
+    return null
+  }
+
+  private toNullableString(value: unknown): string | null {
+    if (value == null || value === '') {
+      return null
+    }
+
+    return String(value)
   }
 
   async list(filters: DocenteListInput): Promise<DocenteListResult> {
@@ -194,14 +202,14 @@ export class DocenteService {
   private buildDocenteBaseFields(input: CreateDocenteInput | UpdateDocenteInput) {
     return {
       nome: String(input.nome),
-      endereco: input.endereco ? String(input.endereco) : undefined,
-      dataNascimento: this.toDateOrUndefined(input.dataNascimento),
-      matricula: input.matricula ? String(input.matricula) : undefined,
-      email: input.email ? String(input.email) : undefined,
-      dataAdmissao: this.toDateOrUndefined(input.dataAdmissao),
-      regimeJuridico: input.regimeJuridico ? String(input.regimeJuridico) : undefined,
-      regimeTrabalho: input.regimeTrabalho ? String(input.regimeTrabalho) : undefined,
-      regimeDataAplicacao: this.toDateOrUndefined(input.regimeDataAplicacao),
+      endereco: this.toNullableString(input.endereco),
+      dataNascimento: this.toDateOrNull(input.dataNascimento),
+      matricula: this.toNullableString(input.matricula),
+      email: this.toNullableString(input.email),
+      dataAdmissao: this.toDateOrNull(input.dataAdmissao),
+      regimeJuridico: this.toNullableString(input.regimeJuridico),
+      regimeTrabalho: this.toNullableString(input.regimeTrabalho),
+      regimeDataAplicacao: this.toDateOrNull(input.regimeDataAplicacao),
       ativo: typeof input.ativo === 'boolean' ? input.ativo : undefined,
     }
   }
@@ -214,9 +222,9 @@ export class DocenteService {
   }) {
     return {
       descricao: String(cargo.descricao),
-      funcao: cargo.funcao ? String(cargo.funcao) : undefined,
-      dataInicio: this.toDateOrUndefined(cargo.dataInicio),
-      referencia: cargo.referencia ? String(cargo.referencia) : undefined,
+      funcao: this.toNullableString(cargo.funcao),
+      dataInicio: this.toDateOrNull(cargo.dataInicio),
+      referencia: this.toNullableString(cargo.referencia),
     }
   }
 
