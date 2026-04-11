@@ -17,8 +17,8 @@ export function DocentePageShell({ badge, title, children }: DocentePageShellPro
     <Box
       as="main"
       minH="100vh"
-      py={{ base: '24px', md: '32px' }}
-      px={{ base: '12px', md: '24px' }}
+      py={{ base: '15px', md: '32px' }}
+      px={{ base: '7px', md: '24px' }}
       bg="radial-gradient(circle at bottom, rgba(20, 184, 166, 0.16), transparent 25%), linear-gradient(180deg, #f5fffa 0%, #e0fef2 100%)">
       <Container maxW="5xl">
         <Box

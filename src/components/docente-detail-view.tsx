@@ -1,23 +1,13 @@
 'use client'
 
-import { useEffect, type ReactNode } from 'react'
+import { useEffect } from 'react'
 
-import { Box, Em, Fieldset, Grid, Stack, Table, Text } from '@chakra-ui/react'
+import { Box, Checkmark, Em, Fieldset, Grid, Stack, Table, Text } from '@chakra-ui/react'
 
 import { deleteDocenteAction } from '@/actions/docente-actions'
 import { DocenteFormActionBar } from '@/components/docente-form-action-bar'
-import type { DocenteAggregate } from '@/types/docente'
+import type { DocenteDetailViewProps, InfoItemProps } from '@/types/docente'
 import { toaster } from './toaster-notifier'
-
-type DocenteDetailViewProps = {
-  docente: DocenteAggregate
-  successMessage?: string
-}
-
-type InfoItemProps = {
-  label: string
-  value: ReactNode
-}
 
 function InfoItem({ label, value }: InfoItemProps) {
   return (
@@ -49,14 +39,9 @@ export function DocenteDetailView({ docente, successMessage }: DocenteDetailView
   }, [successMessage])
   return (
     <Stack gap="18px" pb="128px">
-      {successMessage ? (
-        <Box bg="green.50" border="1px solid #bbf7d0" borderRadius="16px" p="14px">
-          <Text color="green.700" fontWeight="700">
-            {successMessage}
-          </Text>
-        </Box>
-      ) : null}
-
+      <Box>
+        <Checkmark mr="6px" size="sm" checked={docente.ativo ? true : false} /> Ativo
+      </Box>
       <Fieldset.Root borderWidth="1px" borderColor="#dbeafe" borderRadius="18px" p="20px" pt="0">
         <Fieldset.Legend px="8px" fontWeight={700}>
           Dados pessoais
@@ -71,7 +56,6 @@ export function DocenteDetailView({ docente, successMessage }: DocenteDetailView
           </Grid>
         </Fieldset.Content>
       </Fieldset.Root>
-
       <Fieldset.Root borderWidth="1px" borderColor="#dbeafe" borderRadius="18px" p="20px" pt="0">
         <Fieldset.Legend px="8px" fontWeight={700}>
           Dados funcionais
@@ -87,7 +71,6 @@ export function DocenteDetailView({ docente, successMessage }: DocenteDetailView
           </Grid>
         </Fieldset.Content>
       </Fieldset.Root>
-
       <Fieldset.Root borderWidth="1px" borderColor="blue.100" borderRadius="18px" p="20px" pt="0">
         <Fieldset.Legend px="8px" fontWeight={700}>
           Cargos
@@ -123,7 +106,6 @@ export function DocenteDetailView({ docente, successMessage }: DocenteDetailView
           )}
         </Fieldset.Content>
       </Fieldset.Root>
-
       <Fieldset.Root borderWidth="1px" borderColor="blue.100" borderRadius="18px" p="20px" pt="0">
         <Fieldset.Legend px="8px" fontWeight={700}>
           Telefones
@@ -155,7 +137,6 @@ export function DocenteDetailView({ docente, successMessage }: DocenteDetailView
           )}
         </Fieldset.Content>
       </Fieldset.Root>
-
       <Fieldset.Root borderWidth="1px" borderColor="#dbeafe" borderRadius="18px" p="20px" pt="0">
         <Fieldset.Legend px="8px" fontWeight={700}>
           Documentos
@@ -187,7 +168,6 @@ export function DocenteDetailView({ docente, successMessage }: DocenteDetailView
           )}
         </Fieldset.Content>
       </Fieldset.Root>
-
       <Fieldset.Root borderWidth="1px" borderColor="#dbeafe" borderRadius="18px" p="20px" pt="0">
         <Fieldset.Legend px="8px" fontWeight={700}>
           Contas bancárias
@@ -221,7 +201,6 @@ export function DocenteDetailView({ docente, successMessage }: DocenteDetailView
           )}
         </Fieldset.Content>
       </Fieldset.Root>
-
       <DocenteFormActionBar
         title="Ações do registro"
         submitIdleText="Editar cadastro"

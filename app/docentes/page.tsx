@@ -20,6 +20,8 @@ import {
   Text,
   Em,
   CheckboxCard,
+  VStack,
+  Grid,
 } from '@chakra-ui/react'
 
 import { logoutAction } from '@/actions/auth-actions'
@@ -100,16 +102,15 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
   return (
     <Box
       as="main"
+      bg="radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 28%), linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)"
       minH="100vh"
-      py={{ base: '24px', md: '32px' }}
-      px={{ base: '12px', md: '24px' }}
-      bg="radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 28%), linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)">
-      <Container maxW="6xl">
+      py={{ base: '15px', md: '32px' }}
+      px={{ base: '7px', md: '24px' }}>
+      <Container maxW="6xl" minW="sm">
         <Box
           bg="white"
           border="1px solid #dbe3f0"
           borderRadius="20px"
-          // boxShadow="0 18px 50px rgba(15, 23, 42, 0.08)"
           shadow="lg"
           p={{ base: '16px', md: '28px' }}>
           <Flex justify="space-between" gap="16px" align="flex-start" wrap="wrap" mb="24px">
@@ -132,7 +133,7 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                   // color="#fff"
                   border="none"
                   bg="linear-gradient(135deg, #0f766e 0%, #14b8a6 100%)">
-                  Novo docente
+                  Novo cadastro
                 </Button>
               </NextLink>
               <form action={logoutAction}>
@@ -153,62 +154,68 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
             </Heading>
             <form
               method="get"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                gap: '25px',
-              }}>
-              <Field.Root>
-                <Field.Label fontWeight="600">Nome</Field.Label>
-                <Input id="nome" name="nome" type="text" defaultValue={nome} />
-              </Field.Root>
+              // style={{
+              //   display: 'grid',
+              //   gridTemplateColumns: 'repeat(minmax(180px, 5fr))',
+              //   gap: '25px',
+              // }}
+            >
+              <Grid
+                templateColumns={{ base: '1fr 1fr', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' }}
+                gap="25px"
+                alignItems="end">
+                <Field.Root gridColumn={{ base: '2 span ', lg: 'auto' }}>
+                  <Field.Label fontWeight="600">Nome</Field.Label>
+                  <Input id="nome" name="nome" type="text" defaultValue={nome} />
+                </Field.Root>
 
-              <Field.Root>
-                <Field.Label fontWeight="600">Ordenar por</Field.Label>
-                <NativeSelect.Root>
-                  <NativeSelect.Field id="sortBy" name="sortBy" defaultValue={baseParams.sortBy}>
-                    <option value="nome">Nome</option>
-                    <option value="dataAdmissao">Data de admissão</option>
-                  </NativeSelect.Field>
-                  <NativeSelect.Indicator />
-                </NativeSelect.Root>
-              </Field.Root>
+                <Field.Root>
+                  <Field.Label fontWeight="600">Ordenar por</Field.Label>
+                  <NativeSelect.Root>
+                    <NativeSelect.Field id="sortBy" name="sortBy" defaultValue={baseParams.sortBy}>
+                      <option value="nome">Nome</option>
+                      <option value="dataAdmissao">Data de admissão</option>
+                    </NativeSelect.Field>
+                    <NativeSelect.Indicator />
+                  </NativeSelect.Root>
+                </Field.Root>
 
-              <Field.Root>
-                <Field.Label fontWeight="600">Direção</Field.Label>
-                <NativeSelect.Root>
-                  <NativeSelect.Field id="sortOrder" name="sortOrder" defaultValue={baseParams.sortOrder}>
-                    <option value="asc">Crescente</option>
-                    <option value="desc">Decrescente</option>
-                  </NativeSelect.Field>
-                  <NativeSelect.Indicator />
-                </NativeSelect.Root>
-              </Field.Root>
+                <Field.Root>
+                  <Field.Label fontWeight="600">Direção</Field.Label>
+                  <NativeSelect.Root>
+                    <NativeSelect.Field id="sortOrder" name="sortOrder" defaultValue={baseParams.sortOrder}>
+                      <option value="asc">Crescente</option>
+                      <option value="desc">Decrescente</option>
+                    </NativeSelect.Field>
+                    <NativeSelect.Indicator />
+                  </NativeSelect.Root>
+                </Field.Root>
 
-              <Field.Root>
-                <Field.Label fontWeight="600">Situação</Field.Label>
-                <CheckboxCard.Root id="ativo" name="ativo" size="sm" defaultChecked={ativo === 'on'}>
-                  <CheckboxCard.HiddenInput />
-                  <CheckboxCard.Content>
-                    <CheckboxCard.Control>
-                      <CheckboxCard.Label>Somente ativos</CheckboxCard.Label>
-
-                      <CheckboxCard.Indicator />
-                    </CheckboxCard.Control>
-                  </CheckboxCard.Content>
-                </CheckboxCard.Root>
-              </Field.Root>
-
-              <HStack gap="10px" align="flex-end" wrap="wrap">
-                <Button type="submit" colorPalette="teal" borderRadius="999px">
-                  Buscar
-                </Button>
-                <NextLink href="/docentes" passHref>
-                  <Button rounded="full" variant="outline">
-                    Limpar
+                <Field.Root>
+                  <Field.Label fontWeight="600">Situação</Field.Label>
+                  <Checkbox.Root id="ativo" name="ativo" size="sm" defaultChecked={ativo === 'on'} py="11px">
+                    <Checkbox.HiddenInput />
+                    {/* <Checkbox.Content> */}
+                    <Checkbox.Control>
+                      <Checkbox.Indicator />
+                    </Checkbox.Control>
+                    <Checkbox.Label>Somente ativos</Checkbox.Label>
+                    {/* </Checkbox.Content> */}
+                  </Checkbox.Root>
+                </Field.Root>
+                <HStack justify="flex-end" gap="12px">
+                  {/* <VStack gap="10px" align="flex-end" wrap="wrap"> */}
+                  <Button type="submit" colorPalette="teal" rounded="full">
+                    Buscar
                   </Button>
-                </NextLink>
-              </HStack>
+                  <NextLink href="/docentes" passHref>
+                    <Button rounded="full" variant="outline">
+                      Limpar
+                    </Button>
+                  </NextLink>
+                  {/* </VStack> */}
+                </HStack>
+              </Grid>
             </form>
           </Box>
           <Box>
@@ -245,13 +252,19 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
               </Box>
             ) : (
               <Box overflowX="auto" border="1px solid #dbe3f0" borderRadius="18px">
-                <Table.Root minW="920px" variant="outline">
+                <Table.Root variant="outline">
                   <Table.Header bg="gray.50">
                     <Table.Row>
                       <Table.ColumnHeader>Nome</Table.ColumnHeader>
-                      <Table.ColumnHeader textAlign="center">Regime de trabalho</Table.ColumnHeader>
-                      <Table.ColumnHeader textAlign="center">Data de admissão</Table.ColumnHeader>
-                      <Table.ColumnHeader textAlign="center">Situação</Table.ColumnHeader>
+                      <Table.ColumnHeader display="none" lg={{ display: 'table-cell' }} textAlign="center">
+                        Regime de trabalho
+                      </Table.ColumnHeader>
+                      <Table.ColumnHeader display="none" md={{ display: 'table-cell' }} textAlign="center">
+                        Data de admissão
+                      </Table.ColumnHeader>
+                      <Table.ColumnHeader textAlign="center" display="none" md={{ display: 'table-cell' }}>
+                        Situação
+                      </Table.ColumnHeader>
                       <Table.ColumnHeader textAlign="center">Ações</Table.ColumnHeader>
                     </Table.Row>
                   </Table.Header>
@@ -261,15 +274,15 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                         <Table.Cell>
                           <Text fontWeight="700">{doc.nome}</Text>
                         </Table.Cell>
-                        <Table.Cell textAlign="center">
+                        <Table.Cell textAlign="center" display="none" lg={{ display: 'table-cell' }}>
                           <Text>{doc.regimeTrabalho || <Em>Regime não informado</Em>}</Text>
                         </Table.Cell>
-                        <Table.Cell textAlign="center">
+                        <Table.Cell textAlign="center" display="none" md={{ display: 'table-cell' }}>
                           {doc.dataAdmissao
                             ? new Date(doc.dataAdmissao).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
                             : 'Data não informada'}
                         </Table.Cell>
-                        <Table.Cell textAlign="center">
+                        <Table.Cell textAlign="center" display="none" md={{ display: 'table-cell' }}>
                           {doc.ativo ? (
                             <Text as="span" color="black">
                               Ativo
