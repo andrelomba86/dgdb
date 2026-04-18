@@ -60,12 +60,12 @@ export default async function EditDocentePage({ params, searchParams }: EditDoce
   }
 
   const relatedInitialData: RelatedEntitiesInitialData = {
-    cargos: docente.cargos.map(cargo => ({
-      id: cargo.id,
-      descricao: cargo.descricao,
-      funcao: cargo.funcao || '',
-      dataInicio: toDateInputValue(cargo.dataInicio),
-      referencia: cargo.referencia || '',
+    progressoes: docente.progressoes.map(progressao => ({
+      id: progressao.id,
+      descricao: progressao.descricao,
+      funcao: progressao.funcao || '',
+      dataInicio: toDateInputValue(progressao.dataInicio),
+      referencia: progressao.referencia || '',
     })),
     telefones: docente.telefones.map(telefone => ({
       id: telefone.id,

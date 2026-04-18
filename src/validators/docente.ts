@@ -1,6 +1,5 @@
 import { z } from 'zod'
-
-import { cargoInputSchema } from '@/validators/cargo'
+import { progressaoInputSchema } from '@/validators/progressao'
 import { contaBancariaInputSchema } from '@/validators/conta-bancaria'
 import { documentoInputSchema } from '@/validators/documento'
 import {
@@ -27,7 +26,7 @@ export const docenteBaseSchema = z.object({
   regimeJuridico: nullableString(15),
   regimeTrabalho: nullableString(15),
   regimeDataAplicacao: nullableDate,
-  cargos: z.array(cargoInputSchema).default([]),
+  progressoes: z.array(progressaoInputSchema).default([]),
   telefones: z.array(telefoneInputSchema).default([]),
   documentos: z.array(documentoInputSchema).default([]),
   contasBancarias: z.array(contaBancariaInputSchema).default([]),

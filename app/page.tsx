@@ -60,9 +60,11 @@ export default async function HomePage() {
             p="22px"
             borderRadius="20px"
             textDecoration="none"
-            color="#0f172a"
             border="1px solid #dbeafe"
-            bg="linear-gradient(180deg, #ffffff 0%, #effff6 100%)">
+            bg="teal.50"
+
+            // bg="linear-gradient(180deg, #ffffff 0%, #effff6 100%)"
+          >
             <Text color="teal" fontWeight="700" mb="8px">
               Docentes
             </Text>

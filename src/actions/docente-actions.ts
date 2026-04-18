@@ -15,7 +15,7 @@ import {
 } from '@/lib/docente-export'
 import { ConflictError, ForbiddenError, NotFoundError } from '@/lib/errors'
 import { docenteService } from '@/services/docente-service'
-import { cargoInputSchema } from '@/validators/cargo'
+import { progressaoInputSchema } from '@/validators/progressao'
 import { contaBancariaInputSchema } from '@/validators/conta-bancaria'
 import { documentoInputSchema } from '@/validators/documento'
 import type { DocenteAggregate, DocenteListResult } from '@/types/docente'
@@ -63,7 +63,7 @@ function formatZodIssues(error: z.ZodError) {
 
 const toTrimmedString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
 
-function isEmptyCargoRow(value: unknown) {
+function isEmptyProgressaoRow(value: unknown) {
   const row = value as { descricao?: unknown; funcao?: unknown; dataInicio?: unknown; referencia?: unknown }
   return (
     toTrimmedString(row.descricao) === '' &&
@@ -137,9 +137,15 @@ function parseJsonArrayField<T>(
 }
 
 function parseRelatedCollections(formData: FormData) {
-  const cargos = parseJsonArrayField(formData, 'cargosData', cargoInputSchema, 'Cargos', isEmptyCargoRow)
-  if (!cargos.success) {
-    return cargos
+  const progressoes = parseJsonArrayField(
+    formData,
+    'progressaoData',
+    progressaoInputSchema,
+    'Progressões',
+    isEmptyProgressaoRow,
+  )
+  if (!progressoes.success) {
+    return progressoes
   }
 
   const telefones = parseJsonArrayField(
@@ -178,7 +184,7 @@ function parseRelatedCollections(formData: FormData) {
   return {
     success: true as const,
     data: {
-      cargos: cargos.data,
+      progressoes: progressoes.data,
       telefones: telefones.data,
       documentos: documentos.data,
       contasBancarias: contasBancarias.data,
@@ -238,14 +244,14 @@ function buildDocenteFormValues(formData: FormData): DocenteFormValues {
 }
 
 function buildRelatedInitialData(formData: FormData): RelatedEntitiesInitialData {
-  const cargos = parseRawArrayField(formData, 'cargosData')
+  const progressoes = parseRawArrayField(formData, 'progressoesData')
   const telefones = parseRawArrayField(formData, 'telefonesData')
   const documentos = parseRawArrayField(formData, 'documentosData')
   const contasBancarias = parseRawArrayField(formData, 'contasBancariasData')
 
   return {
-    cargos: cargos.map(cargo => {
-      const value = cargo as Record<string, unknown>
+    progressoes: progressoes.map(progressao => {
+      const value = progressao as Record<string, unknown>
       return {
         id: toOptionalId(value.id),
         descricao: toInputString(value.descricao),
@@ -469,7 +475,7 @@ export async function createDocenteAction(
     regimeDataAplicacao: formData.get('regimeDataAplicacao')
       ? new Date(formData.get('regimeDataAplicacao') as string)
       : null,
-    cargos: relationsResult.data.cargos,
+    carreiras: relationsResult.data.progressoes,
     telefones: relationsResult.data.telefones,
     documentos: relationsResult.data.documentos,
     contasBancarias: relationsResult.data.contasBancarias,
@@ -536,7 +542,7 @@ export async function updateDocenteAction(
     regimeDataAplicacao: formData.get('regimeDataAplicacao')
       ? new Date(formData.get('regimeDataAplicacao') as string)
       : null,
-    cargos: relationsResult.data.cargos,
+    carreiras: relationsResult.data.progressoes,
     telefones: relationsResult.data.telefones,
     documentos: relationsResult.data.documentos,
     contasBancarias: relationsResult.data.contasBancarias,

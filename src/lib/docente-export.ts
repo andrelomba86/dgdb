@@ -20,7 +20,7 @@ const csvHeaders = [
   'RegimeJuridico',
   'RegimeTrabalho',
   'RegimeDataAplicacao',
-  'Cargos',
+  'Progressoes',
   'Telefones',
   'Documentos',
   'ContasBancarias',
@@ -43,7 +43,7 @@ function escapeCsvValue(value: string) {
 
 function compactRelationValues(docente: DocenteAggregate) {
   return {
-    cargos: docente.cargos.map(cargo => cargo.descricao).join(' | '),
+    progressao: docente.progressoes.map(progressao => progressao.descricao).join(' | '),
     telefones: docente.telefones.map(telefone => `${telefone.tipo}: ${telefone.telefone}`).join(' | '),
     documentos: docente.documentos.map(documento => `${documento.tipo}: ${documento.documento}`).join(' | '),
     contasBancarias: docente.contasBancarias
@@ -70,7 +70,7 @@ export function buildDocentesCsvExport(docentes: DocenteAggregate[]): ExportPayl
         docente.regimeJuridico || '',
         docente.regimeTrabalho || '',
         formatDate(docente.regimeDataAplicacao),
-        relations.cargos,
+        relations.progressao,
         relations.telefones,
         relations.documentos,
         relations.contasBancarias,
@@ -175,7 +175,7 @@ async function buildPdfBytes(docentes: DocenteAggregate[]) {
       `Regime juridico: ${docente.regimeJuridico || '-'}`,
       `Regime trabalho: ${docente.regimeTrabalho || '-'}`,
       `Endereco: ${docente.endereco || '-'}`,
-      `Cargos: ${relations.cargos || '-'}`,
+      `Progressoes: ${relations.progressao || '-'}`,
       `Telefones: ${relations.telefones || '-'}`,
       `Documentos: ${relations.documentos || '-'}`,
       `Contas bancarias: ${relations.contasBancarias || '-'}`,

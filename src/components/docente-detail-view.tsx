@@ -73,12 +73,12 @@ export function DocenteDetailView({ docente, successMessage }: DocenteDetailView
       </Fieldset.Root>
       <Fieldset.Root borderWidth="1px" borderColor="blue.100" borderRadius="18px" p="20px" pt="0">
         <Fieldset.Legend px="8px" fontWeight={700}>
-          Cargos
+          Progressão na carreira
         </Fieldset.Legend>
         <Fieldset.Content>
-          {docente.cargos.length === 0 ? (
+          {docente.progressoes.length === 0 ? (
             <Text color="gray.600">
-              <Em>Nenhum cargo cadastrado.</Em>
+              <Em>Nenhuma progressão na carreira cadastrada.</Em>
             </Text>
           ) : (
             <Box overflowX="auto" border="1px solid #e2e8f0" borderRadius="16px">
@@ -92,12 +92,12 @@ export function DocenteDetailView({ docente, successMessage }: DocenteDetailView
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                  {docente.cargos.map(cargo => (
-                    <Table.Row key={cargo.id}>
-                      <Table.Cell>{formatText(cargo.descricao)}</Table.Cell>
-                      <Table.Cell>{formatText(cargo.funcao)}</Table.Cell>
-                      <Table.Cell>{formatDate(cargo.dataInicio)}</Table.Cell>
-                      <Table.Cell>{formatText(cargo.referencia)}</Table.Cell>
+                  {docente.progressoes.map(progressao => (
+                    <Table.Row key={progressao.id}>
+                      <Table.Cell>{formatText(progressao.descricao)}</Table.Cell>
+                      <Table.Cell>{formatText(progressao.funcao)}</Table.Cell>
+                      <Table.Cell>{formatDate(progressao.dataInicio)}</Table.Cell>
+                      <Table.Cell>{formatText(progressao.referencia)}</Table.Cell>
                     </Table.Row>
                   ))}
                 </Table.Body>

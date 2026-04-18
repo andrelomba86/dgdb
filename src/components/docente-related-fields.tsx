@@ -17,7 +17,7 @@ import Close from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState } from 'react'
 
-type CargoFormValue = {
+type ProgressaoFormValue = {
   id?: number
   descricao: string
   funcao: string
@@ -45,7 +45,7 @@ type ContaBancariaFormValue = {
 }
 
 export type RelatedEntitiesInitialData = {
-  cargos: CargoFormValue[]
+  progressoes: ProgressaoFormValue[]
   telefones: TelefoneFormValue[]
   documentos: DocumentoFormValue[]
   contasBancarias: ContaBancariaFormValue[]
@@ -56,7 +56,7 @@ type DocenteRelatedFieldsProps = {
 }
 
 const defaultData: RelatedEntitiesInitialData = {
-  cargos: [],
+  progressoes: [],
   telefones: [],
   documentos: [],
   contasBancarias: [],
@@ -71,7 +71,7 @@ function removeAtIndex<T>(items: T[], index: number) {
 }
 
 export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelatedFieldsProps) {
-  const [cargos, setCargos] = useState<CargoFormValue[]>(initialData.cargos)
+  const [progressoes, setProgressoes] = useState<ProgressaoFormValue[]>(initialData.progressoes)
   const [telefones, setTelefones] = useState<TelefoneFormValue[]>(initialData.telefones)
   const [documentos, setDocumentos] = useState<DocumentoFormValue[]>(initialData.documentos)
   const [contasBancarias, setContasBancarias] = useState<ContaBancariaFormValue[]>(
@@ -79,7 +79,7 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
   )
 
   useEffect(() => {
-    setCargos(initialData.cargos)
+    setProgressoes(initialData.progressoes)
     setTelefones(initialData.telefones)
     setDocumentos(initialData.documentos)
     setContasBancarias(initialData.contasBancarias)
@@ -87,20 +87,20 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
 
   return (
     <>
-      <input type="hidden" name="cargosData" value={JSON.stringify(cargos)} />
+      <input type="hidden" name="carreirasData" value={JSON.stringify(progressoes)} />
       <input type="hidden" name="telefonesData" value={JSON.stringify(telefones)} />
       <input type="hidden" name="documentosData" value={JSON.stringify(documentos)} />
       <input type="hidden" name="contasBancariasData" value={JSON.stringify(contasBancarias)} />
 
       <Fieldset.Root borderWidth="1px" borderColor="blue.100" borderRadius="18px" p="20px" pt="0">
         <Fieldset.Legend px="8px" fontWeight="700">
-          Cargos
+          Progressões na carreira
         </Fieldset.Legend>
         <Fieldset.Content>
           <Stack gap="12px">
-            {cargos.map((cargo, index) => (
+            {progressoes.map((progressao, index) => (
               <Box
-                key={cargo.id ?? `cargo-${index}`}
+                key={progressao.id ?? `progressao-${index}`}
                 display="grid"
                 gap="8px"
                 p="14px"
@@ -110,13 +110,13 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                 bg="gray.50">
                 <Grid templateColumns={{ base: '1fr', md: '1fr 1fr', lg: 'repeat(4, 7fr) 1fr' }} gap="8px">
                   <Field.Root>
-                    <Field.Label htmlFor={`cargo-descricao-${index}`}>Descrição</Field.Label>
+                    <Field.Label htmlFor={`progressao-descricao-${index}`}>Descrição</Field.Label>
                     <Input
-                      id={`cargo-descricao-${index}`}
+                      id={`progressao-descricao-${index}`}
                       type="text"
-                      value={cargo.descricao}
+                      value={progressao.descricao}
                       onChange={event => {
-                        setCargos(current =>
+                        setProgressoes(current =>
                           updateAtIndex(current, index, item => ({ ...item, descricao: event.target.value })),
                         )
                       }}
@@ -124,13 +124,13 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                     />
                   </Field.Root>
                   <Field.Root>
-                    <Field.Label htmlFor={`cargo-funcao-${index}`}>Função</Field.Label>
+                    <Field.Label htmlFor={`progressao-funcao-${index}`}>Função</Field.Label>
                     <Input
-                      id={`cargo-funcao-${index}`}
+                      id={`progressao-funcao-${index}`}
                       type="text"
-                      value={cargo.funcao}
+                      value={progressao.funcao}
                       onChange={event => {
-                        setCargos(current =>
+                        setProgressoes(current =>
                           updateAtIndex(current, index, item => ({ ...item, funcao: event.target.value })),
                         )
                       }}
@@ -138,13 +138,13 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                     />
                   </Field.Root>
                   <Field.Root>
-                    <Field.Label htmlFor={`cargo-data-${index}`}>Data de início</Field.Label>
+                    <Field.Label htmlFor={`progressao-data-${index}`}>Data de início</Field.Label>
                     <Input
-                      id={`cargo-data-${index}`}
+                      id={`progressao-data-${index}`}
                       type="date"
-                      value={cargo.dataInicio}
+                      value={progressao.dataInicio}
                       onChange={event => {
-                        setCargos(current =>
+                        setProgressoes(current =>
                           updateAtIndex(current, index, item => ({
                             ...item,
                             dataInicio: event.target.value,
@@ -155,13 +155,13 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                     />
                   </Field.Root>
                   <Field.Root>
-                    <Field.Label htmlFor={`cargo-referencia-${index}`}>Referência</Field.Label>
+                    <Field.Label htmlFor={`progressao-referencia-${index}`}>Referência</Field.Label>
                     <Input
-                      id={`cargo-referencia-${index}`}
+                      id={`progressao-referencia-${index}`}
                       type="text"
-                      value={cargo.referencia}
+                      value={progressao.referencia}
                       onChange={event => {
-                        setCargos(current =>
+                        setProgressoes(current =>
                           updateAtIndex(current, index, item => ({
                             ...item,
                             referencia: event.target.value,
@@ -175,8 +175,8 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                     gridColumn={{ base: '1', md: 'span 2', lg: 'span 1' }}
                     alignSelf="end"
                     type="button"
-                    onClick={() => setCargos(current => removeAtIndex(current, index))}
-                    aria-label="Remover cargo"
+                    onClick={() => setProgressoes(current => removeAtIndex(current, index))}
+                    aria-label="Remover progressão"
                     variant="ghost"
                     size="md"
                     colorPalette="red">
@@ -188,7 +188,7 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
 
             <Button
               onClick={() =>
-                setCargos(current => [
+                setProgressoes(current => [
                   ...current,
                   { descricao: '', funcao: '', dataInicio: '', referencia: '' },
                 ])
@@ -196,7 +196,7 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
               variant="surface"
               rounded="full"
               colorPalette="blue">
-              Adicionar cargo
+              Adicionar progressão
             </Button>
           </Stack>
         </Fieldset.Content>

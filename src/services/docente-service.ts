@@ -154,21 +154,21 @@ export class DocenteService {
       email: normalizeEmail(input.email ? String(input.email) : undefined),
       regimeJuridico: normalizeOptionalText(input.regimeJuridico ? String(input.regimeJuridico) : undefined),
       regimeTrabalho: normalizeOptionalText(input.regimeTrabalho ? String(input.regimeTrabalho) : undefined),
-      cargos: (input.cargos ?? []).map(cargo => this.normalizeCargoInput(cargo)),
+      progressoes: (input.progressoes ?? []).map(progressao => this.normalizeProgressaoInput(progressao)),
       telefones: (input.telefones ?? []).map(telefone => this.normalizeTelefoneInput(telefone)),
       documentos: (input.documentos ?? []).map(documento => this.normalizeDocumentoInput(documento)),
       contasBancarias: (input.contasBancarias ?? []).map(conta => this.normalizeContaBancariaInput(conta)),
     } as T
   }
 
-  private normalizeCargoInput<
+  private normalizeProgressaoInput<
     T extends { descricao: unknown; funcao?: unknown | null; referencia?: unknown | null },
-  >(cargo: T) {
+  >(progressao: T) {
     return {
-      ...cargo,
-      descricao: normalizeText(String(cargo.descricao)),
-      funcao: normalizeOptionalText(cargo.funcao ? String(cargo.funcao) : undefined),
-      referencia: normalizeOptionalText(cargo.referencia ? String(cargo.referencia) : undefined),
+      ...progressao,
+      descricao: normalizeText(String(progressao.descricao)),
+      funcao: normalizeOptionalText(progressao.funcao ? String(progressao.funcao) : undefined),
+      referencia: normalizeOptionalText(progressao.referencia ? String(progressao.referencia) : undefined),
     }
   }
 
@@ -214,17 +214,17 @@ export class DocenteService {
     }
   }
 
-  private mapCargoFields(cargo: {
+  private mapProgressaoFields(progressao: {
     descricao: unknown
     funcao?: unknown | null
     dataInicio?: unknown
     referencia?: unknown | null
   }) {
     return {
-      descricao: String(cargo.descricao),
-      funcao: this.toNullableString(cargo.funcao),
-      dataInicio: this.toDateOrNull(cargo.dataInicio),
-      referencia: this.toNullableString(cargo.referencia),
+      descricao: String(progressao.descricao),
+      funcao: this.toNullableString(progressao.funcao),
+      dataInicio: this.toDateOrNull(progressao.dataInicio),
+      referencia: this.toNullableString(progressao.referencia),
     }
   }
 
@@ -264,8 +264,8 @@ export class DocenteService {
   private buildCreatePayload(input: CreateDocenteInput): Prisma.DocenteCreateInput {
     return {
       ...this.buildDocenteBaseFields(input),
-      cargos: {
-        create: (input.cargos ?? []).map(cargo => this.mapCargoFields(cargo)),
+      progressoes: {
+        create: (input.progressoes ?? []).map(progressao => this.mapProgressaoFields(progressao)),
       },
       telefones: {
         create: (input.telefones ?? []).map(telefone => this.mapTelefoneFields(telefone)),
@@ -282,7 +282,9 @@ export class DocenteService {
   private buildUpdatePayload(input: UpdateDocenteInput): Prisma.DocenteUpdateInput {
     return {
       ...this.buildDocenteBaseFields(input),
-      cargos: this.buildRelationUpsert(input.cargos ?? [], cargo => this.mapCargoFields(cargo)),
+      progressoes: this.buildRelationUpsert(input.progressoes ?? [], progressao =>
+        this.mapProgressaoFields(progressao),
+      ),
       telefones: this.buildRelationUpsert(input.telefones ?? [], telefone =>
         this.mapTelefoneFields(telefone),
       ),

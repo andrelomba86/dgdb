@@ -5,7 +5,7 @@ import type { DocenteAggregate, DocenteListResult } from '@/types/docente'
 import type { DocenteListInput } from '@/validators/docente'
 
 const docenteInclude = {
-  cargos: true,
+  progressoes: true,
   telefones: true,
   documentos: true,
   contasBancarias: true,

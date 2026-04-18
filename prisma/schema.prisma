@@ -18,7 +18,7 @@ model Docente {
   regimeJuridico       String?         @map("regime_juridico") @db.VarChar(15)
   regimeTrabalho       String?         @map("regime_trabalho") @db.VarChar(15)
   regimeDataAplicacao  DateTime?       @map("regime_data_aplicacao") @db.Date
-  cargos               Cargo[]
+  progressoes          Progressao[]
   telefones            Telefone[]
   documentos           Documento[]
   contasBancarias      ContaBancaria[]
@@ -27,7 +27,7 @@ model Docente {
   @@map("docente")
 }
 
-model Cargo {
+model Progressao {
   id         Int       @id @default(autoincrement())
   descricao  String    @db.VarChar(60)
   funcao     String?   @db.VarChar(60)
@@ -36,8 +36,8 @@ model Cargo {
   docenteId  Int       @map("docente_id")
   docente    Docente   @relation(fields: [docenteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@index([docenteId], map: "fk_cargo_docente1_idx")
-  @@map("cargo")
+  @@index([docenteId], map: "fk_progressao_docente1_idx")
+  @@map("progressao")
 }
 
 model Telefone {
