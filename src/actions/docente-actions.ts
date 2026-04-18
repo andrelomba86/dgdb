@@ -64,11 +64,16 @@ function formatZodIssues(error: z.ZodError) {
 const toTrimmedString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
 
 function isEmptyProgressaoRow(value: unknown) {
-  const row = value as { descricao?: unknown; funcao?: unknown; dataInicio?: unknown; referencia?: unknown }
+  const row = value as {
+    funcao?: unknown
+    dataInicio?: unknown
+    dataTermino?: unknown
+    referencia?: unknown
+  }
   return (
-    toTrimmedString(row.descricao) === '' &&
     toTrimmedString(row.funcao) === '' &&
     toTrimmedString(row.dataInicio) === '' &&
+    toTrimmedString(row.dataTermino) === '' &&
     toTrimmedString(row.referencia) === ''
   )
 }
@@ -139,7 +144,7 @@ function parseJsonArrayField<T>(
 function parseRelatedCollections(formData: FormData) {
   const progressoes = parseJsonArrayField(
     formData,
-    'progressaoData',
+    'progressoesData',
     progressaoInputSchema,
     'Progressões',
     isEmptyProgressaoRow,
@@ -254,9 +259,9 @@ function buildRelatedInitialData(formData: FormData): RelatedEntitiesInitialData
       const value = progressao as Record<string, unknown>
       return {
         id: toOptionalId(value.id),
-        descricao: toInputString(value.descricao),
         funcao: toInputString(value.funcao),
         dataInicio: toInputString(value.dataInicio),
+        dataTermino: toInputString(value.dataTermino),
         referencia: toInputString(value.referencia),
       }
     }),
@@ -475,7 +480,7 @@ export async function createDocenteAction(
     regimeDataAplicacao: formData.get('regimeDataAplicacao')
       ? new Date(formData.get('regimeDataAplicacao') as string)
       : null,
-    carreiras: relationsResult.data.progressoes,
+    progressoes: relationsResult.data.progressoes,
     telefones: relationsResult.data.telefones,
     documentos: relationsResult.data.documentos,
     contasBancarias: relationsResult.data.contasBancarias,
@@ -542,7 +547,7 @@ export async function updateDocenteAction(
     regimeDataAplicacao: formData.get('regimeDataAplicacao')
       ? new Date(formData.get('regimeDataAplicacao') as string)
       : null,
-    carreiras: relationsResult.data.progressoes,
+    progressoes: relationsResult.data.progressoes,
     telefones: relationsResult.data.telefones,
     documentos: relationsResult.data.documentos,
     contasBancarias: relationsResult.data.contasBancarias,

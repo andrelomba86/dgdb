@@ -62,9 +62,9 @@ export default async function EditDocentePage({ params, searchParams }: EditDoce
   const relatedInitialData: RelatedEntitiesInitialData = {
     progressoes: docente.progressoes.map(progressao => ({
       id: progressao.id,
-      descricao: progressao.descricao,
       funcao: progressao.funcao || '',
       dataInicio: toDateInputValue(progressao.dataInicio),
+      dataTermino: toDateInputValue(progressao.dataTermino),
       referencia: progressao.referencia || '',
     })),
     telefones: docente.telefones.map(telefone => ({

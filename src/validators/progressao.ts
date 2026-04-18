@@ -4,9 +4,9 @@ import { idSchema, nullableDate, nullableString, requiredDate, requiredString } 
 
 export const progressaoInputSchema = z.object({
   id: idSchema.optional(),
-  descricao: requiredString('Descrição da progressão', 60),
   funcao: nullableString(60),
   dataInicio: requiredDate('Data de início'),
+  dataTermino: nullableDate.optional(),
   referencia: nullableString(45),
 })
 

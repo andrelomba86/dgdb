@@ -19,9 +19,9 @@ import { useEffect, useState } from 'react'
 
 type ProgressaoFormValue = {
   id?: number
-  descricao: string
   funcao: string
   dataInicio: string
+  dataTermino: string
   referencia: string
 }
 
@@ -87,7 +87,7 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
 
   return (
     <>
-      <input type="hidden" name="carreirasData" value={JSON.stringify(progressoes)} />
+      <input type="hidden" name="progressoesData" value={JSON.stringify(progressoes)} />
       <input type="hidden" name="telefonesData" value={JSON.stringify(telefones)} />
       <input type="hidden" name="documentosData" value={JSON.stringify(documentos)} />
       <input type="hidden" name="contasBancariasData" value={JSON.stringify(contasBancarias)} />
@@ -108,21 +108,9 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                 borderColor="gray.200"
                 borderRadius="24px"
                 bg="gray.50">
-                <Grid templateColumns={{ base: '1fr', md: '1fr 1fr', lg: 'repeat(4, 7fr) 1fr' }} gap="8px">
-                  <Field.Root>
-                    <Field.Label htmlFor={`progressao-descricao-${index}`}>Descrição</Field.Label>
-                    <Input
-                      id={`progressao-descricao-${index}`}
-                      type="text"
-                      value={progressao.descricao}
-                      onChange={event => {
-                        setProgressoes(current =>
-                          updateAtIndex(current, index, item => ({ ...item, descricao: event.target.value })),
-                        )
-                      }}
-                      p="10px 12px"
-                    />
-                  </Field.Root>
+                <Grid
+                  templateColumns={{ base: '1fr', md: '1fr 1fr', lg: 'repeat(5, minmax(0, 1fr)) 1fr' }}
+                  gap="8px">
                   <Field.Root>
                     <Field.Label htmlFor={`progressao-funcao-${index}`}>Função</Field.Label>
                     <Input
@@ -148,6 +136,23 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                           updateAtIndex(current, index, item => ({
                             ...item,
                             dataInicio: event.target.value,
+                          })),
+                        )
+                      }}
+                      p="10px 12px"
+                    />
+                  </Field.Root>
+                  <Field.Root>
+                    <Field.Label htmlFor={`progressao-data-termino-${index}`}>Data de término</Field.Label>
+                    <Input
+                      id={`progressao-data-termino-${index}`}
+                      type="date"
+                      value={progressao.dataTermino}
+                      onChange={event => {
+                        setProgressoes(current =>
+                          updateAtIndex(current, index, item => ({
+                            ...item,
+                            dataTermino: event.target.value,
                           })),
                         )
                       }}
@@ -190,7 +195,7 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
               onClick={() =>
                 setProgressoes(current => [
                   ...current,
-                  { descricao: '', funcao: '', dataInicio: '', referencia: '' },
+                  { funcao: '', dataInicio: '', dataTermino: '', referencia: '' },
                 ])
               }
               variant="surface"

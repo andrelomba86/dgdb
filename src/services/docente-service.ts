@@ -162,12 +162,18 @@ export class DocenteService {
   }
 
   private normalizeProgressaoInput<
-    T extends { descricao: unknown; funcao?: unknown | null; referencia?: unknown | null },
+    T extends {
+      funcao?: unknown | null
+      dataInicio?: unknown
+      dataTermino?: unknown | null
+      referencia?: unknown | null
+    },
   >(progressao: T) {
     return {
       ...progressao,
-      descricao: normalizeText(String(progressao.descricao)),
       funcao: normalizeOptionalText(progressao.funcao ? String(progressao.funcao) : undefined),
+      dataInicio: this.toDateOrNull(progressao.dataInicio),
+      dataTermino: this.toDateOrNull(progressao.dataTermino),
       referencia: normalizeOptionalText(progressao.referencia ? String(progressao.referencia) : undefined),
     }
   }
@@ -215,15 +221,15 @@ export class DocenteService {
   }
 
   private mapProgressaoFields(progressao: {
-    descricao: unknown
     funcao?: unknown | null
     dataInicio?: unknown
+    dataTermino?: unknown
     referencia?: unknown | null
   }) {
     return {
-      descricao: String(progressao.descricao),
       funcao: this.toNullableString(progressao.funcao),
       dataInicio: this.toDateOrNull(progressao.dataInicio),
+      dataTermino: this.toDateOrNull(progressao.dataTermino),
       referencia: this.toNullableString(progressao.referencia),
     }
   }

@@ -30,17 +30,17 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
--- Table: cargo
-CREATE TABLE IF NOT EXISTS `cargo` (
+-- Table: progressao
+CREATE TABLE IF NOT EXISTS `progressao` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `descricao` VARCHAR(60) NOT NULL,
   `funcao` VARCHAR(60) NULL,
   `data_inicio` DATE NULL,
+  `data_termino` DATE NULL,
   `referencia` VARCHAR(45) NULL,
   `docente_id` INT NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_cargo_docente1_idx` (`docente_id` ASC) VISIBLE,
-  CONSTRAINT `fk_cargo_docente1`
+  INDEX `fk_progressao_docente1_idx` (`docente_id` ASC) VISIBLE,
+  CONSTRAINT `fk_progressao_docente1`
     FOREIGN KEY (`docente_id`)
     REFERENCES `docente` (`id`)
     ON DELETE CASCADE

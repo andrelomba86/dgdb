@@ -43,7 +43,18 @@ function escapeCsvValue(value: string) {
 
 function compactRelationValues(docente: DocenteAggregate) {
   return {
-    progressao: docente.progressoes.map(progressao => progressao.descricao).join(' | '),
+    progressao: docente.progressoes
+      .map(progressao =>
+        [
+          progressao.funcao,
+          progressao.referencia,
+          formatDate(progressao.dataInicio),
+          formatDate(progressao.dataTermino),
+        ]
+          .filter(Boolean)
+          .join(' / '),
+      )
+      .join(' | '),
     telefones: docente.telefones.map(telefone => `${telefone.tipo}: ${telefone.telefone}`).join(' | '),
     documentos: docente.documentos.map(documento => `${documento.tipo}: ${documento.documento}`).join(' | '),
     contasBancarias: docente.contasBancarias

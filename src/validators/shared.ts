@@ -36,7 +36,7 @@ const toOptionalTrimmedString = (value: unknown) => {
 
 const toDate = (value: unknown) => {
   if (value == null || value === '') {
-    return value
+    return null
   }
 
   if (value instanceof Date) {

@@ -88,7 +88,6 @@ export class DocenteRepository {
   }
 
   async findConflict(params: DocenteConflictParams) {
-    console.log('OR:', [{ matricula: params.matricula }, { email: params.email }])
     return prisma.docente.findFirst({
       where: {
         OR: [

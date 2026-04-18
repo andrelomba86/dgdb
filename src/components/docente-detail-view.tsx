@@ -85,18 +85,18 @@ export function DocenteDetailView({ docente, successMessage }: DocenteDetailView
               <Table.Root minW="720px" variant="outline">
                 <Table.Header bg="gray.50">
                   <Table.Row>
-                    <Table.ColumnHeader>Descrição</Table.ColumnHeader>
                     <Table.ColumnHeader>Função</Table.ColumnHeader>
                     <Table.ColumnHeader>Data de início</Table.ColumnHeader>
+                    <Table.ColumnHeader>Data de término</Table.ColumnHeader>
                     <Table.ColumnHeader>Referência</Table.ColumnHeader>
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
                   {docente.progressoes.map(progressao => (
                     <Table.Row key={progressao.id}>
-                      <Table.Cell>{formatText(progressao.descricao)}</Table.Cell>
                       <Table.Cell>{formatText(progressao.funcao)}</Table.Cell>
                       <Table.Cell>{formatDate(progressao.dataInicio)}</Table.Cell>
+                      <Table.Cell>{formatDate(progressao.dataTermino)}</Table.Cell>
                       <Table.Cell>{formatText(progressao.referencia)}</Table.Cell>
                     </Table.Row>
                   ))}

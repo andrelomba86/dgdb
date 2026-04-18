@@ -28,13 +28,13 @@ model Docente {
 }
 
 model Progressao {
-  id         Int       @id @default(autoincrement())
-  descricao  String    @db.VarChar(60)
-  funcao     String?   @db.VarChar(60)
-  dataInicio DateTime? @map("data_inicio") @db.Date
-  referencia String?   @db.VarChar(45)
-  docenteId  Int       @map("docente_id")
-  docente    Docente   @relation(fields: [docenteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id          Int       @id @default(autoincrement())
+  funcao      String?   @db.VarChar(60)
+  dataInicio  DateTime? @map("data_inicio") @db.Date
+  dataTermino DateTime? @map("data_termino") @db.Date
+  referencia  String?   @db.VarChar(45)
+  docenteId   Int       @map("docente_id")
+  docente     Docente   @relation(fields: [docenteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([docenteId], map: "fk_progressao_docente1_idx")
   @@map("progressao")
