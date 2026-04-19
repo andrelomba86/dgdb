@@ -14,12 +14,12 @@ describe('lib/prisma', () => {
   afterEach(() => {
     vi.resetModules()
     vi.clearAllMocks()
+    vi.unstubAllEnvs()
     delete (globalThis as { prisma?: unknown }).prisma
-    delete process.env.NODE_ENV
   })
 
   it('inicializa PrismaClient e salva global fora de producao', async () => {
-    process.env.NODE_ENV = 'development'
+    vi.stubEnv('NODE_ENV', 'development')
     prismaClientMock.mockImplementation(function PrismaClientDevMock() {
       return { instance: 'dev' }
     })
@@ -32,7 +32,7 @@ describe('lib/prisma', () => {
   })
 
   it('nao sobrescreve global em producao', async () => {
-    process.env.NODE_ENV = 'production'
+    vi.stubEnv('NODE_ENV', 'production')
     prismaClientMock.mockImplementation(function PrismaClientProdMock() {
       return { instance: 'prod' }
     })

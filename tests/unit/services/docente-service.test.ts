@@ -26,19 +26,19 @@ const createDocenteAggregate = (): DocenteAggregate => ({
 const createCreateInput = (): CreateDocenteInput => ({
   nome: '  Ana   Paula  ',
   endereco: ' Rua A ',
-  dataNascimento: '1990-01-01',
+  dataNascimento: new Date('1990-01-01T00:00:00.000Z'),
   matricula: ' AB C123 ',
   email: ' ANA@EXAMPLE.COM ',
-  dataAdmissao: '2020-01-01',
+  dataAdmissao: new Date('2020-01-01T00:00:00.000Z'),
   regimeJuridico: ' CLT ',
   regimeTrabalho: ' Integral ',
-  regimeDataAplicacao: '2020-02-01',
+  regimeDataAplicacao: new Date('2020-02-01T00:00:00.000Z'),
   ativo: true,
   progressoes: [
     {
       funcao: ' Professora ',
-      dataInicio: '2020-01-01',
-      dataTermino: '',
+      dataInicio: new Date('2020-01-01T00:00:00.000Z'),
+      dataTermino: null,
       referencia: ' N1 ',
     },
   ],
@@ -54,14 +54,14 @@ const createUpdateInput = (): UpdateDocenteInput => ({
     {
       id: 33,
       funcao: ' Coordenadora ',
-      dataInicio: '2021-01-01',
-      dataTermino: '',
+      dataInicio: new Date('2021-01-01T00:00:00.000Z'),
+      dataTermino: null,
       referencia: ' B2 ',
     },
     {
       funcao: ' Nova função ',
-      dataInicio: '2022-01-01',
-      dataTermino: '',
+      dataInicio: new Date('2022-01-01T00:00:00.000Z'),
+      dataTermino: null,
       referencia: ' C3 ',
     },
   ],
@@ -255,12 +255,12 @@ describe('services/docente-service', () => {
 
     await service.create({
       ...input,
-      dataNascimento: new Date('invalid') as unknown as string,
-      regimeDataAplicacao: { any: 'object' } as unknown as string,
+      dataNascimento: new Date('invalid') as unknown as Date,
+      regimeDataAplicacao: { any: 'object' } as unknown as Date,
       progressoes: [
         {
           ...input.progressoes[0],
-          dataTermino: new Date('invalid') as unknown as string,
+          dataTermino: new Date('invalid') as unknown as Date,
         },
       ],
     })
@@ -281,7 +281,7 @@ describe('services/docente-service', () => {
 
     await service.create({
       ...input,
-      dataAdmissao: 1713398400000 as unknown as string,
+      dataAdmissao: 1713398400000 as unknown as Date,
       endereco: '',
       matricula: '',
       email: '',

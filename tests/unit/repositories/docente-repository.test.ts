@@ -61,19 +61,19 @@ describe('repositories/docente-repository', () => {
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(2)
   })
 
-  it('lista todos para exportacao com filtros e ordenacao padrao', async () => {
+  it('lista todos para exportacao com filtros e ordenacao informada', async () => {
     const repository = new DocenteRepository()
 
     prismaMock.docente.findMany.mockResolvedValue([{ id: 1 }, { id: 2 }])
 
-    await expect(repository.listAll({ nome: 'Ana', ativo: false }, undefined, undefined)).resolves.toEqual([
+    await expect(repository.listAll({ nome: 'Ana', ativo: false }, 'nome', 'asc')).resolves.toEqual([
       { id: 1 },
       { id: 2 },
     ])
 
     expect(prismaMock.docente.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        orderBy: { id: 'asc' },
+        orderBy: { nome: 'asc' },
       }),
     )
   })

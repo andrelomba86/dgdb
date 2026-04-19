@@ -57,7 +57,7 @@ describe('lib/session', () => {
 
   it('define e limpa cookie de sessao', async () => {
     const expiresAt = new Date('2027-01-01T00:00:00.000Z')
-    process.env.NODE_ENV = 'test'
+    vi.stubEnv('NODE_ENV', 'test')
 
     await setSessionCookie('token-123', expiresAt)
     expect(mocks.cookieSet).toHaveBeenCalledWith(SESSION_COOKIE_NAME, 'token-123', {
