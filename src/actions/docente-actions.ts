@@ -51,14 +51,7 @@ async function ensureAuthenticated() {
 }
 
 function formatZodIssues(error: z.ZodError) {
-  console.log(error.issues)
-
-  return (
-    error.issues
-      //código anterior: .map(issue => `${issue.path.length > 0 ? issue.path.join(') ') : 'form'}: ${issue.message}`)
-      .map(issue => `${issue.message}`)
-      .join(' ')
-  )
+  return error.issues.map(issue => `${issue.message}`).join(' ')
 }
 
 const toTrimmedString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
@@ -314,7 +307,6 @@ export async function listDocentesAction(
 ): Promise<ActionResult<DocenteListResult>> {
   try {
     await ensureAuthenticated()
-    console.log(filters)
     const parsed = parseListFilters(filters)
     if (!parsed.success) {
       return {

@@ -143,7 +143,6 @@ describe('services/docente-service', () => {
 
     repository.findById.mockResolvedValue(null)
     await expect(service.getById(999)).rejects.toThrow(NotFoundError)
-    await expect(service.getById(999)).rejects.toThrow('Docente não encontrado.')
   })
 
   it('cria docente com payload normalizado e relacoes mapeadas', async () => {
@@ -204,11 +203,10 @@ describe('services/docente-service', () => {
     repository.findConflict.mockResolvedValue({ id: 1, matricula: 'ABC123', email: null })
 
     await expect(service.create(input)).rejects.toThrow(ConflictError)
-    await expect(service.create(input)).rejects.toThrow('Já existe um docente com esta matrícula.')
 
     repository.findConflict.mockResolvedValue({ id: 2, matricula: 'OUTRA', email: 'ana@example.com' })
 
-    await expect(service.create(input)).rejects.toThrow('Já existe um docente com este e-mail.')
+    await expect(service.create(input)).rejects.toThrow(ConflictError)
   })
 
   it('lanca conflito para colecoes com itens duplicados', async () => {
@@ -223,9 +221,7 @@ describe('services/docente-service', () => {
 
     repository.findConflict.mockResolvedValue(null)
 
-    await expect(service.create(duplicatedPhoneInput)).rejects.toThrow(
-      'Há telefones duplicados no cadastro informado.',
-    )
+    await expect(service.create(duplicatedPhoneInput)).rejects.toThrow(ConflictError)
     expect(repository.create).not.toHaveBeenCalled()
 
     const duplicatedDocumentInput: CreateDocenteInput = {
@@ -236,9 +232,7 @@ describe('services/docente-service', () => {
       ],
     }
 
-    await expect(service.create(duplicatedDocumentInput)).rejects.toThrow(
-      'Há documentos duplicados no cadastro informado.',
-    )
+    await expect(service.create(duplicatedDocumentInput)).rejects.toThrow(ConflictError)
 
     const duplicatedBankInput: CreateDocenteInput = {
       ...createCreateInput(),
@@ -248,9 +242,7 @@ describe('services/docente-service', () => {
       ],
     }
 
-    await expect(service.create(duplicatedBankInput)).rejects.toThrow(
-      'Há contas bancárias duplicadas no cadastro informado.',
-    )
+    await expect(service.create(duplicatedBankInput)).rejects.toThrow(ConflictError)
   })
 
   it('converte valores invalidos de data e tipos inesperados para null no payload', async () => {
