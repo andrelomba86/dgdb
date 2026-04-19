@@ -28,6 +28,7 @@ import {
 describe('lib/session', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.unstubAllEnvs()
 
     mocks.cookies.mockResolvedValue({
       get: mocks.cookieGet,
@@ -72,6 +73,21 @@ describe('lib/session', () => {
     expect(mocks.cookieDelete).toHaveBeenCalledWith(SESSION_COOKIE_NAME)
   })
 
+  it('define cookie seguro em producao', async () => {
+    const expiresAt = new Date('2027-01-01T00:00:00.000Z')
+    vi.stubEnv('NODE_ENV', 'production')
+
+    await setSessionCookie('token-prod', expiresAt)
+
+    expect(mocks.cookieSet).toHaveBeenCalledWith(SESSION_COOKIE_NAME, 'token-prod', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      path: '/',
+      expires: expiresAt,
+    })
+  })
+
   it('le token do cookie e le metadata da requisicao', async () => {
     mocks.cookieGet.mockReturnValue({ value: 'raw-token' })
     mocks.headerGet.mockImplementation((key: string) => {
@@ -84,6 +100,31 @@ describe('lib/session', () => {
     await expect(readRequestMetadata()).resolves.toEqual({
       ip: '10.0.0.1',
       userAgent: 'agent-example',
+    })
+  })
+
+  it('retorna null para token ausente e headers ausentes', async () => {
+    mocks.cookieGet.mockReturnValue(undefined)
+    mocks.headerGet.mockReturnValue(null)
+
+    await expect(getSessionTokenFromCookie()).resolves.toBeNull()
+    await expect(readRequestMetadata()).resolves.toEqual({
+      ip: null,
+      userAgent: null,
+    })
+  })
+
+  it('trunca user-agent para 255 caracteres', async () => {
+    const longUserAgent = 'a'.repeat(400)
+    mocks.headerGet.mockImplementation((key: string) => {
+      if (key === 'x-forwarded-for') return '127.0.0.1'
+      if (key === 'user-agent') return longUserAgent
+      return null
+    })
+
+    await expect(readRequestMetadata()).resolves.toEqual({
+      ip: '127.0.0.1',
+      userAgent: 'a'.repeat(255),
     })
   })
 })

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { PDFDocument } from 'pdf-lib'
 
 import { buildDocentesCsvExport, buildDocentesPdfExport } from '@/lib/docente-export'
 import type { DocenteAggregate } from '@/types/docente'
@@ -104,5 +105,42 @@ describe('lib/docente-export', () => {
     expect(payload.content).toContain('""')
     expect(payload.content).not.toContain('undefined')
     expect(payload.content).not.toContain('null')
+  })
+
+  it('quebra campos longos no PDF e cria multiplas paginas para muitos registros', async () => {
+    const manyDocentes = Array.from({ length: 24 }).map((_, index) => ({
+      ...createDocente(),
+      id: index + 1,
+      nome: `Docente ${index + 1}`,
+      endereco:
+        'Rua muito longa com muitos detalhes para exercitar a quebra de linhas no PDF e validar o fluxo de paginação do relatório',
+      progressoes: [
+        {
+          id: index + 1,
+          docenteId: index + 1,
+          funcao:
+            'Professora pesquisadora com atuação em ensino extensão e pesquisa interdisciplinar avançada',
+          dataInicio: new Date('2024-01-01T00:00:00.000Z'),
+          dataTermino: null,
+          referencia: `A${index + 1}`,
+        },
+      ],
+    }))
+
+    const payload = await buildDocentesPdfExport(manyDocentes)
+    const bytes = Buffer.from(payload.content, 'base64')
+    const pdf = await PDFDocument.load(bytes)
+
+    expect(pdf.getPageCount()).toBeGreaterThan(1)
+    expect(bytes.toString('ascii', 0, 4)).toBe('%PDF')
+  })
+
+  it('gera exportacoes vazias sem erro quando nao ha docentes', async () => {
+    const csvPayload = buildDocentesCsvExport([])
+    const pdfPayload = await buildDocentesPdfExport([])
+
+    expect(csvPayload.content).toContain('ID,Nome,Matricula')
+    expect(csvPayload.content.split('\n')).toHaveLength(1)
+    expect(pdfPayload.content.length).toBeGreaterThan(0)
   })
 })
