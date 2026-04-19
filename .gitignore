@@ -4,7 +4,10 @@ node_modules
 .env
 .env*.local
 coverage
+playwright-report
+test-results
 dist
+*.tsbuildinfo
 *.log
 problemas.md
 prompt*.md
