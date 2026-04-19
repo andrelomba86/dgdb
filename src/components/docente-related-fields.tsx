@@ -108,9 +108,7 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                 borderColor="gray.200"
                 borderRadius="24px"
                 bg="gray.50">
-                <Grid
-                  templateColumns={{ base: '1fr', md: '1fr 1fr', lg: 'repeat(5, minmax(0, 1fr)) 1fr' }}
-                  gap="8px">
+                <Grid templateColumns={{ base: '1fr', md: '1fr 1fr', lg: 'repeat(4, 5fr) 1fr' }} gap="8px">
                   <Field.Root>
                     <Field.Label htmlFor={`progressao-funcao-${index}`}>Função</Field.Label>
                     <Input
@@ -177,7 +175,8 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                     />
                   </Field.Root>
                   <IconButton
-                    gridColumn={{ base: '1', md: 'span 2', lg: 'span 1' }}
+                    gridColumn={{ base: '1', md: '1 / 3', lg: '5' }}
+                    // gridColumn={{ base: '1fr', md: '2 fr' }}
                     alignSelf="end"
                     type="button"
                     onClick={() => setProgressoes(current => removeAtIndex(current, index))}
