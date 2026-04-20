@@ -175,8 +175,7 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                     />
                   </Field.Root>
                   <IconButton
-                    gridColumn={{ base: '1', md: '1 / 3', lg: '5' }}
-                    // gridColumn={{ base: '1fr', md: '2 fr' }}
+                    gridColumn={{ md: 'span 2', lg: 'span 1' }}
                     alignSelf="end"
                     type="button"
                     onClick={() => setProgressoes(current => removeAtIndex(current, index))}

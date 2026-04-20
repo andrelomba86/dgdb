@@ -33,7 +33,7 @@ export function UpdateDocenteForm({
   relatedInitialData,
   initialSuccessMessage,
 }: UpdateDocenteFormProps) {
-  const [state, action] = useActionState(updateDocenteAction, formState)
+  const [state, action, isPending] = useActionState(updateDocenteAction, formState)
   const hasShownInitialSuccess = useRef(false)
   const effectiveRelatedInitialData = state.relatedInitialData ?? relatedInitialData
 
@@ -53,7 +53,17 @@ export function UpdateDocenteForm({
   }, [state.result])
 
   return (
-    <form action={action} style={{ display: 'grid', gap: '18px', paddingBottom: '128px' }}>
+    <form
+      action={action}
+      aria-busy={isPending}
+      style={{
+        display: 'grid',
+        gap: '18px',
+        paddingBottom: '128px',
+        pointerEvents: isPending ? 'none' : 'auto',
+        opacity: isPending ? 0.5 : 1,
+        transition: 'opacity 0.2s ease',
+      }}>
       <input type="hidden" name="id" value={id} />
 
       <DocenteFormFields

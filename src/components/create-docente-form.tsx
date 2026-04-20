@@ -19,7 +19,7 @@ function enqueueToast(type: 'success' | 'error', description: string) {
 }
 
 export function CreateDocenteForm() {
-  const [state, action] = useActionState(createDocenteAction, initialState)
+  const [state, action, isPending] = useActionState(createDocenteAction, initialState)
   const effectiveRelatedInitialData = state.relatedInitialData
 
   useEffect(() => {
@@ -29,7 +29,17 @@ export function CreateDocenteForm() {
   }, [state.result])
 
   return (
-    <form action={action} style={{ display: 'grid', gap: '18px', paddingBottom: '128px' }}>
+    <form
+      action={action}
+      aria-busy={isPending}
+      style={{
+        display: 'grid',
+        gap: '18px',
+        paddingBottom: '128px',
+        pointerEvents: isPending ? 'none' : 'auto',
+        opacity: isPending ? 0.5 : 1,
+        transition: 'opacity 0.2s ease',
+      }}>
       <DocenteFormFields values={state.formValues} relatedInitialData={effectiveRelatedInitialData} />
 
       <DocenteFormActionBar
