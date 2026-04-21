@@ -88,6 +88,7 @@ export default async function EditDocentePage({ params, searchParams }: EditDoce
       conta: conta.conta,
     })),
     telefoneTiposSugeridos,
+    documentoTiposSugeridos: docente.documentos.map(documento => documento.tipo),
   }
 
   return (

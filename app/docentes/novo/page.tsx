@@ -16,6 +16,7 @@ export default async function NovoDocentePage() {
           documentos: [],
           contasBancarias: [],
           telefoneTiposSugeridos,
+          documentoTiposSugeridos: [],
         }}
       />
     </DocentePageShell>

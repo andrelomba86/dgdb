@@ -76,39 +76,22 @@ function formatZodIssues(error: z.ZodError) {
 
 const toTrimmedString = (value: unknown) => (typeof value === 'string' ? value.trim() : '')
 
-function isEmptyProgressaoRow(value: unknown) {
-  const row = value as {
-    funcao?: unknown
-    dataInicio?: unknown
-    dataTermino?: unknown
-    referencia?: unknown
+function createIsEmptyRowChecker(fieldNames: string[]) {
+  return (value: unknown) => {
+    const row = (value ?? {}) as Record<string, unknown>
+    return fieldNames.every(fieldName => toTrimmedString(row[fieldName]) === '')
   }
-  return (
-    toTrimmedString(row.funcao) === '' &&
-    toTrimmedString(row.dataInicio) === '' &&
-    toTrimmedString(row.dataTermino) === '' &&
-    toTrimmedString(row.referencia) === ''
-  )
 }
 
-function isEmptyTelefoneRow(value: unknown) {
-  const row = value as { telefone?: unknown; tipo?: unknown }
-  return toTrimmedString(row.telefone) === '' && toTrimmedString(row.tipo) === ''
-}
-
-function isEmptyDocumentoRow(value: unknown) {
-  const row = value as { tipo?: unknown; documento?: unknown }
-  return toTrimmedString(row.tipo) === '' && toTrimmedString(row.documento) === ''
-}
-
-function isEmptyContaRow(value: unknown) {
-  const row = value as { banco?: unknown; agencia?: unknown; conta?: unknown }
-  return (
-    toTrimmedString(row.banco) === '' &&
-    toTrimmedString(row.agencia) === '' &&
-    toTrimmedString(row.conta) === ''
-  )
-}
+const isEmptyProgressaoRow = createIsEmptyRowChecker([
+  'funcao',
+  'dataInicio',
+  'dataTermino',
+  'referencia',
+])
+const isEmptyTelefoneRow = createIsEmptyRowChecker(['telefone', 'tipo'])
+const isEmptyDocumentoRow = createIsEmptyRowChecker(['tipo', 'documento'])
+const isEmptyContaRow = createIsEmptyRowChecker(['banco', 'agencia', 'conta'])
 
 function parseJsonArrayField<T>(
   formData: FormData,
@@ -261,6 +244,7 @@ function buildRelatedInitialData(formData: FormData): RelatedEntitiesInitialData
   const progressoes = parseRawArrayField(formData, 'progressoesData')
   const telefones = parseRawArrayField(formData, 'telefonesData')
   const telefoneTiposSugeridos = parseRawArrayField(formData, 'telefoneTiposSugeridosData')
+  const documentoTiposSugeridos = parseRawArrayField(formData, 'documentoTiposSugeridosData')
   const documentos = parseRawArrayField(formData, 'documentosData')
   const contasBancarias = parseRawArrayField(formData, 'contasBancariasData')
 
@@ -303,6 +287,9 @@ function buildRelatedInitialData(formData: FormData): RelatedEntitiesInitialData
     telefoneTiposSugeridos: telefoneTiposSugeridos
       .map(value => toInputString(value).trim())
       .filter(value => value.length > 0),
+    documentoTiposSugeridos: documentoTiposSugeridos
+      .map(value => toInputString(value).trim())
+      .filter(value => value.length > 0),
   }
 }
 
@@ -317,6 +304,48 @@ function parseListFilters(filters: Partial<DocenteListInput>) {
     sortBy,
     sortOrder,
   })
+}
+
+async function runDocentesExportAction(
+  filters: Partial<DocenteListInput>,
+  formatLabel: 'CSV' | 'PDF',
+  context: string,
+  builder: (docentes: DocenteAggregate[]) => DocenteExportPayload | Promise<DocenteExportPayload>,
+): Promise<ActionResult<DocenteExportPayload>> {
+  try {
+    await ensureAuthenticated()
+    await assertSameOriginRequest()
+
+    const parsed = parseListFilters({
+      ...filters,
+      page: 1,
+      pageSize: 10,
+    })
+
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: `Filtros inválidos para exportação ${formatLabel}.`,
+      }
+    }
+
+    const docentes = await docenteService.listAllForExport(parsed.data)
+
+    return {
+      success: true,
+      data: await builder(docentes),
+    }
+  } catch (error) {
+    if (error instanceof ForbiddenError) {
+      return {
+        success: false,
+        error: 'Origem da requisição inválida para exportação.',
+      }
+    }
+
+    logActionError(context, error)
+    return actionFailure<DocenteExportPayload>(context)
+  }
 }
 
 export async function listDocentesAction(
@@ -347,79 +376,13 @@ export async function listDocentesAction(
 export async function exportDocentesCsvAction(
   filters: Partial<DocenteListInput> = {},
 ): Promise<ActionResult<DocenteExportPayload>> {
-  try {
-    await ensureAuthenticated()
-    await assertSameOriginRequest()
-
-    const parsed = parseListFilters({
-      ...filters,
-      page: 1,
-      pageSize: 10,
-    })
-
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: 'Filtros inválidos para exportação CSV.',
-      }
-    }
-
-    const docentes = await docenteService.listAllForExport(parsed.data)
-
-    return {
-      success: true,
-      data: buildDocentesCsvExport(docentes),
-    }
-  } catch (error) {
-    if (error instanceof ForbiddenError) {
-      return {
-        success: false,
-        error: 'Origem da requisição inválida para exportação.',
-      }
-    }
-
-    logActionError('exportar docentes em CSV', error)
-    return actionFailure<DocenteExportPayload>('exportar docentes em CSV')
-  }
+  return runDocentesExportAction(filters, 'CSV', 'exportar docentes em CSV', buildDocentesCsvExport)
 }
 
 export async function exportDocentesPdfAction(
   filters: Partial<DocenteListInput> = {},
 ): Promise<ActionResult<DocenteExportPayload>> {
-  try {
-    await ensureAuthenticated()
-    await assertSameOriginRequest()
-
-    const parsed = parseListFilters({
-      ...filters,
-      page: 1,
-      pageSize: 10,
-    })
-
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: 'Filtros inválidos para exportação PDF.',
-      }
-    }
-
-    const docentes = await docenteService.listAllForExport(parsed.data)
-
-    return {
-      success: true,
-      data: await buildDocentesPdfExport(docentes),
-    }
-  } catch (error) {
-    if (error instanceof ForbiddenError) {
-      return {
-        success: false,
-        error: 'Origem da requisição inválida para exportação.',
-      }
-    }
-
-    logActionError('exportar docentes em PDF', error)
-    return actionFailure<DocenteExportPayload>('exportar docentes em PDF')
-  }
+  return runDocentesExportAction(filters, 'PDF', 'exportar docentes em PDF', buildDocentesPdfExport)
 }
 
 export async function getDocenteAction(id: number): Promise<ActionResult<DocenteAggregate>> {

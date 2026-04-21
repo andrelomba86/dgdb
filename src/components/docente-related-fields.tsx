@@ -39,6 +39,7 @@ export type RelatedEntitiesInitialData = {
   documentos: DocumentoFormValue[]
   contasBancarias: ContaBancariaFormValue[]
   telefoneTiposSugeridos: string[]
+  documentoTiposSugeridos: string[]
 }
 
 type DocenteRelatedFieldsProps = {
@@ -46,11 +47,12 @@ type DocenteRelatedFieldsProps = {
 }
 
 const defaultTelefoneTiposSugeridos = ['Celular', 'Institucional', 'Residencial']
+const defaultDocumentoTiposSugeridos = ['CPF', 'RG', 'PIS', 'RNE']
 
-function buildTelefoneTiposSugeridos(initialData: RelatedEntitiesInitialData) {
+function mergeSuggestedValues(values: string[]) {
   const valuesByKey = new Map<string, string>()
 
-  const register = (value: string) => {
+  values.forEach(value => {
     const normalizedValue = normalizeText(value)
     if (normalizedValue.length === 0) {
       return
@@ -60,12 +62,40 @@ function buildTelefoneTiposSugeridos(initialData: RelatedEntitiesInitialData) {
     if (!valuesByKey.has(key)) {
       valuesByKey.set(key, normalizedValue)
     }
-  }
-
-  initialData.telefoneTiposSugeridos.forEach(register)
-  initialData.telefones.forEach(telefone => register(telefone.tipo))
+  })
 
   return Array.from(valuesByKey.values())
+}
+
+function appendSuggestedValue(currentValues: string[], value: string) {
+  const normalizedValue = normalizeText(value)
+  if (normalizedValue.length === 0) {
+    return currentValues
+  }
+
+  const alreadyExists = currentValues.some(
+    item => item.toLocaleLowerCase('pt-BR') === normalizedValue.toLocaleLowerCase('pt-BR'),
+  )
+
+  if (alreadyExists) {
+    return currentValues
+  }
+
+  return [...currentValues, normalizedValue]
+}
+
+function extractDynamicTelefoneTipos(initialData: RelatedEntitiesInitialData) {
+  return mergeSuggestedValues([
+    ...initialData.telefoneTiposSugeridos,
+    ...initialData.telefones.map(telefone => telefone.tipo),
+  ])
+}
+
+function extractDynamicDocumentoTipos(initialData: RelatedEntitiesInitialData) {
+  return mergeSuggestedValues([
+    ...(initialData.documentoTiposSugeridos ?? []),
+    ...initialData.documentos.map(documento => documento.tipo),
+  ])
 }
 
 const defaultData: RelatedEntitiesInitialData = {
@@ -74,6 +104,7 @@ const defaultData: RelatedEntitiesInitialData = {
   documentos: [],
   contasBancarias: [],
   telefoneTiposSugeridos: defaultTelefoneTiposSugeridos,
+  documentoTiposSugeridos: defaultDocumentoTiposSugeridos,
 }
 
 function updateAtIndex<T>(items: T[], index: number, updater: (item: T) => T) {
@@ -88,7 +119,10 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
   const [progressoes, setProgressoes] = useState<ProgressaoFormValue[]>(initialData.progressoes)
   const [telefones, setTelefones] = useState<TelefoneFormValue[]>(initialData.telefones)
   const [telefoneTiposSugeridos, setTelefoneTiposSugeridos] = useState<string[]>(
-    buildTelefoneTiposSugeridos(initialData),
+    extractDynamicTelefoneTipos(initialData),
+  )
+  const [documentoTiposSugeridos, setDocumentoTiposSugeridos] = useState<string[]>(
+    extractDynamicDocumentoTipos(initialData),
   )
   const [documentos, setDocumentos] = useState<DocumentoFormValue[]>(initialData.documentos)
   const [contasBancarias, setContasBancarias] = useState<ContaBancariaFormValue[]>(
@@ -98,7 +132,8 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
   useEffect(() => {
     setProgressoes(initialData.progressoes)
     setTelefones(initialData.telefones)
-    setTelefoneTiposSugeridos(buildTelefoneTiposSugeridos(initialData))
+    setTelefoneTiposSugeridos(extractDynamicTelefoneTipos(initialData))
+    setDocumentoTiposSugeridos(extractDynamicDocumentoTipos(initialData))
     setDocumentos(initialData.documentos)
     setContasBancarias(initialData.contasBancarias)
   }, [initialData])
@@ -109,6 +144,11 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
       <input type="hidden" name="telefonesData" value={JSON.stringify(telefones)} />
       <input type="hidden" name="telefoneTiposSugeridosData" value={JSON.stringify(telefoneTiposSugeridos)} />
       <input type="hidden" name="documentosData" value={JSON.stringify(documentos)} />
+      <input
+        type="hidden"
+        name="documentoTiposSugeridosData"
+        value={JSON.stringify(documentoTiposSugeridos)}
+      />
       <input type="hidden" name="contasBancariasData" value={JSON.stringify(contasBancarias)} />
 
       <Fieldset.Root borderWidth="1px" borderColor="blue.100" borderRadius="18px" p="20px" pt="0">
@@ -209,6 +249,7 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
             ))}
 
             <Button
+              type="button"
               onClick={() =>
                 setProgressoes(current => [
                   ...current,
@@ -271,23 +312,7 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                       )
                     }}
                     onRegisterOption={value => {
-                      setTelefoneTiposSugeridos(current => {
-                        const normalizedValue = normalizeText(value)
-                        if (normalizedValue.length === 0) {
-                          return current
-                        }
-
-                        const alreadyExists = current.some(
-                          item =>
-                            item.toLocaleLowerCase('pt-BR') === normalizedValue.toLocaleLowerCase('pt-BR'),
-                        )
-
-                        if (alreadyExists) {
-                          return current
-                        }
-
-                        return [...current, normalizedValue]
-                      })
+                      setTelefoneTiposSugeridos(current => appendSuggestedValue(current, value))
                     }}
                     defaultOptions={defaultTelefoneTiposSugeridos.map(tipo => ({ value: tipo, label: tipo }))}
                     options={telefoneTiposSugeridos.map(tipo => ({
@@ -325,8 +350,8 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
         </Fieldset.Content>
       </Fieldset.Root>
 
-      <Fieldset.Root borderWidth="1px" borderColor="#dbeafe" borderRadius="18px" p="20px">
-        <Fieldset.Legend px="8px" fontWeight={700}>
+      <Fieldset.Root borderWidth="1px" borderColor="blue.100" borderRadius="18px" p="20px" pt="0">
+        <Fieldset.Legend px="8px" fontWeight="700">
           Documentos
         </Fieldset.Legend>
         <Fieldset.Content>
@@ -342,20 +367,30 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                 borderRadius="24px"
                 bg="gray.50">
                 <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 9fr) 1fr' }} gap="8px">
-                  <Field.Root>
-                    <Field.Label htmlFor={`documento-tipo-${index}`}>Tipo</Field.Label>
-                    <Input
-                      id={`documento-tipo-${index}`}
-                      type="text"
-                      value={documento.tipo}
-                      onChange={event => {
-                        setDocumentos(current =>
-                          updateAtIndex(current, index, item => ({ ...item, tipo: event.target.value })),
-                        )
-                      }}
-                      p="10px 12px"
-                    />
-                  </Field.Root>
+                  <SelectOrAddInput
+                    id={`documento-tipo-${index}`}
+                    label="Tipo"
+                    value={documento.tipo}
+                    onValueChange={value => {
+                      setDocumentos(current =>
+                        updateAtIndex(current, index, item => ({ ...item, tipo: value })),
+                      )
+                    }}
+                    onRegisterOption={value => {
+                      setDocumentoTiposSugeridos(current => appendSuggestedValue(current, value))
+                    }}
+                    defaultOptions={defaultDocumentoTiposSugeridos.map(tipo => ({
+                      value: tipo,
+                      label: tipo,
+                    }))}
+                    options={documentoTiposSugeridos.map(tipo => ({
+                      value: tipo,
+                      label: tipo,
+                    }))}
+                    customInputPlaceholder="Informe o tipo de documento"
+                    cancelToValue="CPF"
+                    cancelAriaLabel="Voltar para lista de tipos sugeridos"
+                  />
                   <Field.Root>
                     <Field.Label htmlFor={`documento-numero-${index}`}>Número</Field.Label>
                     <Input
@@ -386,7 +421,7 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
 
             <Button
               type="button"
-              onClick={() => setDocumentos(current => [...current, { tipo: '', documento: '' }])}
+              onClick={() => setDocumentos(current => [...current, { tipo: 'CPF', documento: '' }])}
               variant="surface"
               rounded="full"
               colorPalette="blue">
@@ -396,8 +431,8 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
         </Fieldset.Content>
       </Fieldset.Root>
 
-      <Fieldset.Root borderWidth="1px" borderColor="#dbeafe" borderRadius="18px" p="20px">
-        <Fieldset.Legend px="8px" fontWeight={700}>
+      <Fieldset.Root borderWidth="1px" borderColor="blue.100" borderRadius="18px" p="20px" pt="0">
+        <Fieldset.Legend px="8px" fontWeight="700">
           Contas bancárias
         </Fieldset.Legend>
         <Fieldset.Content>

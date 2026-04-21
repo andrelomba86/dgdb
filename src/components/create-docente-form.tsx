@@ -7,16 +7,10 @@ import { createDocenteAction } from '@/actions/docente-actions'
 import { DocenteFormActionBar } from '@/components/docente-form-action-bar'
 import { DocenteFormFields } from '@/components/docente-form-fields'
 import type { RelatedEntitiesInitialData } from '@/components/docente-related-fields'
-import { toaster } from '@/components/toaster-notifier'
+import { enqueueToast } from '@/components/toaster-notifier'
 
 const initialState: DocenteFormState = {
   result: {},
-}
-
-function enqueueToast(type: 'success' | 'error', description: string) {
-  queueMicrotask(() => {
-    toaster.create({ type, description })
-  })
 }
 
 type CreateDocenteFormProps = {

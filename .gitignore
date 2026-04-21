@@ -9,6 +9,5 @@ test-results
 dist
 *.tsbuildinfo
 *.log
-problemas.md
-prompt*.md
+*.ignore.md
 generated
