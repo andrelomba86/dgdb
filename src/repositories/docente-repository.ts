@@ -29,6 +29,16 @@ type DocenteConflictParams = {
 }
 
 export class DocenteRepository {
+  async listDistinctTelefoneTipos(): Promise<string[]> {
+    const rows = await prisma.telefone.findMany({
+      select: { tipo: true },
+      distinct: ['tipo'],
+      orderBy: { tipo: 'asc' },
+    })
+
+    return rows.map(row => row.tipo)
+  }
+
   async list(filters: DocenteListInput): Promise<DocenteListResult> {
     const where = buildWhere(filters)
 

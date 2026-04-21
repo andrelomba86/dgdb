@@ -29,6 +29,10 @@ const uniqueBy = <T>(items: T[], getKey: (item: T) => string, message: string) =
 export class DocenteService {
   constructor(private readonly repository: DocenteRepository = docenteRepository) {}
 
+  async listTelefoneTiposSugeridos(): Promise<string[]> {
+    return this.repository.listDistinctTelefoneTipos()
+  }
+
   private toDateOrNull(value: unknown): Date | null {
     if (value == null || value === '') {
       return null

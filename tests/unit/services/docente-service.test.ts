@@ -67,7 +67,7 @@ const createUpdateInput = (): UpdateDocenteInput => ({
   ],
   telefones: [
     { id: 44, telefone: ' 1199999-9999 ', tipo: 'celular' },
-    { telefone: ' 113333-4444 ', tipo: 'comercial' },
+    { telefone: ' 113333-4444 ', tipo: 'institucional' },
   ],
   documentos: [
     { id: 55, tipo: ' rg ', documento: ' 001 ' },
@@ -215,7 +215,7 @@ describe('services/docente-service', () => {
       ...createCreateInput(),
       telefones: [
         { telefone: '11999999999', tipo: 'celular' },
-        { telefone: '11 99999 9999', tipo: 'comercial' },
+        { telefone: '11 99999 9999', tipo: 'institucional' },
       ],
     }
 

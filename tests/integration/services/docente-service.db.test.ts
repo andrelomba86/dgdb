@@ -181,7 +181,7 @@ describe.skipIf(!runDbTests)('integration/services/docente-service (mysql)', () 
         progressoes: [],
         telefones: [
           { telefone: '11999990000', tipo: 'celular' },
-          { telefone: '11 99999 0000', tipo: 'comercial' },
+          { telefone: '11 99999 0000', tipo: 'institucional' },
         ],
         documentos: [],
         contasBancarias: [],

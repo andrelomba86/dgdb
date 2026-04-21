@@ -6,6 +6,7 @@ import type { DocenteFormState } from '@/actions/docente-actions'
 import { createDocenteAction } from '@/actions/docente-actions'
 import { DocenteFormActionBar } from '@/components/docente-form-action-bar'
 import { DocenteFormFields } from '@/components/docente-form-fields'
+import type { RelatedEntitiesInitialData } from '@/components/docente-related-fields'
 import { toaster } from '@/components/toaster-notifier'
 
 const initialState: DocenteFormState = {
@@ -18,9 +19,13 @@ function enqueueToast(type: 'success' | 'error', description: string) {
   })
 }
 
-export function CreateDocenteForm() {
+type CreateDocenteFormProps = {
+  relatedInitialData?: RelatedEntitiesInitialData
+}
+
+export function CreateDocenteForm({ relatedInitialData }: CreateDocenteFormProps) {
   const [state, action, isPending] = useActionState(createDocenteAction, initialState)
-  const effectiveRelatedInitialData = state.relatedInitialData
+  const effectiveRelatedInitialData = state.relatedInitialData ?? relatedInitialData
 
   useEffect(() => {
     if (state.result.error) {

@@ -260,6 +260,7 @@ function buildDocenteFormValues(formData: FormData): DocenteFormValues {
 function buildRelatedInitialData(formData: FormData): RelatedEntitiesInitialData {
   const progressoes = parseRawArrayField(formData, 'progressoesData')
   const telefones = parseRawArrayField(formData, 'telefonesData')
+  const telefoneTiposSugeridos = parseRawArrayField(formData, 'telefoneTiposSugeridosData')
   const documentos = parseRawArrayField(formData, 'documentosData')
   const contasBancarias = parseRawArrayField(formData, 'contasBancariasData')
 
@@ -276,13 +277,10 @@ function buildRelatedInitialData(formData: FormData): RelatedEntitiesInitialData
     }),
     telefones: telefones.map(telefone => {
       const value = telefone as Record<string, unknown>
-      const tipo = toInputString(value.tipo)
       return {
         id: toOptionalId(value.id),
         telefone: toInputString(value.telefone),
-        tipo: ['celular', 'comercial', 'residencial'].includes(tipo)
-          ? (tipo as 'celular' | 'comercial' | 'residencial')
-          : 'celular',
+        tipo: toInputString(value.tipo),
       }
     }),
     documentos: documentos.map(documento => {
@@ -302,6 +300,9 @@ function buildRelatedInitialData(formData: FormData): RelatedEntitiesInitialData
         conta: toInputString(value.conta),
       }
     }),
+    telefoneTiposSugeridos: telefoneTiposSugeridos
+      .map(value => toInputString(value).trim())
+      .filter(value => value.length > 0),
   }
 }
 

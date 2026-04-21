@@ -8,6 +8,7 @@ import { DocentePageShell } from '@/components/docente-page-shell'
 import type { RelatedEntitiesInitialData } from '@/components/docente-related-fields'
 import { UpdateDocenteForm } from '@/components/update-docente-form'
 import { requireAuthenticatedUser } from '@/lib/auth-guard'
+import { docenteService } from '@/services/docente-service'
 
 function getFirstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value
@@ -35,7 +36,10 @@ export default async function EditDocentePage({ params, searchParams }: EditDoce
 
   const successMessage = getFirstParam(resolvedParams.sucesso)
 
-  const result = await getDocenteAction(docId)
+  const [result, telefoneTiposSugeridos] = await Promise.all([
+    getDocenteAction(docId),
+    docenteService.listTelefoneTiposSugeridos(),
+  ])
   if (!result.success || !result.data) {
     return (
       <Box as="main" minH="100vh" p="24px" bg="linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%)">
@@ -70,7 +74,7 @@ export default async function EditDocentePage({ params, searchParams }: EditDoce
     telefones: docente.telefones.map(telefone => ({
       id: telefone.id,
       telefone: telefone.telefone,
-      tipo: telefone.tipo as 'celular' | 'comercial' | 'residencial',
+      tipo: telefone.tipo || 'celular',
     })),
     documentos: docente.documentos.map(documento => ({
       id: documento.id,
@@ -83,6 +87,7 @@ export default async function EditDocentePage({ params, searchParams }: EditDoce
       agencia: conta.agencia,
       conta: conta.conta,
     })),
+    telefoneTiposSugeridos,
   }
 
   return (

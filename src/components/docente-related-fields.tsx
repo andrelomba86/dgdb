@@ -1,18 +1,10 @@
 'use client'
 
-import {
-  Box,
-  Button,
-  Field,
-  Fieldset,
-  Grid,
-  IconButton,
-  Input,
-  NativeSelect,
-  Stack,
-} from '@chakra-ui/react'
+import { Box, Button, Field, Fieldset, Grid, IconButton, Input, Stack } from '@chakra-ui/react'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState } from 'react'
+import { SelectOrAddInput } from '@/components/select-or-add-input'
+import { normalizeText } from '@/lib/normalizers'
 
 type ProgressaoFormValue = {
   id?: number
@@ -25,7 +17,7 @@ type ProgressaoFormValue = {
 type TelefoneFormValue = {
   id?: number
   telefone: string
-  tipo: 'celular' | 'comercial' | 'residencial'
+  tipo: string
 }
 
 type DocumentoFormValue = {
@@ -46,10 +38,34 @@ export type RelatedEntitiesInitialData = {
   telefones: TelefoneFormValue[]
   documentos: DocumentoFormValue[]
   contasBancarias: ContaBancariaFormValue[]
+  telefoneTiposSugeridos: string[]
 }
 
 type DocenteRelatedFieldsProps = {
   initialData?: RelatedEntitiesInitialData
+}
+
+const defaultTelefoneTiposSugeridos = ['Celular', 'Institucional', 'Residencial']
+
+function buildTelefoneTiposSugeridos(initialData: RelatedEntitiesInitialData) {
+  const valuesByKey = new Map<string, string>()
+
+  const register = (value: string) => {
+    const normalizedValue = normalizeText(value)
+    if (normalizedValue.length === 0) {
+      return
+    }
+
+    const key = normalizedValue.toLocaleLowerCase('pt-BR')
+    if (!valuesByKey.has(key)) {
+      valuesByKey.set(key, normalizedValue)
+    }
+  }
+
+  initialData.telefoneTiposSugeridos.forEach(register)
+  initialData.telefones.forEach(telefone => register(telefone.tipo))
+
+  return Array.from(valuesByKey.values())
 }
 
 const defaultData: RelatedEntitiesInitialData = {
@@ -57,6 +73,7 @@ const defaultData: RelatedEntitiesInitialData = {
   telefones: [],
   documentos: [],
   contasBancarias: [],
+  telefoneTiposSugeridos: defaultTelefoneTiposSugeridos,
 }
 
 function updateAtIndex<T>(items: T[], index: number, updater: (item: T) => T) {
@@ -70,6 +87,9 @@ function removeAtIndex<T>(items: T[], index: number) {
 export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelatedFieldsProps) {
   const [progressoes, setProgressoes] = useState<ProgressaoFormValue[]>(initialData.progressoes)
   const [telefones, setTelefones] = useState<TelefoneFormValue[]>(initialData.telefones)
+  const [telefoneTiposSugeridos, setTelefoneTiposSugeridos] = useState<string[]>(
+    buildTelefoneTiposSugeridos(initialData),
+  )
   const [documentos, setDocumentos] = useState<DocumentoFormValue[]>(initialData.documentos)
   const [contasBancarias, setContasBancarias] = useState<ContaBancariaFormValue[]>(
     initialData.contasBancarias,
@@ -78,6 +98,7 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
   useEffect(() => {
     setProgressoes(initialData.progressoes)
     setTelefones(initialData.telefones)
+    setTelefoneTiposSugeridos(buildTelefoneTiposSugeridos(initialData))
     setDocumentos(initialData.documentos)
     setContasBancarias(initialData.contasBancarias)
   }, [initialData])
@@ -86,6 +107,7 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
     <>
       <input type="hidden" name="progressoesData" value={JSON.stringify(progressoes)} />
       <input type="hidden" name="telefonesData" value={JSON.stringify(telefones)} />
+      <input type="hidden" name="telefoneTiposSugeridosData" value={JSON.stringify(telefoneTiposSugeridos)} />
       <input type="hidden" name="documentosData" value={JSON.stringify(documentos)} />
       <input type="hidden" name="contasBancariasData" value={JSON.stringify(contasBancarias)} />
 
@@ -236,28 +258,47 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                       p="10px 12px"
                     />
                   </Field.Root>
-                  <Field.Root>
-                    <Field.Label htmlFor={`telefone-tipo-${index}`}>Tipo</Field.Label>
-                    <NativeSelect.Root>
-                      <NativeSelect.Field
-                        id={`telefone-tipo-${index}`}
-                        value={telefone.tipo}
-                        onChange={event => {
-                          setTelefones(current =>
-                            updateAtIndex(current, index, item => ({
-                              ...item,
-                              tipo: event.target.value as TelefoneFormValue['tipo'],
-                            })),
-                          )
-                        }}
-                        p="10px 12px">
-                        <option value="celular">Celular</option>
-                        <option value="comercial">Comercial</option>
-                        <option value="residencial">Residencial</option>
-                      </NativeSelect.Field>
-                      <NativeSelect.Indicator />
-                    </NativeSelect.Root>
-                  </Field.Root>
+                  <SelectOrAddInput
+                    id={`telefone-tipo-${index}`}
+                    label="Tipo"
+                    value={telefone.tipo}
+                    onValueChange={value => {
+                      setTelefones(current =>
+                        updateAtIndex(current, index, item => ({
+                          ...item,
+                          tipo: value,
+                        })),
+                      )
+                    }}
+                    onRegisterOption={value => {
+                      setTelefoneTiposSugeridos(current => {
+                        const normalizedValue = normalizeText(value)
+                        if (normalizedValue.length === 0) {
+                          return current
+                        }
+
+                        const alreadyExists = current.some(
+                          item =>
+                            item.toLocaleLowerCase('pt-BR') === normalizedValue.toLocaleLowerCase('pt-BR'),
+                        )
+
+                        if (alreadyExists) {
+                          return current
+                        }
+
+                        return [...current, normalizedValue]
+                      })
+                    }}
+                    defaultOptions={defaultTelefoneTiposSugeridos.map(tipo => ({ value: tipo, label: tipo }))}
+                    options={telefoneTiposSugeridos.map(tipo => ({
+                      value: tipo,
+                      label: tipo,
+                    }))}
+                    customInputPlaceholder="Informe o tipo de telefone"
+                    cancelToValue="Celular"
+                    cancelAriaLabel="Voltar para lista de tipos sugeridos"
+                  />
+
                   <IconButton
                     alignSelf="end"
                     type="button"
@@ -274,7 +315,7 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
 
             <Button
               type="button"
-              onClick={() => setTelefones(current => [...current, { telefone: '', tipo: 'celular' }])}
+              onClick={() => setTelefones(current => [...current, { telefone: '', tipo: 'Celular' }])}
               variant="surface"
               rounded="full"
               colorPalette="blue">
