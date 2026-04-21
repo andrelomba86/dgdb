@@ -1,10 +1,6 @@
-import NextLink from 'next/link'
 import type { ReactNode } from 'react'
 
-import { Box, Container, Flex, Heading, HStack, Link, Text } from '@chakra-ui/react'
-
-import { logoutAction } from '@/actions/auth-actions'
-import { PendingSubmitButton } from '@/components/pending-submit-button'
+import { Box, Container, Flex, Heading, Text } from '@chakra-ui/react'
 
 type DocentePageShellProps = {
   badge: string

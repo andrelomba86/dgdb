@@ -1,7 +1,5 @@
 'use server'
 
-import { Buffer } from 'node:buffer'
-
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
@@ -27,7 +25,6 @@ import {
   docenteListSchema,
   updateDocenteSchema,
 } from '@/validators/docente'
-import { Docente } from '@prisma/client'
 import { DocenteFormValues } from '@/components/docente-form-fields'
 import { RelatedEntitiesInitialData } from '@/components/docente-related-fields'
 
@@ -48,6 +45,29 @@ export type DocenteFormState = {
 
 async function ensureAuthenticated() {
   await requireAuthenticatedUser()
+}
+
+function logActionError(context: string, error: unknown) {
+  console.error(`Erro ao ${context}:`, error)
+}
+
+function actionFailure<T>(context: string): ActionResult<T> {
+  return {
+    success: false,
+    error: `Erro ao ${context}.`,
+  }
+}
+
+function formActionFailure(
+  context: string,
+  preservedState: Pick<DocenteFormState, 'formValues' | 'relatedInitialData'>,
+): DocenteFormState {
+  return {
+    result: {
+      error: `Erro ao ${context}.`,
+    },
+    ...preservedState,
+  }
 }
 
 function formatZodIssues(error: z.ZodError) {
@@ -190,10 +210,6 @@ function parseRelatedCollections(formData: FormData) {
   }
 }
 
-function toDateInputValue(value: Date | null | undefined) {
-  return value ? new Date(value).toISOString().split('T')[0] : ''
-}
-
 function toInputString(value: unknown) {
   return typeof value === 'string' ? value : value == null ? '' : String(value)
 }
@@ -322,11 +338,8 @@ export async function listDocentesAction(
       data: result,
     }
   } catch (error) {
-    console.error('Erro ao listar docentes:', error)
-    return {
-      success: false,
-      error: 'Erro ao listar docentes.',
-    }
+    logActionError('listar docentes', error)
+    return actionFailure<DocenteListResult>('listar docentes')
   }
 }
 
@@ -364,11 +377,8 @@ export async function exportDocentesCsvAction(
       }
     }
 
-    console.error('Erro ao exportar docentes em CSV:', error)
-    return {
-      success: false,
-      error: 'Erro ao exportar docentes em CSV.',
-    }
+    logActionError('exportar docentes em CSV', error)
+    return actionFailure<DocenteExportPayload>('exportar docentes em CSV')
   }
 }
 
@@ -406,11 +416,8 @@ export async function exportDocentesPdfAction(
       }
     }
 
-    console.error('Erro ao exportar docentes em PDF:', error)
-    return {
-      success: false,
-      error: 'Erro ao exportar docentes em PDF.',
-    }
+    logActionError('exportar docentes em PDF', error)
+    return actionFailure<DocenteExportPayload>('exportar docentes em PDF')
   }
 }
 
@@ -433,16 +440,13 @@ export async function getDocenteAction(id: number): Promise<ActionResult<Docente
       }
     }
 
-    console.error('Erro ao buscar docente:', error)
-    return {
-      success: false,
-      error: 'Erro ao buscar docente.',
-    }
+    logActionError('buscar docente', error)
+    return actionFailure<DocenteAggregate>('buscar docente')
   }
 }
 
 export async function createDocenteAction(
-  prevState: DocenteFormState,
+  _prevState: DocenteFormState,
   formData: FormData,
 ): Promise<DocenteFormState> {
   await ensureAuthenticated()
@@ -496,8 +500,8 @@ export async function createDocenteAction(
     if (error instanceof ConflictError) {
       return { result: { error: error.message }, ...preservedState }
     }
-    console.error('Erro ao criar docente:', error)
-    return { result: { error: 'Erro ao criar docente.' }, ...preservedState }
+    logActionError('criar docente', error)
+    return formActionFailure('criar docente', preservedState)
   }
   revalidatePath('/docentes')
   redirect('/docentes?sucesso=Docente criado com sucesso.')
@@ -505,7 +509,7 @@ export async function createDocenteAction(
 }
 
 export async function updateDocenteAction(
-  prevState: DocenteFormState,
+  _prevState: DocenteFormState,
   formData: FormData,
 ): Promise<DocenteFormState> {
   const id = parseInt(formData.get('id') as string, 10)
@@ -571,14 +575,12 @@ export async function updateDocenteAction(
         ...preservedState,
       }
     }
-    console.error('Erro ao atualizar docente:', error)
-    return { result: { error: 'Erro ao atualizar docente.' }, ...preservedState }
+    logActionError('atualizar docente', error)
+    return formActionFailure('atualizar docente', preservedState)
   }
-  // return { result: { success: 'Docente atualizado com sucesso.' } }
   revalidatePath('/docentes')
   revalidatePath(`/docentes/${id}`)
   redirect(`/docentes/${id}?sucesso=Docente atualizado com sucesso.`)
-  // return {}
 }
 
 export async function deleteDocenteAction(id: number): Promise<void> {
@@ -595,7 +597,7 @@ export async function deleteDocenteAction(id: number): Promise<void> {
     if (error instanceof NotFoundError) {
       return redirect(`/docentes?erro=${encodeURIComponent(error.message)}`)
     }
-    console.error('Erro ao deletar docente:', error)
+    logActionError('deletar docente', error)
     return redirect(`/docentes?erro=${encodeURIComponent('Erro ao deletar docente.')}`)
   }
   revalidatePath('/docentes')

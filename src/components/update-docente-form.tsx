@@ -8,7 +8,7 @@ import { DocenteFormActionBar } from '@/components/docente-form-action-bar'
 import type { DocenteFormValues } from '@/components/docente-form-fields'
 import { DocenteFormFields } from '@/components/docente-form-fields'
 import type { RelatedEntitiesInitialData } from '@/components/docente-related-fields'
-import { toaster } from '@/components/toaster-notifier'
+import { enqueueToast } from '@/components/toaster-notifier'
 
 type UpdateDocenteFormProps = {
   id: number
@@ -19,12 +19,6 @@ type UpdateDocenteFormProps = {
 
 const formState: DocenteFormState = {
   result: {},
-}
-
-function enqueueToast(type: 'success' | 'error', description: string) {
-  queueMicrotask(() => {
-    toaster.create({ type, description })
-  })
 }
 
 export function UpdateDocenteForm({

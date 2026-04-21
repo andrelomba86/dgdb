@@ -7,7 +7,7 @@ import { Box, Checkmark, Em, Fieldset, Grid, Stack, Table, Text } from '@chakra-
 import { deleteDocenteAction } from '@/actions/docente-actions'
 import { DocenteFormActionBar } from '@/components/docente-form-action-bar'
 import type { DocenteDetailViewProps, InfoItemProps } from '@/types/docente'
-import { toaster } from './toaster-notifier'
+import { enqueueToast } from './toaster-notifier'
 
 function InfoItem({ label, value }: InfoItemProps) {
   return (
@@ -34,7 +34,7 @@ function formatText(value: string | null | undefined) {
 export function DocenteDetailView({ docente, successMessage }: DocenteDetailViewProps) {
   useEffect(() => {
     if (successMessage) {
-      toaster.create({ type: 'success', description: successMessage })
+      enqueueToast('success', successMessage)
     }
   }, [successMessage])
   return (

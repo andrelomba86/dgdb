@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { idSchema, nullableDate, nullableString, requiredDate, requiredString } from '@/validators/shared'
+import { idSchema, nullableDate, nullableString, requiredDate } from '@/validators/shared'
 
 export const progressaoInputSchema = z.object({
   id: idSchema.optional(),

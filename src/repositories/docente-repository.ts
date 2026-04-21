@@ -105,7 +105,6 @@ export class DocenteRepository {
   }
 
   async create(data: Prisma.DocenteCreateInput): Promise<DocenteAggregate> {
-    console.log(data, 'create docente data')
     const docente = await prisma.docente.create({
       data,
       include: docenteInclude,

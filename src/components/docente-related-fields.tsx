@@ -6,14 +6,11 @@ import {
   Field,
   Fieldset,
   Grid,
-  GridItem,
   IconButton,
   Input,
   NativeSelect,
-  Separator,
   Stack,
 } from '@chakra-ui/react'
-import Close from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState } from 'react'
 

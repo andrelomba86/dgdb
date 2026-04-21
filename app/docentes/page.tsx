@@ -19,8 +19,6 @@ import {
   Table,
   Text,
   Em,
-  CheckboxCard,
-  VStack,
   Grid,
 } from '@chakra-ui/react'
 
@@ -54,20 +52,18 @@ type DocentesPageProps = {
 }
 
 export default async function DocentesPage({ searchParams }: DocentesPageProps) {
-  const user = await requireAuthenticatedUser()
+  await requireAuthenticatedUser()
   const resolvedParams = await searchParams
 
   const pageParam = getFirstParam(resolvedParams.page)
   const nome = getFirstParam(resolvedParams.nome)
   const ativo = getFirstParam(resolvedParams.ativo)
-  const ativoFilter = ativo === 'on' ? true : false
+  const ativoFilter = ativo === 'on' ? true : undefined
   const sortBy = getFirstParam(resolvedParams.sortBy)
   const sortOrder = getFirstParam(resolvedParams.sortOrder)
 
   const parsedPage = pageParam ? Number.parseInt(pageParam, 10) : 1
   const page = Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage
-
-  //TODO: converter ativo que está em string para booleano?
 
   const result = await listDocentesAction({
     page,
@@ -88,9 +84,6 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
 
   const { items, total, pageSize } = result.data || { items: [], total: 0, pageSize: 10 }
   const totalPages = Math.ceil(total / pageSize)
-
-  const errorMessage = getFirstParam(resolvedParams.erro)
-  const successMessage = getFirstParam(resolvedParams.sucesso)
 
   const baseParams = {
     nome,
@@ -127,12 +120,7 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                 </Button>
               </NextLink>
               <NextLink href="/docentes/novo" passHref>
-                <Button
-                  rounded="full"
-                  // colorPalette="cyan"
-                  // color="#fff"
-                  border="none"
-                  bg="linear-gradient(135deg, #0f766e 0%, #14b8a6 100%)">
+                <Button rounded="full" border="none" bg="linear-gradient(135deg, #0f766e 0%, #14b8a6 100%)">
                   Novo cadastro
                 </Button>
               </NextLink>
@@ -152,14 +140,7 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
             <Heading size="md" mt="0">
               Filtros
             </Heading>
-            <form
-              method="get"
-              // style={{
-              //   display: 'grid',
-              //   gridTemplateColumns: 'repeat(minmax(180px, 5fr))',
-              //   gap: '25px',
-              // }}
-            >
+            <form method="get">
               <Grid
                 templateColumns={{ base: '1fr 1fr', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' }}
                 gap="25px"
@@ -195,16 +176,13 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                   <Field.Label fontWeight="600">Situação</Field.Label>
                   <Checkbox.Root id="ativo" name="ativo" size="sm" defaultChecked={ativo === 'on'} py="11px">
                     <Checkbox.HiddenInput />
-                    {/* <Checkbox.Content> */}
                     <Checkbox.Control>
                       <Checkbox.Indicator />
                     </Checkbox.Control>
                     <Checkbox.Label>Somente ativos</Checkbox.Label>
-                    {/* </Checkbox.Content> */}
                   </Checkbox.Root>
                 </Field.Root>
                 <HStack justify="flex-end" gap="12px">
-                  {/* <VStack gap="10px" align="flex-end" wrap="wrap"> */}
                   <Button type="submit" colorPalette="teal" rounded="full">
                     Buscar
                   </Button>
@@ -213,15 +191,11 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                       Limpar
                     </Button>
                   </NextLink>
-                  {/* </VStack> */}
                 </HStack>
               </Grid>
             </form>
           </Box>
           <Box>
-            {/* <Heading size="md" mb="14px">
-              Listagem ({total} total)
-            </Heading> */}
             {totalPages > 1 ? (
               <HStack mb="10px" gap="12px" align="center">
                 {page > 1 ? (

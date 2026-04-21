@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { authService } from '@/services/auth-service'
 import type { AuthenticatedUser } from '@/types/auth'
 
-import { clearSessionCookie, getSessionTokenFromCookie } from './session'
+import { getSessionTokenFromCookie } from './session'
 
 export const getAuthenticatedUser = async (): Promise<AuthenticatedUser | null> => {
   const token = await getSessionTokenFromCookie()

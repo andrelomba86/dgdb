@@ -27,3 +27,9 @@ export const Toaster = () => {
     </Portal>
   )
 }
+
+export function enqueueToast(type: 'success' | 'error' | 'loading', description: string) {
+  queueMicrotask(() => {
+    toaster.create({ type, description })
+  })
+}
