@@ -69,7 +69,11 @@ const createBaseFormData = () => {
   formData.set('dataAdmissao', '2024-01-10')
   formData.set('ativo', 'on')
   formData.set('progressoesData', '[]')
+  formData.set('progressaoFuncoesSugeridasData', '[]')
+  formData.set('progressaoReferenciasSugeridasData', '[]')
   formData.set('telefonesData', '[]')
+  formData.set('telefoneTiposSugeridosData', '[]')
+  formData.set('documentoTiposSugeridosData', '[]')
   formData.set('documentosData', '[]')
   formData.set('contasBancariasData', '[]')
   return formData
@@ -267,12 +271,16 @@ describe('actions/docente-actions', () => {
 
   it('preserva estado do formulario quando payload de colecao e invalido', async () => {
     const formData = createBaseFormData()
+    formData.set('progressaoFuncoesSugeridasData', JSON.stringify(['Docente']))
+    formData.set('progressaoReferenciasSugeridasData', JSON.stringify(['N1']))
     formData.set('telefonesData', '{nao-e-json')
 
     const result = await createDocenteAction({ result: {} }, formData)
 
     expect(result.result.error).toBe('Telefones: payload inválido.')
     expect(result.formValues?.nome).toBe('Maria Souza')
+    expect(result.relatedInitialData?.progressaoFuncoesSugeridas).toEqual(['Docente'])
+    expect(result.relatedInitialData?.progressaoReferenciasSugeridas).toEqual(['N1'])
     expect(mocks.docenteCreate).not.toHaveBeenCalled()
   })
 

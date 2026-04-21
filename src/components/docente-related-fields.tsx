@@ -38,6 +38,8 @@ export type RelatedEntitiesInitialData = {
   telefones: TelefoneFormValue[]
   documentos: DocumentoFormValue[]
   contasBancarias: ContaBancariaFormValue[]
+  progressaoFuncoesSugeridas: string[]
+  progressaoReferenciasSugeridas: string[]
   telefoneTiposSugeridos: string[]
   documentoTiposSugeridos: string[]
 }
@@ -46,6 +48,12 @@ type DocenteRelatedFieldsProps = {
   initialData?: RelatedEntitiesInitialData
 }
 
+const defaultProgressaoFuncoesSugeridas = [
+  'Professor Assistente Doutor',
+  'Professor Associado',
+  'Professor Titular',
+]
+const defaultProgressaoReferenciasSugeridas = ['MS3.1', 'MS3.2', 'MS3.3', 'MS5.1', 'MS5.2', 'MS6']
 const defaultTelefoneTiposSugeridos = ['Celular', 'Institucional', 'Residencial']
 const defaultDocumentoTiposSugeridos = ['CPF', 'RG', 'PIS', 'RNE']
 
@@ -86,15 +94,29 @@ function appendSuggestedValue(currentValues: string[], value: string) {
 
 function extractDynamicTelefoneTipos(initialData: RelatedEntitiesInitialData) {
   return mergeSuggestedValues([
-    ...initialData.telefoneTiposSugeridos,
-    ...initialData.telefones.map(telefone => telefone.tipo),
+    ...(initialData.telefoneTiposSugeridos ?? []),
+    ...(initialData.telefones ?? []).map(telefone => telefone.tipo),
+  ])
+}
+
+function extractDynamicProgressaoFuncoes(initialData: RelatedEntitiesInitialData) {
+  return mergeSuggestedValues([
+    ...(initialData.progressaoFuncoesSugeridas ?? []),
+    ...(initialData.progressoes ?? []).map(progressao => progressao.funcao),
+  ])
+}
+
+function extractDynamicProgressaoReferencias(initialData: RelatedEntitiesInitialData) {
+  return mergeSuggestedValues([
+    ...(initialData.progressaoReferenciasSugeridas ?? []),
+    ...(initialData.progressoes ?? []).map(progressao => progressao.referencia),
   ])
 }
 
 function extractDynamicDocumentoTipos(initialData: RelatedEntitiesInitialData) {
   return mergeSuggestedValues([
     ...(initialData.documentoTiposSugeridos ?? []),
-    ...initialData.documentos.map(documento => documento.tipo),
+    ...(initialData.documentos ?? []).map(documento => documento.tipo),
   ])
 }
 
@@ -103,6 +125,8 @@ const defaultData: RelatedEntitiesInitialData = {
   telefones: [],
   documentos: [],
   contasBancarias: [],
+  progressaoFuncoesSugeridas: defaultProgressaoFuncoesSugeridas,
+  progressaoReferenciasSugeridas: defaultProgressaoReferenciasSugeridas,
   telefoneTiposSugeridos: defaultTelefoneTiposSugeridos,
   documentoTiposSugeridos: defaultDocumentoTiposSugeridos,
 }
@@ -117,6 +141,12 @@ function removeAtIndex<T>(items: T[], index: number) {
 
 export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelatedFieldsProps) {
   const [progressoes, setProgressoes] = useState<ProgressaoFormValue[]>(initialData.progressoes)
+  const [progressaoFuncoesSugeridas, setProgressaoFuncoesSugeridas] = useState<string[]>(
+    extractDynamicProgressaoFuncoes(initialData),
+  )
+  const [progressaoReferenciasSugeridas, setProgressaoReferenciasSugeridas] = useState<string[]>(
+    extractDynamicProgressaoReferencias(initialData),
+  )
   const [telefones, setTelefones] = useState<TelefoneFormValue[]>(initialData.telefones)
   const [telefoneTiposSugeridos, setTelefoneTiposSugeridos] = useState<string[]>(
     extractDynamicTelefoneTipos(initialData),
@@ -131,6 +161,8 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
 
   useEffect(() => {
     setProgressoes(initialData.progressoes)
+    setProgressaoFuncoesSugeridas(extractDynamicProgressaoFuncoes(initialData))
+    setProgressaoReferenciasSugeridas(extractDynamicProgressaoReferencias(initialData))
     setTelefones(initialData.telefones)
     setTelefoneTiposSugeridos(extractDynamicTelefoneTipos(initialData))
     setDocumentoTiposSugeridos(extractDynamicDocumentoTipos(initialData))
@@ -141,6 +173,16 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
   return (
     <>
       <input type="hidden" name="progressoesData" value={JSON.stringify(progressoes)} />
+      <input
+        type="hidden"
+        name="progressaoFuncoesSugeridasData"
+        value={JSON.stringify(progressaoFuncoesSugeridas)}
+      />
+      <input
+        type="hidden"
+        name="progressaoReferenciasSugeridasData"
+        value={JSON.stringify(progressaoReferenciasSugeridas)}
+      />
       <input type="hidden" name="telefonesData" value={JSON.stringify(telefones)} />
       <input type="hidden" name="telefoneTiposSugeridosData" value={JSON.stringify(telefoneTiposSugeridos)} />
       <input type="hidden" name="documentosData" value={JSON.stringify(documentos)} />
@@ -167,21 +209,36 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                 borderColor="gray.200"
                 borderRadius="24px"
                 bg="gray.50">
-                <Grid templateColumns={{ base: '1fr', md: '1fr 1fr', lg: 'repeat(4, 5fr) 1fr' }} gap="8px">
-                  <Field.Root>
-                    <Field.Label htmlFor={`progressao-funcao-${index}`}>Função</Field.Label>
-                    <Input
-                      id={`progressao-funcao-${index}`}
-                      type="text"
-                      value={progressao.funcao}
-                      onChange={event => {
-                        setProgressoes(current =>
-                          updateAtIndex(current, index, item => ({ ...item, funcao: event.target.value })),
-                        )
-                      }}
-                      p="10px 12px"
-                    />
-                  </Field.Root>
+                <Grid
+                  templateColumns={{ base: '1fr', md: '1fr 1fr', lg: '7fr repeat(3, 5fr) 1fr' }}
+                  gap="8px">
+                  <SelectOrAddInput
+                    id={`progressao-funcao-${index}`}
+                    label="Função"
+                    value={progressao.funcao}
+                    onValueChange={value => {
+                      setProgressoes(current =>
+                        updateAtIndex(current, index, item => ({
+                          ...item,
+                          funcao: value,
+                        })),
+                      )
+                    }}
+                    onRegisterOption={value => {
+                      setProgressaoFuncoesSugeridas(current => appendSuggestedValue(current, value))
+                    }}
+                    defaultOptions={defaultProgressaoFuncoesSugeridas.map(funcao => ({
+                      value: funcao,
+                      label: funcao,
+                    }))}
+                    options={progressaoFuncoesSugeridas.map(funcao => ({
+                      value: funcao,
+                      label: funcao,
+                    }))}
+                    customInputPlaceholder="Informe a função"
+                    cancelToValue={progressaoFuncoesSugeridas[0] ?? ''}
+                    cancelAriaLabel="Voltar para lista de funções sugeridas"
+                  />
                   <Field.Root>
                     <Field.Label htmlFor={`progressao-data-${index}`}>Data de início</Field.Label>
                     <Input
@@ -216,23 +273,33 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                       p="10px 12px"
                     />
                   </Field.Root>
-                  <Field.Root>
-                    <Field.Label htmlFor={`progressao-referencia-${index}`}>Referência</Field.Label>
-                    <Input
-                      id={`progressao-referencia-${index}`}
-                      type="text"
-                      value={progressao.referencia}
-                      onChange={event => {
-                        setProgressoes(current =>
-                          updateAtIndex(current, index, item => ({
-                            ...item,
-                            referencia: event.target.value,
-                          })),
-                        )
-                      }}
-                      p="10px 12px"
-                    />
-                  </Field.Root>
+                  <SelectOrAddInput
+                    id={`progressao-referencia-${index}`}
+                    label="Referência"
+                    value={progressao.referencia}
+                    onValueChange={value => {
+                      setProgressoes(current =>
+                        updateAtIndex(current, index, item => ({
+                          ...item,
+                          referencia: value,
+                        })),
+                      )
+                    }}
+                    onRegisterOption={value => {
+                      setProgressaoReferenciasSugeridas(current => appendSuggestedValue(current, value))
+                    }}
+                    defaultOptions={defaultProgressaoReferenciasSugeridas.map(referencia => ({
+                      value: referencia,
+                      label: referencia,
+                    }))}
+                    options={progressaoReferenciasSugeridas.map(referencia => ({
+                      value: referencia,
+                      label: referencia,
+                    }))}
+                    customInputPlaceholder="Informe a referência"
+                    cancelToValue={progressaoReferenciasSugeridas[0] ?? ''}
+                    cancelAriaLabel="Voltar para lista de referências sugeridas"
+                  />
                   <IconButton
                     gridColumn={{ md: 'span 2', lg: 'span 1' }}
                     alignSelf="end"

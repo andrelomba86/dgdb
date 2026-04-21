@@ -5,7 +5,12 @@ import { docenteService } from '@/services/docente-service'
 
 export default async function NovoDocentePage() {
   await requireAuthenticatedUser()
-  const telefoneTiposSugeridos = await docenteService.listTelefoneTiposSugeridos()
+  const [telefoneTiposSugeridos, progressaoFuncoesSugeridas, progressaoReferenciasSugeridas] =
+    await Promise.all([
+      docenteService.listTelefoneTiposSugeridos(),
+      docenteService.listProgressaoFuncoesSugeridas(),
+      docenteService.listProgressaoReferenciasSugeridas(),
+    ])
 
   return (
     <DocentePageShell badge="Novo cadastro" title="Cadastrar docente">
@@ -15,6 +20,8 @@ export default async function NovoDocentePage() {
           telefones: [],
           documentos: [],
           contasBancarias: [],
+          progressaoFuncoesSugeridas,
+          progressaoReferenciasSugeridas,
           telefoneTiposSugeridos,
           documentoTiposSugeridos: [],
         }}

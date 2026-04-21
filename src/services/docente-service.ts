@@ -27,10 +27,21 @@ const uniqueBy = <T>(items: T[], getKey: (item: T) => string, message: string) =
 }
 
 export class DocenteService {
+  async listDocumentoTiposSugeridos(): Promise<string[]> {
+    return this.repository.listDistinctDocumentoTipos()
+  }
   constructor(private readonly repository: DocenteRepository = docenteRepository) {}
 
   async listTelefoneTiposSugeridos(): Promise<string[]> {
     return this.repository.listDistinctTelefoneTipos()
+  }
+
+  async listProgressaoFuncoesSugeridas(): Promise<string[]> {
+    return this.repository.listDistinctProgressaoFuncoes()
+  }
+
+  async listProgressaoReferenciasSugeridas(): Promise<string[]> {
+    return this.repository.listDistinctProgressaoReferencias()
   }
 
   private toDateOrNull(value: unknown): Date | null {

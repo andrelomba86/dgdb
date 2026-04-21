@@ -83,12 +83,7 @@ function createIsEmptyRowChecker(fieldNames: string[]) {
   }
 }
 
-const isEmptyProgressaoRow = createIsEmptyRowChecker([
-  'funcao',
-  'dataInicio',
-  'dataTermino',
-  'referencia',
-])
+const isEmptyProgressaoRow = createIsEmptyRowChecker(['funcao', 'dataInicio', 'dataTermino', 'referencia'])
 const isEmptyTelefoneRow = createIsEmptyRowChecker(['telefone', 'tipo'])
 const isEmptyDocumentoRow = createIsEmptyRowChecker(['tipo', 'documento'])
 const isEmptyContaRow = createIsEmptyRowChecker(['banco', 'agencia', 'conta'])
@@ -242,6 +237,8 @@ function buildDocenteFormValues(formData: FormData): DocenteFormValues {
 
 function buildRelatedInitialData(formData: FormData): RelatedEntitiesInitialData {
   const progressoes = parseRawArrayField(formData, 'progressoesData')
+  const progressaoFuncoesSugeridas = parseRawArrayField(formData, 'progressaoFuncoesSugeridasData')
+  const progressaoReferenciasSugeridas = parseRawArrayField(formData, 'progressaoReferenciasSugeridasData')
   const telefones = parseRawArrayField(formData, 'telefonesData')
   const telefoneTiposSugeridos = parseRawArrayField(formData, 'telefoneTiposSugeridosData')
   const documentoTiposSugeridos = parseRawArrayField(formData, 'documentoTiposSugeridosData')
@@ -284,6 +281,12 @@ function buildRelatedInitialData(formData: FormData): RelatedEntitiesInitialData
         conta: toInputString(value.conta),
       }
     }),
+    progressaoFuncoesSugeridas: progressaoFuncoesSugeridas
+      .map(value => toInputString(value).trim())
+      .filter(value => value.length > 0),
+    progressaoReferenciasSugeridas: progressaoReferenciasSugeridas
+      .map(value => toInputString(value).trim())
+      .filter(value => value.length > 0),
     telefoneTiposSugeridos: telefoneTiposSugeridos
       .map(value => toInputString(value).trim())
       .filter(value => value.length > 0),

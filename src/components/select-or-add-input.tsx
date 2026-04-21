@@ -141,7 +141,7 @@ export function SelectOrAddInput({
           </IconButton>
         </HStack>
       ) : (
-        <HStack gap="8px" w="100%">
+        <HStack gap="0" w="100%">
           <NativeSelect.Root flex="1">
             <NativeSelect.Field
               id={id}

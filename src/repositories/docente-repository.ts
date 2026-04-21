@@ -29,6 +29,15 @@ type DocenteConflictParams = {
 }
 
 export class DocenteRepository {
+  async listDistinctDocumentoTipos(): Promise<string[]> {
+    const rows = await prisma.documento.findMany({
+      select: { tipo: true },
+      distinct: ['tipo'],
+      orderBy: { tipo: 'asc' },
+    })
+
+    return rows.map(row => row.tipo)
+  }
   async listDistinctTelefoneTipos(): Promise<string[]> {
     const rows = await prisma.telefone.findMany({
       select: { tipo: true },
@@ -37,6 +46,42 @@ export class DocenteRepository {
     })
 
     return rows.map(row => row.tipo)
+  }
+
+  async listDistinctProgressaoFuncoes(): Promise<string[]> {
+    const rows = await prisma.progressao.findMany({
+      where: {
+        funcao: {
+          not: null,
+        },
+      },
+      select: { funcao: true },
+      distinct: ['funcao'],
+      orderBy: { funcao: 'asc' },
+    })
+
+    return rows
+      .map(row => row.funcao)
+      .filter((funcao): funcao is string => typeof funcao === 'string' && funcao.trim().length > 0)
+  }
+
+  async listDistinctProgressaoReferencias(): Promise<string[]> {
+    const rows = await prisma.progressao.findMany({
+      where: {
+        referencia: {
+          not: null,
+        },
+      },
+      select: { referencia: true },
+      distinct: ['referencia'],
+      orderBy: { referencia: 'asc' },
+    })
+
+    return rows
+      .map(row => row.referencia)
+      .filter(
+        (referencia): referencia is string => typeof referencia === 'string' && referencia.trim().length > 0,
+      )
   }
 
   async list(filters: DocenteListInput): Promise<DocenteListResult> {
