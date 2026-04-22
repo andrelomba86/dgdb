@@ -5,48 +5,14 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState } from 'react'
 import { SelectOrAddInput } from '@/components/select-or-add-input'
 import { normalizeText } from '@/lib/normalizers'
-
-type ProgressaoFormValue = {
-  id?: number
-  funcao: string
-  dataInicio: string
-  dataTermino: string
-  referencia: string
-}
-
-type TelefoneFormValue = {
-  id?: number
-  telefone: string
-  tipo: string
-}
-
-type DocumentoFormValue = {
-  id?: number
-  tipo: string
-  documento: string
-}
-
-type ContaBancariaFormValue = {
-  id?: number
-  banco: string
-  agencia: string
-  conta: string
-}
-
-export type RelatedEntitiesInitialData = {
-  progressoes: ProgressaoFormValue[]
-  telefones: TelefoneFormValue[]
-  documentos: DocumentoFormValue[]
-  contasBancarias: ContaBancariaFormValue[]
-  progressaoFuncoesSugeridas: string[]
-  progressaoReferenciasSugeridas: string[]
-  telefoneTiposSugeridos: string[]
-  documentoTiposSugeridos: string[]
-}
-
-type DocenteRelatedFieldsProps = {
-  initialData?: RelatedEntitiesInitialData
-}
+import type {
+  ContaBancariaFormValue,
+  DocumentoFormValue,
+  DocenteRelatedFieldsProps,
+  ProgressaoFormValue,
+  RelatedEntitiesInitialData,
+  TelefoneFormValue,
+} from '@/types/docente'
 
 const defaultProgressaoFuncoesSugeridas = [
   'Professor Assistente Doutor',

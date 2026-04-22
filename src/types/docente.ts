@@ -34,3 +34,45 @@ export type DocenteDetailViewProps = {
   docente: DocenteAggregate
   successMessage?: string
 }
+
+export type ProgressaoFormValue = {
+  id?: number
+  funcao: string
+  dataInicio: string
+  dataTermino: string
+  referencia: string
+}
+
+export type TelefoneFormValue = {
+  id?: number
+  telefone: string
+  tipo: string
+}
+
+export type DocumentoFormValue = {
+  id?: number
+  tipo: string
+  documento: string
+}
+
+export type ContaBancariaFormValue = {
+  id?: number
+  banco: string
+  agencia: string
+  conta: string
+}
+
+export type RelatedEntitiesInitialData = {
+  progressoes: ProgressaoFormValue[]
+  telefones: TelefoneFormValue[]
+  documentos: DocumentoFormValue[]
+  contasBancarias: ContaBancariaFormValue[]
+  progressaoFuncoesSugeridas: string[]
+  progressaoReferenciasSugeridas: string[]
+  telefoneTiposSugeridos: string[]
+  documentoTiposSugeridos: string[]
+}
+
+export type DocenteRelatedFieldsProps = {
+  initialData?: RelatedEntitiesInitialData
+}
