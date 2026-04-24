@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, Button, Field, Fieldset, Grid, IconButton, Input, Stack } from '@chakra-ui/react'
+import type { SystemStyleObject } from '@chakra-ui/react'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState } from 'react'
 import { SelectOrAddInput } from '@/components/select-or-add-input'
@@ -91,7 +92,7 @@ type RelatedSectionProps<T> = {
   onAdd: () => void
   onRemove: (index: number) => void
   addButtonLabel: string
-  gridColumns: any
+  gridColumns: SystemStyleObject['gridTemplateColumns'] | Record<string, string>
   itemKeyPrefix: string
   removeAriaLabel: string
   children: (item: T, index: number) => React.ReactNode

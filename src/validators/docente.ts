@@ -30,7 +30,7 @@ export const docenteBaseSchema = z.object({
   telefones: z.array(telefoneInputSchema).default([]),
   documentos: z.array(documentoInputSchema).default([]),
   contasBancarias: z.array(contaBancariaInputSchema).default([]),
-  ativo: z.preprocess(v => v === 'on', z.boolean()).default(false),
+  ativo: z.preprocess(v => v === 'on' || v === true, z.boolean()).default(false),
 })
 
 export const createDocenteSchema = docenteBaseSchema

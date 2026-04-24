@@ -143,12 +143,15 @@ export class DocenteRepository {
   }
 
   async findConflict(params: DocenteConflictParams) {
+    const conditions: Prisma.DocenteWhereInput[] = []
+    if (params.matricula) conditions.push({ matricula: params.matricula })
+    if (params.email) conditions.push({ email: params.email })
+
+    if (conditions.length === 0) return null
+
     return prisma.docente.findFirst({
       where: {
-        OR: [
-          { ...(params.matricula ? { matricula: params.matricula } : {}) },
-          { ...(params.email ? { email: params.email } : {}) },
-        ],
+        OR: conditions,
         id: params.ignoreId ? { not: params.ignoreId } : undefined,
       },
       select: {
