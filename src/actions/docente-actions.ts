@@ -26,7 +26,7 @@ import {
   updateDocenteSchema,
 } from '@/validators/docente'
 import { DocenteFormValues } from '@/components/docente-form-fields'
-import { RelatedEntitiesInitialData } from '@/components/docente-related-fields'
+import { RelatedEntitiesInitialData } from '@/types/docente'
 
 type ActionResult<T> = {
   success: boolean

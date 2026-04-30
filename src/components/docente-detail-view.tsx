@@ -35,6 +35,7 @@ export function DocenteDetailView({ docente, successMessage }: DocenteDetailView
   useEffect(() => {
     if (successMessage) {
       enqueueToast('success', successMessage)
+      window.history.replaceState(null, '', window.location.pathname)
     }
   }, [successMessage])
   return (

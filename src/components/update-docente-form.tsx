@@ -7,7 +7,7 @@ import { deleteDocenteAction, updateDocenteAction } from '@/actions/docente-acti
 import { DocenteFormActionBar } from '@/components/docente-form-action-bar'
 import type { DocenteFormValues } from '@/components/docente-form-fields'
 import { DocenteFormFields } from '@/components/docente-form-fields'
-import type { RelatedEntitiesInitialData } from '@/components/docente-related-fields'
+import type { RelatedEntitiesInitialData } from '@/types/docente'
 import { enqueueToast } from '@/components/toaster-notifier'
 
 type UpdateDocenteFormProps = {

@@ -11,9 +11,9 @@ import type {
   DocumentoFormValue,
   DocenteRelatedFieldsProps,
   ProgressaoFormValue,
-  RelatedEntitiesInitialData,
   TelefoneFormValue,
 } from '@/types/docente'
+import type { RelatedEntitiesInitialData } from '@/types/docente'
 
 const defaultProgressaoFuncoesSugeridas = [
   'Professor Assistente Doutor',
@@ -67,7 +67,7 @@ function extractDynamicValues<T>(
   return mergeSuggestedValues([...(suggested ?? []), ...(items ?? []).map(mapper)])
 }
 
-const defaultData: RelatedEntitiesInitialData = {
+export const defaultData: RelatedEntitiesInitialData = {
   progressoes: [],
   telefones: [],
   documentos: [],

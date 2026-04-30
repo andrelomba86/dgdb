@@ -6,7 +6,7 @@ import type { DocenteFormState } from '@/actions/docente-actions'
 import { createDocenteAction } from '@/actions/docente-actions'
 import { DocenteFormActionBar } from '@/components/docente-form-action-bar'
 import { DocenteFormFields } from '@/components/docente-form-fields'
-import type { RelatedEntitiesInitialData } from '@/components/docente-related-fields'
+import type { RelatedEntitiesInitialData } from '@/types/docente'
 import { enqueueToast } from '@/components/toaster-notifier'
 
 const initialState: DocenteFormState = {

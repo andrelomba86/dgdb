@@ -1,6 +1,7 @@
 import { Box, Checkbox, Field, Fieldset, Grid, Input } from '@chakra-ui/react'
 
-import { DocenteRelatedFields, type RelatedEntitiesInitialData } from '@/components/docente-related-fields'
+import { RelatedEntitiesInitialData } from '@/types/docente'
+import { DocenteRelatedFields } from '@/components/docente-related-fields'
 
 export type DocenteFormValues = {
   nome?: string
