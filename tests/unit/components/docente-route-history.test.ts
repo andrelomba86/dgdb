@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { ROUTE_STACK_STORAGE_KEY, popPreviousRoute, trackRouteVisit } from '@/lib/route-history'
+import { ROUTE_STACK_STORAGE_KEY, popPreviousRoute, trackRouteVisit } from '@/components/docente-route-history'
 
 class MemoryStorage {
   private readonly map = new Map<string, string>()

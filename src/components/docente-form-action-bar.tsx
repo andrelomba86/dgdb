@@ -6,9 +6,9 @@ import type { ComponentProps } from 'react'
 
 import { ActionBar, Button, Text } from '@chakra-ui/react'
 
+import { popPreviousRoute } from '@/components/docente-route-history'
 import { ConfirmSubmitButton } from '@/components/confirm-submit-button'
 import { PendingSubmitButton } from '@/components/pending-submit-button'
-import { getClientSessionStorage, popPreviousRoute } from '@/lib/route-history'
 
 type DocenteFormActionBarProps = {
   title: string
@@ -37,10 +37,9 @@ export function DocenteFormActionBar({
   const showDeleteAction = Boolean(deleteFormAction && deleteConfirmMessage)
 
   function handleBackClick() {
-    const storage = getClientSessionStorage()
     const query = searchParams.toString()
     const currentRoute = query ? `${pathname}?${query}` : pathname
-    const previousRoute = storage ? popPreviousRoute(storage, currentRoute) : null
+    const previousRoute = popPreviousRoute(window.sessionStorage, currentRoute)
     router.push(previousRoute || '/docentes')
   }
 

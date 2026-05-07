@@ -206,7 +206,6 @@ export function DocenteDetailView({ docente, successMessage }: DocenteDetailView
         submitIdleText="Editar cadastro"
         submitPendingText="Abrindo edição..."
         submitHref={`/docentes/${docente.id}/editar`}
-        cancelHref="/docentes"
         deleteFormAction={deleteDocenteAction.bind(null, docente.id)}
         deleteConfirmMessage={`Excluir ${docente.nome}? Esta ação remove permanentemente o cadastro e os vínculos relacionados.`}
       />
