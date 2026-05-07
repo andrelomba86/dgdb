@@ -1,21 +1,20 @@
 'use client'
 
 import NextLink from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { ComponentProps } from 'react'
 
 import { ActionBar, Button, Text } from '@chakra-ui/react'
 
 import { ConfirmSubmitButton } from '@/components/confirm-submit-button'
 import { PendingSubmitButton } from '@/components/pending-submit-button'
-import { getClientSessionStorage, getPreviousRoute } from '@/lib/route-history'
+import { getClientSessionStorage, popPreviousRoute } from '@/lib/route-history'
 
 type DocenteFormActionBarProps = {
   title: string
   submitIdleText: string
   submitPendingText: string
   submitHref?: string
-  cancelHref?: string
   deleteFormAction?: ComponentProps<typeof ConfirmSubmitButton>['formAction']
   deleteConfirmMessage?: string
   deleteIdleText?: string
@@ -27,19 +26,22 @@ export function DocenteFormActionBar({
   submitIdleText,
   submitPendingText,
   submitHref,
-  cancelHref = '/docentes',
   deleteFormAction,
   deleteConfirmMessage,
   deleteIdleText = 'Excluir cadastro',
   deletePendingText = 'Excluindo...',
 }: DocenteFormActionBarProps) {
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const showDeleteAction = Boolean(deleteFormAction && deleteConfirmMessage)
 
   function handleBackClick() {
     const storage = getClientSessionStorage()
-    const previousRoute = storage ? getPreviousRoute(storage) : null
-    router.push(previousRoute || cancelHref)
+    const query = searchParams.toString()
+    const currentRoute = query ? `${pathname}?${query}` : pathname
+    const previousRoute = storage ? popPreviousRoute(storage, currentRoute) : null
+    router.push(previousRoute || '/docentes')
   }
 
   return (

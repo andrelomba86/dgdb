@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { PREVIOUS_ROUTE_STORAGE_KEY, getPreviousRoute, setPreviousRoute } from '@/lib/route-history'
+import { ROUTE_STACK_STORAGE_KEY, popPreviousRoute, trackRouteVisit } from '@/lib/route-history'
 
 class MemoryStorage {
   private readonly map = new Map<string, string>()
@@ -15,12 +15,32 @@ class MemoryStorage {
 }
 
 describe('lib/route-history', () => {
-  it('grava e lê rota anterior', () => {
+  it('mantém histórico de navegação em pilha sem duplicar rota consecutiva', () => {
     const storage = new MemoryStorage()
 
-    expect(storage.getItem(PREVIOUS_ROUTE_STORAGE_KEY)).toBeNull()
+    trackRouteVisit(storage, '/docentes')
+    trackRouteVisit(storage, '/docentes/10')
+    trackRouteVisit(storage, '/docentes/10/editar')
+    trackRouteVisit(storage, '/docentes/10/editar')
 
-    setPreviousRoute(storage, '/docentes')
-    expect(getPreviousRoute(storage)).toBe('/docentes')
+    expect(storage.getItem(ROUTE_STACK_STORAGE_KEY)).toBe(
+      JSON.stringify(['/docentes', '/docentes/10', '/docentes/10/editar']),
+    )
+  })
+
+  it('retorna rota anterior correta ao desfazer caminho Editar -> Visualização -> Painel', () => {
+    const storage = new MemoryStorage()
+
+    trackRouteVisit(storage, '/docentes')
+    trackRouteVisit(storage, '/docentes/10')
+    trackRouteVisit(storage, '/docentes/10/editar')
+
+    const backFromEdit = popPreviousRoute(storage, '/docentes/10/editar')
+    expect(backFromEdit).toBe('/docentes/10')
+    expect(storage.getItem(ROUTE_STACK_STORAGE_KEY)).toBe(JSON.stringify(['/docentes', '/docentes/10']))
+
+    const backFromView = popPreviousRoute(storage, '/docentes/10')
+    expect(backFromView).toBe('/docentes')
+    expect(storage.getItem(ROUTE_STACK_STORAGE_KEY)).toBe(JSON.stringify(['/docentes']))
   })
 })
