@@ -1,12 +1,14 @@
 'use client'
 
 import NextLink from 'next/link'
+import { useRouter } from 'next/navigation'
 import type { ComponentProps } from 'react'
 
 import { ActionBar, Button, Text } from '@chakra-ui/react'
 
 import { ConfirmSubmitButton } from '@/components/confirm-submit-button'
 import { PendingSubmitButton } from '@/components/pending-submit-button'
+import { getClientSessionStorage, getPreviousRoute } from '@/lib/route-history'
 
 type DocenteFormActionBarProps = {
   title: string
@@ -31,7 +33,14 @@ export function DocenteFormActionBar({
   deleteIdleText = 'Excluir cadastro',
   deletePendingText = 'Excluindo...',
 }: DocenteFormActionBarProps) {
+  const router = useRouter()
   const showDeleteAction = Boolean(deleteFormAction && deleteConfirmMessage)
+
+  function handleBackClick() {
+    const storage = getClientSessionStorage()
+    const previousRoute = storage ? getPreviousRoute(storage) : null
+    router.push(previousRoute || cancelHref)
+  }
 
   return (
     <ActionBar.Root open autoFocus={false} closeOnEscape={false} closeOnInteractOutside={false}>
@@ -66,8 +75,8 @@ export function DocenteFormActionBar({
             />
           )}
 
-          <Button asChild variant="surface" size="sm" rounded="full" colorPalette="gray">
-            <NextLink href={cancelHref}>Voltar</NextLink>
+          <Button variant="surface" size="sm" rounded="full" colorPalette="gray" onClick={handleBackClick}>
+            Voltar
           </Button>
 
           {showDeleteAction ? (
