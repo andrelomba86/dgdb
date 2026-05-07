@@ -7,5 +7,3 @@ export const documentoInputSchema = z.object({
   tipo: requiredString('Tipo de documento', 25),
   documento: requiredString('Número do documento', 45),
 })
-
-export type DocumentoInput = z.infer<typeof documentoInputSchema>

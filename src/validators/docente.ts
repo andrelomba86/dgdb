@@ -16,7 +16,7 @@ import { telefoneInputSchema } from '@/validators/telefone'
 const sortBySchema = z.enum(['nome', 'dataAdmissao']).default('nome')
 const sortOrderSchema = z.enum(['asc', 'desc']).default('asc')
 
-export const docenteBaseSchema = z.object({
+const docenteBaseSchema = z.object({
   nome: requiredString('Nome', 100),
   endereco: nullableString(200),
   dataNascimento: nullableDate,

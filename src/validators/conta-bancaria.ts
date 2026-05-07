@@ -12,5 +12,3 @@ export const contaBancariaInputSchema = z.object({
   agencia: requiredPatternString('Agência', 8, agencyRegex, 'Agência inválida.'),
   conta: requiredPatternString('Conta', 15, accountRegex, 'Conta inválida.'),
 })
-
-export type ContaBancariaInput = z.infer<typeof contaBancariaInputSchema>

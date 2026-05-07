@@ -13,5 +13,3 @@ export const progressaoInputSchema = z.object({
 export const progressaoPatchSchema = progressaoInputSchema.extend({
   dataInicio: z.union([requiredDate('Data de início'), nullableDate]),
 })
-
-export type ProgressaoInput = z.infer<typeof progressaoInputSchema>

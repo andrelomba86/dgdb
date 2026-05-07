@@ -43,7 +43,7 @@ const loadIntegrationEnvFile = () => {
 loadIntegrationEnvFile()
 
 export const shouldRunDbTests = process.env.RUN_DB_TESTS === '1' || process.env.RUN_DB_TESTS_LOCAL === '1'
-export const isLocalDbMode = process.env.RUN_DB_TESTS_LOCAL === '1'
+const isLocalDbMode = process.env.RUN_DB_TESTS_LOCAL === '1'
 
 const loadLocalEnvFileIfNeeded = () => {
   const hasDatabaseUrl = Boolean(process.env.DATABASE_URL || process.env.LOCAL_DATABASE_URL)

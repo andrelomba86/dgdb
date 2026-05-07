@@ -9,5 +9,3 @@ export const telefoneInputSchema = z.object({
   telefone: requiredPatternString('Telefone', 15, telefoneRegex, 'Telefone inválido.'),
   tipo: requiredString('Tipo de telefone', 20),
 })
-
-export type TelefoneInput = z.infer<typeof telefoneInputSchema>
