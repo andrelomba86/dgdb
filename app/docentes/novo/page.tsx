@@ -20,10 +20,9 @@ export default async function NovoDocentePage() {
           telefones: [],
           documentos: [],
           contasBancarias: [],
+          telefoneTiposSugeridos,
           progressaoFuncoesSugeridas,
           progressaoReferenciasSugeridas,
-          telefoneTiposSugeridos,
-          documentoTiposSugeridos: [],
         }}
       />
     </DocentePageShell>

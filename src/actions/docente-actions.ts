@@ -281,18 +281,6 @@ function buildRelatedInitialData(formData: FormData): RelatedEntitiesInitialData
         conta: toInputString(value.conta),
       }
     }),
-    progressaoFuncoesSugeridas: progressaoFuncoesSugeridas
-      .map(value => toInputString(value).trim())
-      .filter(value => value.length > 0),
-    progressaoReferenciasSugeridas: progressaoReferenciasSugeridas
-      .map(value => toInputString(value).trim())
-      .filter(value => value.length > 0),
-    telefoneTiposSugeridos: telefoneTiposSugeridos
-      .map(value => toInputString(value).trim())
-      .filter(value => value.length > 0),
-    documentoTiposSugeridos: documentoTiposSugeridos
-      .map(value => toInputString(value).trim())
-      .filter(value => value.length > 0),
   }
 }
 

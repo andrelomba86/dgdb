@@ -17,16 +17,13 @@ type UpdateDocenteFormProps = {
   initialSuccessMessage?: string
 }
 
-const formState: DocenteFormState = {
-  result: {},
-}
-
 export function UpdateDocenteForm({
   id,
   initialValues,
   relatedInitialData,
   initialSuccessMessage,
 }: UpdateDocenteFormProps) {
+  const formState: DocenteFormState = { result: {} }
   const [state, action, isPending] = useActionState(updateDocenteAction, formState)
   const hasShownInitialSuccess = useRef(false)
   const effectiveRelatedInitialData = state.relatedInitialData ?? relatedInitialData

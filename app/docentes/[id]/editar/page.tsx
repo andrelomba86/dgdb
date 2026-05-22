@@ -97,9 +97,9 @@ export default async function EditDocentePage({ params, searchParams }: EditDoce
       agencia: conta.agencia,
       conta: conta.conta,
     })),
+    telefoneTiposSugeridos,
     progressaoFuncoesSugeridas,
     progressaoReferenciasSugeridas,
-    telefoneTiposSugeridos,
     documentoTiposSugeridos,
   }
 

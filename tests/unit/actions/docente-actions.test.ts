@@ -279,8 +279,6 @@ describe('actions/docente-actions', () => {
 
     expect(result.result.error).toBe('Telefones: payload inválido.')
     expect(result.formValues?.nome).toBe('Maria Souza')
-    expect(result.relatedInitialData?.progressaoFuncoesSugeridas).toEqual(['Docente'])
-    expect(result.relatedInitialData?.progressaoReferenciasSugeridas).toEqual(['N1'])
     expect(mocks.docenteCreate).not.toHaveBeenCalled()
   })
 

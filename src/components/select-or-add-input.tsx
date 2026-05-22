@@ -11,20 +11,21 @@ type SelectOption = {
   label: string
 }
 
+type InputOption = string | SelectOption
+
 type SelectOrAddInputProps = {
   id: string
   label: string
   value: string
   onValueChange: (value: string) => void
   onRegisterOption?: (value: string) => void
-  options: SelectOption[]
-  defaultOptions?: SelectOption[]
+  options: InputOption[]
   customInputPlaceholder?: string
-  cancelToValue: string
-  cancelAriaLabel?: string
-  addAriaLabel?: string
+  // cancelToValue: string
+  // cancelAriaLabel?: string
+  // addAriaLabel?: string
 }
-
+//TODO: verificar se é necessário mesmo utilizar array e como objeto para options, ou se é possível simplificar para apenas um formato. Atualmente a implementação suporta ambos os formatos, mas talvez seja mais simples padronizar para apenas um (somente array, que é o realmente utilizado atualmente).
 export function SelectOrAddInput({
   id,
   label,
@@ -32,13 +33,15 @@ export function SelectOrAddInput({
   onValueChange,
   onRegisterOption,
   options,
-  defaultOptions = [],
   customInputPlaceholder,
-  cancelToValue,
-  cancelAriaLabel = 'Cancelar',
-  addAriaLabel = 'Confirmar valor',
+  // cancelToValue,
+  // cancelAriaLabel = 'Cancelar',
+  // addAriaLabel = 'Confirmar valor',
 }: SelectOrAddInputProps) {
   const mergedOptions = useMemo(() => {
+    const normalize = (opt: InputOption): SelectOption =>
+      typeof opt === 'string' ? { value: opt, label: opt } : opt
+
     const seen = new Set<string>()
     const result: SelectOption[] = []
 
@@ -50,45 +53,25 @@ export function SelectOrAddInput({
       }
     }
 
-    defaultOptions.forEach(add)
-    options.forEach(add)
+    options.forEach(o => add(normalize(o)))
 
     return result
-  }, [defaultOptions, options])
+  }, [options])
 
-  const selectableValuesLower = useMemo(
-    () => new Set(mergedOptions.map(o => o.value.toLocaleLowerCase('pt-BR'))),
-    [mergedOptions],
-  )
-
-  const isValueInList = (v: string) => selectableValuesLower.has(v.toLocaleLowerCase('pt-BR'))
-
-  const [isCustomMode, setIsCustomMode] = useState(value.length > 0 && !isValueInList(value))
-
-  useEffect(() => {
-    if (value.length > 0 && !isValueInList(value)) {
-      setIsCustomMode(true)
-      return
-    }
-
-    if (isValueInList(value)) {
-      setIsCustomMode(false)
-    }
-  }, [value, selectableValuesLower])
-
-  const handleSelectChange = (nextValue: string) => {
-    onValueChange(nextValue)
-  }
+  const [manualCustomMode, setManualCustomMode] = useState(false)
+  const [customValue, setCustomValue] = useState('')
 
   const handleOpenAddMode = () => {
-    setIsCustomMode(true)
-    onValueChange('')
+    setManualCustomMode(true)
+    setCustomValue('')
   }
 
-  const handleConfirmCustom = () => {
-    const trimmedValue = value.trim()
+  const currentOrDefaultValue = value || mergedOptions[0]?.value
 
-    setIsCustomMode(false)
+  const handleConfirmCustom = () => {
+    const trimmedValue = customValue.trim()
+
+    setManualCustomMode(false)
 
     if (trimmedValue.length > 0) {
       onRegisterOption?.(trimmedValue)
@@ -96,32 +79,31 @@ export function SelectOrAddInput({
       return
     }
 
-    onValueChange(cancelToValue)
+    onValueChange(currentOrDefaultValue)
   }
 
   const handleCancelCustom = () => {
-    setIsCustomMode(false)
-    onValueChange(cancelToValue)
+    setManualCustomMode(false)
+    onValueChange(currentOrDefaultValue)
   }
 
   return (
     <Field.Root>
       <Field.Label htmlFor={id}>{label}</Field.Label>
 
-      {isCustomMode ? (
+      {manualCustomMode ? (
         <HStack gap="0" w="100%">
           <Input
             id={id}
             type="text"
-            value={value}
+            value={customValue}
             placeholder={customInputPlaceholder}
-            onChange={event => onValueChange(event.target.value)}
+            onChange={event => setCustomValue(event.target.value)}
             p="10px 12px"
           />
           <IconButton
             type="button"
-            aria-label={addAriaLabel}
-            title={addAriaLabel}
+            title="Confirmar valor personalizado"
             variant="surface"
             rounded="none"
             colorPalette="blue"
@@ -130,8 +112,7 @@ export function SelectOrAddInput({
           </IconButton>
           <IconButton
             type="button"
-            aria-label={cancelAriaLabel}
-            title={cancelAriaLabel}
+            title="Cancelar valor personalizado"
             variant="surface"
             rounded="none"
             borderEndRadius="sm"
@@ -145,8 +126,8 @@ export function SelectOrAddInput({
           <NativeSelect.Root flex="1">
             <NativeSelect.Field
               id={id}
-              value={value || cancelToValue}
-              onChange={event => handleSelectChange(event.target.value)}
+              value={currentOrDefaultValue}
+              onChange={event => onValueChange(event.target.value)}
               p="10px 12px">
               {mergedOptions.map(option => (
                 <option key={option.value} value={option.value}>
@@ -158,7 +139,6 @@ export function SelectOrAddInput({
           </NativeSelect.Root>
           <IconButton
             type="button"
-            aria-label="Adicionar valor personalizado"
             title="Adicionar valor personalizado"
             variant="outline"
             colorPalette="blue"

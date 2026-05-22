@@ -38,10 +38,10 @@ export type RelatedEntitiesInitialData = {
   telefones: TelefoneFormValue[]
   documentos: DocumentoFormValue[]
   contasBancarias: ContaBancariaFormValue[]
-  progressaoFuncoesSugeridas: string[]
-  progressaoReferenciasSugeridas: string[]
-  telefoneTiposSugeridos: string[]
-  documentoTiposSugeridos: string[]
+  progressaoFuncoesSugeridas?: string[]
+  progressaoReferenciasSugeridas?: string[]
+  telefoneTiposSugeridos?: string[]
+  documentoTiposSugeridos?: string[]
 }
 
 type DocenteRelatedFieldsProps = {
@@ -85,39 +85,42 @@ function appendSuggestedValue(currentValues: string[], value: string) {
     item => item.toLocaleLowerCase('pt-BR') === normalizedValue.toLocaleLowerCase('pt-BR'),
   )
 
-  if (alreadyExists) {
-    return currentValues
-  }
+  if (alreadyExists) return currentValues
 
   return [...currentValues, normalizedValue]
 }
 
+function buildSuggestedValuesFromBackendOrItems(provided: string[] | undefined, defaults: string[]) {
+  console.log('provided', provided, '\ndefaults:', defaults)
+  return mergeSuggestedValues([...defaults, ...(provided ?? [])])
+}
+
 function extractDynamicTelefoneTipos(initialData: RelatedEntitiesInitialData) {
-  return mergeSuggestedValues([
-    ...(initialData.telefoneTiposSugeridos ?? []),
-    ...(initialData.telefones ?? []).map(telefone => telefone.tipo),
-  ])
+  return buildSuggestedValuesFromBackendOrItems(
+    initialData.telefoneTiposSugeridos,
+    defaultTelefoneTiposSugeridos,
+  )
 }
 
 function extractDynamicProgressaoFuncoes(initialData: RelatedEntitiesInitialData) {
-  return mergeSuggestedValues([
-    ...(initialData.progressaoFuncoesSugeridas ?? []),
-    ...(initialData.progressoes ?? []).map(progressao => progressao.funcao),
-  ])
+  return buildSuggestedValuesFromBackendOrItems(
+    initialData.progressaoFuncoesSugeridas,
+    defaultProgressaoFuncoesSugeridas,
+  )
 }
 
 function extractDynamicProgressaoReferencias(initialData: RelatedEntitiesInitialData) {
-  return mergeSuggestedValues([
-    ...(initialData.progressaoReferenciasSugeridas ?? []),
-    ...(initialData.progressoes ?? []).map(progressao => progressao.referencia),
-  ])
+  return buildSuggestedValuesFromBackendOrItems(
+    initialData.progressaoReferenciasSugeridas,
+    defaultProgressaoReferenciasSugeridas,
+  )
 }
 
 function extractDynamicDocumentoTipos(initialData: RelatedEntitiesInitialData) {
-  return mergeSuggestedValues([
-    ...(initialData.documentoTiposSugeridos ?? []),
-    ...(initialData.documentos ?? []).map(documento => documento.tipo),
-  ])
+  return buildSuggestedValuesFromBackendOrItems(
+    initialData.documentoTiposSugeridos,
+    defaultDocumentoTiposSugeridos,
+  )
 }
 
 const defaultData: RelatedEntitiesInitialData = {
@@ -125,10 +128,6 @@ const defaultData: RelatedEntitiesInitialData = {
   telefones: [],
   documentos: [],
   contasBancarias: [],
-  progressaoFuncoesSugeridas: defaultProgressaoFuncoesSugeridas,
-  progressaoReferenciasSugeridas: defaultProgressaoReferenciasSugeridas,
-  telefoneTiposSugeridos: defaultTelefoneTiposSugeridos,
-  documentoTiposSugeridos: defaultDocumentoTiposSugeridos,
 }
 
 function updateAtIndex<T>(items: T[], index: number, updater: (item: T) => T) {
@@ -141,33 +140,33 @@ function removeAtIndex<T>(items: T[], index: number) {
 
 export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelatedFieldsProps) {
   const [progressoes, setProgressoes] = useState<ProgressaoFormValue[]>(initialData.progressoes)
+  const [telefones, setTelefones] = useState<TelefoneFormValue[]>(initialData.telefones)
+  const [documentos, setDocumentos] = useState<DocumentoFormValue[]>(initialData.documentos)
+  const [contasBancarias, setContasBancarias] = useState<ContaBancariaFormValue[]>(
+    initialData.contasBancarias,
+  )
   const [progressaoFuncoesSugeridas, setProgressaoFuncoesSugeridas] = useState<string[]>(
     extractDynamicProgressaoFuncoes(initialData),
   )
   const [progressaoReferenciasSugeridas, setProgressaoReferenciasSugeridas] = useState<string[]>(
     extractDynamicProgressaoReferencias(initialData),
   )
-  const [telefones, setTelefones] = useState<TelefoneFormValue[]>(initialData.telefones)
   const [telefoneTiposSugeridos, setTelefoneTiposSugeridos] = useState<string[]>(
     extractDynamicTelefoneTipos(initialData),
   )
   const [documentoTiposSugeridos, setDocumentoTiposSugeridos] = useState<string[]>(
     extractDynamicDocumentoTipos(initialData),
   )
-  const [documentos, setDocumentos] = useState<DocumentoFormValue[]>(initialData.documentos)
-  const [contasBancarias, setContasBancarias] = useState<ContaBancariaFormValue[]>(
-    initialData.contasBancarias,
-  )
 
   useEffect(() => {
     setProgressoes(initialData.progressoes)
-    setProgressaoFuncoesSugeridas(extractDynamicProgressaoFuncoes(initialData))
-    setProgressaoReferenciasSugeridas(extractDynamicProgressaoReferencias(initialData))
     setTelefones(initialData.telefones)
-    setTelefoneTiposSugeridos(extractDynamicTelefoneTipos(initialData))
-    setDocumentoTiposSugeridos(extractDynamicDocumentoTipos(initialData))
     setDocumentos(initialData.documentos)
     setContasBancarias(initialData.contasBancarias)
+    setProgressaoFuncoesSugeridas(extractDynamicProgressaoFuncoes(initialData))
+    setProgressaoReferenciasSugeridas(extractDynamicProgressaoReferencias(initialData))
+    setTelefoneTiposSugeridos(extractDynamicTelefoneTipos(initialData))
+    setDocumentoTiposSugeridos(extractDynamicDocumentoTipos(initialData))
   }, [initialData])
 
   return (
@@ -227,17 +226,10 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                     onRegisterOption={value => {
                       setProgressaoFuncoesSugeridas(current => appendSuggestedValue(current, value))
                     }}
-                    defaultOptions={defaultProgressaoFuncoesSugeridas.map(funcao => ({
-                      value: funcao,
-                      label: funcao,
-                    }))}
-                    options={progressaoFuncoesSugeridas.map(funcao => ({
-                      value: funcao,
-                      label: funcao,
-                    }))}
+                    options={progressaoFuncoesSugeridas}
                     customInputPlaceholder="Informe a função"
-                    cancelToValue={progressaoFuncoesSugeridas[0] ?? ''}
-                    cancelAriaLabel="Voltar para lista de funções sugeridas"
+                    // cancelToValue={progressaoFuncoesSugeridas[0] ?? ''}
+                    // cancelAriaLabel="Voltar para lista de funções sugeridas"
                   />
                   <Field.Root>
                     <Field.Label htmlFor={`progressao-data-${index}`}>Data de início</Field.Label>
@@ -288,17 +280,8 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                     onRegisterOption={value => {
                       setProgressaoReferenciasSugeridas(current => appendSuggestedValue(current, value))
                     }}
-                    defaultOptions={defaultProgressaoReferenciasSugeridas.map(referencia => ({
-                      value: referencia,
-                      label: referencia,
-                    }))}
-                    options={progressaoReferenciasSugeridas.map(referencia => ({
-                      value: referencia,
-                      label: referencia,
-                    }))}
+                    options={progressaoReferenciasSugeridas}
                     customInputPlaceholder="Informe a referência"
-                    cancelToValue={progressaoReferenciasSugeridas[0] ?? ''}
-                    cancelAriaLabel="Voltar para lista de referências sugeridas"
                   />
                   <IconButton
                     gridColumn={{ md: 'span 2', lg: 'span 1' }}
@@ -381,14 +364,10 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                     onRegisterOption={value => {
                       setTelefoneTiposSugeridos(current => appendSuggestedValue(current, value))
                     }}
-                    defaultOptions={defaultTelefoneTiposSugeridos.map(tipo => ({ value: tipo, label: tipo }))}
-                    options={telefoneTiposSugeridos.map(tipo => ({
-                      value: tipo,
-                      label: tipo,
-                    }))}
+                    options={telefoneTiposSugeridos}
                     customInputPlaceholder="Informe o tipo de telefone"
-                    cancelToValue="Celular"
-                    cancelAriaLabel="Voltar para lista de tipos sugeridos"
+                    // cancelToValue="Celular"
+                    // cancelAriaLabel="Voltar para lista de tipos sugeridos"
                   />
 
                   <IconButton
@@ -446,17 +425,10 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                     onRegisterOption={value => {
                       setDocumentoTiposSugeridos(current => appendSuggestedValue(current, value))
                     }}
-                    defaultOptions={defaultDocumentoTiposSugeridos.map(tipo => ({
-                      value: tipo,
-                      label: tipo,
-                    }))}
-                    options={documentoTiposSugeridos.map(tipo => ({
-                      value: tipo,
-                      label: tipo,
-                    }))}
+                    options={documentoTiposSugeridos}
                     customInputPlaceholder="Informe o tipo de documento"
-                    cancelToValue="CPF"
-                    cancelAriaLabel="Voltar para lista de tipos sugeridos"
+                    // cancelToValue="CPF"
+                    // cancelAriaLabel="Voltar para lista de tipos sugeridos"
                   />
                   <Field.Root>
                     <Field.Label htmlFor={`documento-numero-${index}`}>Número</Field.Label>
@@ -488,7 +460,12 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
 
             <Button
               type="button"
-              onClick={() => setDocumentos(current => [...current, { tipo: 'CPF', documento: '' }])}
+              onClick={() =>
+                setDocumentos(current => [
+                  ...current,
+                  { tipo: defaultDocumentoTiposSugeridos[0], documento: '' },
+                ])
+              }
               variant="surface"
               rounded="full"
               colorPalette="blue">
