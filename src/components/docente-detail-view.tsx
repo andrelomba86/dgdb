@@ -46,7 +46,7 @@ export function DocenteDetailView({ docente, successMessage }: DocenteDetailView
   return (
     <Stack gap="18px" pb="128px">
       <Box>
-        <Checkmark mr="6px" size="sm" checked={docente.ativo ? true : false} /> Ativo
+        <Checkmark mr="6px" size="sm" checked={docente.ativo ? true : false} /> Docente ativo?
       </Box>
       <Fieldset.Root borderWidth="1px" borderColor="#dbeafe" borderRadius="18px" p="20px" pt="0">
         <Fieldset.Legend px="8px" fontWeight={700}>

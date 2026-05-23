@@ -15,6 +15,7 @@ type DocenteFormActionBarProps = {
   submitIdleText: string
   submitPendingText: string
   submitHref?: string
+  fallbackHref?: string
   deleteFormAction?: ComponentProps<typeof ConfirmSubmitButton>['formAction']
   deleteConfirmMessage?: string
   deleteIdleText?: string
@@ -26,6 +27,7 @@ export function DocenteFormActionBar({
   submitIdleText,
   submitPendingText,
   submitHref,
+  fallbackHref = '/docentes',
   deleteFormAction,
   deleteConfirmMessage,
   deleteIdleText = 'Excluir cadastro',
@@ -40,7 +42,7 @@ export function DocenteFormActionBar({
     const query = searchParams.toString()
     const currentRoute = query ? `${pathname}?${query}` : pathname
     const previousRoute = popPreviousRoute(window.sessionStorage, currentRoute)
-    router.push(previousRoute || '/docentes')
+    router.push(previousRoute || fallbackHref)
   }
 
   return (

@@ -70,6 +70,7 @@ export function UpdateDocenteForm({
         title="Ações do registro"
         submitIdleText="Atualizar cadastro"
         submitPendingText="Atualizando..."
+        fallbackHref={`/docentes/${id}`}
         deleteFormAction={deleteDocenteAction.bind(null, id)}
         deleteConfirmMessage={`Excluir ${initialValues.nome}? Esta ação remove permanentemente o cadastro e os vínculos relacionados.`}
       />

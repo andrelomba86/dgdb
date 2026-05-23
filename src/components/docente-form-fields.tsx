@@ -48,7 +48,7 @@ export function DocenteFormFields({
         <Checkbox.Root name="ativo" defaultChecked={values.ativo ?? true}>
           <Checkbox.HiddenInput />
           <Checkbox.Control />
-          <Checkbox.Label>Docente ativo</Checkbox.Label>
+          <Checkbox.Label>Docente ativo?</Checkbox.Label>
         </Checkbox.Root>
       </Box>
 
