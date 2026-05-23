@@ -5,6 +5,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { useEffect, useState } from 'react'
 import { SelectOrAddInput } from '@/components/select-or-add-input'
 import { normalizeText } from '@/lib/normalizers'
+import type { SuggestedOptions } from '@/repositories/docente-repository'
 
 type ProgressaoFormValue = {
   id?: number
@@ -38,10 +39,7 @@ export type RelatedEntitiesInitialData = {
   telefones: TelefoneFormValue[]
   documentos: DocumentoFormValue[]
   contasBancarias: ContaBancariaFormValue[]
-  progressaoFuncoesSugeridas?: string[]
-  progressaoReferenciasSugeridas?: string[]
-  telefoneTiposSugeridos?: string[]
-  documentoTiposSugeridos?: string[]
+  suggestedOptions?: SuggestedOptions
 }
 
 type DocenteRelatedFieldsProps = {
@@ -91,34 +89,33 @@ function appendSuggestedValue(currentValues: string[], value: string) {
 }
 
 function buildSuggestedValuesFromBackendOrItems(provided: string[] | undefined, defaults: string[]) {
-  console.log('provided', provided, '\ndefaults:', defaults)
   return mergeSuggestedValues([...defaults, ...(provided ?? [])])
 }
 
 function extractDynamicTelefoneTipos(initialData: RelatedEntitiesInitialData) {
   return buildSuggestedValuesFromBackendOrItems(
-    initialData.telefoneTiposSugeridos,
+    initialData.suggestedOptions?.telefoneTipos,
     defaultTelefoneTiposSugeridos,
   )
 }
 
 function extractDynamicProgressaoFuncoes(initialData: RelatedEntitiesInitialData) {
   return buildSuggestedValuesFromBackendOrItems(
-    initialData.progressaoFuncoesSugeridas,
+    initialData.suggestedOptions?.progressaoFuncoes,
     defaultProgressaoFuncoesSugeridas,
   )
 }
 
 function extractDynamicProgressaoReferencias(initialData: RelatedEntitiesInitialData) {
   return buildSuggestedValuesFromBackendOrItems(
-    initialData.progressaoReferenciasSugeridas,
+    initialData.suggestedOptions?.progressaoReferencias,
     defaultProgressaoReferenciasSugeridas,
   )
 }
 
 function extractDynamicDocumentoTipos(initialData: RelatedEntitiesInitialData) {
   return buildSuggestedValuesFromBackendOrItems(
-    initialData.documentoTiposSugeridos,
+    initialData.suggestedOptions?.documentoTipos,
     defaultDocumentoTiposSugeridos,
   )
 }

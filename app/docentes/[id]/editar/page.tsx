@@ -38,17 +38,10 @@ export default async function EditDocentePage({ params, searchParams }: EditDoce
 
   const [
     result,
-    telefoneTiposSugeridos,
-    progressaoFuncoesSugeridas,
-    progressaoReferenciasSugeridas,
-    documentoTiposSugeridos,
+    suggestedOptions,
   ] = await Promise.all([
     getDocenteAction(docId),
-
-    docenteService.listTelefoneTiposSugeridos(),
-    docenteService.listProgressaoFuncoesSugeridas(),
-    docenteService.listProgressaoReferenciasSugeridas(),
-    docenteService.listDocumentoTiposSugeridos(),
+    docenteService.listSuggestedOptions(),
   ])
   if (!result.success || !result.data) {
     return (
@@ -97,10 +90,7 @@ export default async function EditDocentePage({ params, searchParams }: EditDoce
       agencia: conta.agencia,
       conta: conta.conta,
     })),
-    telefoneTiposSugeridos,
-    progressaoFuncoesSugeridas,
-    progressaoReferenciasSugeridas,
-    documentoTiposSugeridos,
+    suggestedOptions,
   }
 
   return (

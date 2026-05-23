@@ -237,11 +237,11 @@ function buildDocenteFormValues(formData: FormData): DocenteFormValues {
 
 function buildRelatedInitialData(formData: FormData): RelatedEntitiesInitialData {
   const progressoes = parseRawArrayField(formData, 'progressoesData')
-  const progressaoFuncoesSugeridas = parseRawArrayField(formData, 'progressaoFuncoesSugeridasData')
-  const progressaoReferenciasSugeridas = parseRawArrayField(formData, 'progressaoReferenciasSugeridasData')
+  // const progressaoFuncoesSugeridas = parseRawArrayField(formData, 'progressaoFuncoesSugeridasData')
+  // const progressaoReferenciasSugeridas = parseRawArrayField(formData, 'progressaoReferenciasSugeridasData')
   const telefones = parseRawArrayField(formData, 'telefonesData')
-  const telefoneTiposSugeridos = parseRawArrayField(formData, 'telefoneTiposSugeridosData')
-  const documentoTiposSugeridos = parseRawArrayField(formData, 'documentoTiposSugeridosData')
+  // const telefoneTiposSugeridos = parseRawArrayField(formData, 'telefoneTiposSugeridosData')
+  // const documentoTiposSugeridos = parseRawArrayField(formData, 'documentoTiposSugeridosData')
   const documentos = parseRawArrayField(formData, 'documentosData')
   const contasBancarias = parseRawArrayField(formData, 'contasBancariasData')
 

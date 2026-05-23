@@ -9,7 +9,7 @@ import {
   normalizeOptionalText,
   normalizeText,
 } from '@/lib/normalizers'
-import { docenteRepository, type DocenteRepository } from '@/repositories/docente-repository'
+import { docenteRepository, type DocenteRepository, type SuggestedOptions } from '@/repositories/docente-repository'
 import type { DocenteAggregate, DocenteListResult } from '@/types/docente'
 import type { CreateDocenteInput, DocenteListInput, UpdateDocenteInput } from '@/validators/docente'
 
@@ -27,21 +27,10 @@ const uniqueBy = <T>(items: T[], getKey: (item: T) => string, message: string) =
 }
 
 export class DocenteService {
-  async listDocumentoTiposSugeridos(): Promise<string[]> {
-    return this.repository.listDistinctDocumentoTipos()
-  }
   constructor(private readonly repository: DocenteRepository = docenteRepository) {}
 
-  async listTelefoneTiposSugeridos(): Promise<string[]> {
-    return this.repository.listDistinctTelefoneTipos()
-  }
-
-  async listProgressaoFuncoesSugeridas(): Promise<string[]> {
-    return this.repository.listDistinctProgressaoFuncoes()
-  }
-
-  async listProgressaoReferenciasSugeridas(): Promise<string[]> {
-    return this.repository.listDistinctProgressaoReferencias()
+  async listSuggestedOptions(): Promise<SuggestedOptions> {
+    return this.repository.listSuggestedOptions()
   }
 
   private toDateOrNull(value: unknown): Date | null {
