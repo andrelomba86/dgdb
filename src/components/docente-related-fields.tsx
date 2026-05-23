@@ -228,6 +228,24 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                     // cancelToValue={progressaoFuncoesSugeridas[0] ?? ''}
                     // cancelAriaLabel="Voltar para lista de funções sugeridas"
                   />
+                  <SelectOrAddInput
+                    id={`progressao-referencia-${index}`}
+                    label="Referência"
+                    value={progressao.referencia}
+                    onValueChange={value => {
+                      setProgressoes(current =>
+                        updateAtIndex(current, index, item => ({
+                          ...item,
+                          referencia: value,
+                        })),
+                      )
+                    }}
+                    onRegisterOption={value => {
+                      setProgressaoReferenciasSugeridas(current => appendSuggestedValue(current, value))
+                    }}
+                    options={progressaoReferenciasSugeridas}
+                    customInputPlaceholder="Informe a referência"
+                  />
                   <Field.Root>
                     <Field.Label htmlFor={`progressao-data-${index}`}>Data de início</Field.Label>
                     <Input
@@ -262,24 +280,6 @@ export function DocenteRelatedFields({ initialData = defaultData }: DocenteRelat
                       p="10px 12px"
                     />
                   </Field.Root>
-                  <SelectOrAddInput
-                    id={`progressao-referencia-${index}`}
-                    label="Referência"
-                    value={progressao.referencia}
-                    onValueChange={value => {
-                      setProgressoes(current =>
-                        updateAtIndex(current, index, item => ({
-                          ...item,
-                          referencia: value,
-                        })),
-                      )
-                    }}
-                    onRegisterOption={value => {
-                      setProgressaoReferenciasSugeridas(current => appendSuggestedValue(current, value))
-                    }}
-                    options={progressaoReferenciasSugeridas}
-                    customInputPlaceholder="Informe a referência"
-                  />
                   <IconButton
                     gridColumn={{ md: 'span 2', lg: 'span 1' }}
                     alignSelf="end"

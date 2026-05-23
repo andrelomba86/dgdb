@@ -295,7 +295,7 @@ describe('actions/docente-actions', () => {
     mocks.docenteCreate.mockResolvedValue({ id: 1 })
 
     await expect(createDocenteAction({ result: {} }, formData)).rejects.toThrow(
-      'NEXT_REDIRECT:/docentes?sucesso=Docente criado com sucesso.',
+      'NEXT_REDIRECT:/docentes?sucesso=Docente%20criado%20com%20sucesso.',
     )
 
     expect(mocks.docenteCreate).toHaveBeenCalledWith(
@@ -389,7 +389,7 @@ describe('actions/docente-actions', () => {
     mocks.docenteUpdate.mockResolvedValue({ id: 7 })
 
     await expect(updateDocenteAction({ result: {} }, formData)).rejects.toThrow(
-      'NEXT_REDIRECT:/docentes/7?sucesso=Docente atualizado com sucesso.',
+      'NEXT_REDIRECT:/docentes/7?sucesso=Docente%20atualizado%20com%20sucesso.',
     )
 
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/docentes')
@@ -424,7 +424,7 @@ describe('actions/docente-actions', () => {
     mocks.docenteDelete.mockResolvedValue(undefined)
 
     await expect(deleteDocenteAction(10)).rejects.toThrow(
-      'NEXT_REDIRECT:/docentes?sucesso=Docente deletado com sucesso.',
+      'NEXT_REDIRECT:/docentes?sucesso=Docente%20deletado%20com%20sucesso.',
     )
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/docentes')
   })

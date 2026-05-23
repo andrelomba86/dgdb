@@ -459,8 +459,7 @@ export async function createDocenteAction(
     return formActionFailure('criar docente', preservedState)
   }
   revalidatePath('/docentes')
-  redirect('/docentes?sucesso=Docente criado com sucesso.')
-  return { result: {} }
+  redirect(`/docentes?sucesso=${encodeURIComponent('Docente criado com sucesso.')}`)
 }
 
 export async function updateDocenteAction(
@@ -535,7 +534,7 @@ export async function updateDocenteAction(
   }
   revalidatePath('/docentes')
   revalidatePath(`/docentes/${id}`)
-  redirect(`/docentes/${id}?sucesso=Docente atualizado com sucesso.`)
+  redirect(`/docentes/${id}?sucesso=${encodeURIComponent('Docente atualizado com sucesso.')}`)
 }
 
 export async function deleteDocenteAction(id: number): Promise<void> {
@@ -547,7 +546,7 @@ export async function deleteDocenteAction(id: number): Promise<void> {
     await docenteService.delete(idParsed.id)
   } catch (error) {
     if (error instanceof ForbiddenError) {
-      return redirect('/docentes?erro=Requisi%C3%A7%C3%A3o%20inv%C3%A1lida')
+      return redirect(`/docentes?erro=${encodeURIComponent('Requisição inválida.')}`)
     }
     if (error instanceof NotFoundError) {
       return redirect(`/docentes?erro=${encodeURIComponent(error.message)}`)
@@ -556,5 +555,5 @@ export async function deleteDocenteAction(id: number): Promise<void> {
     return redirect(`/docentes?erro=${encodeURIComponent('Erro ao deletar docente.')}`)
   }
   revalidatePath('/docentes')
-  return redirect('/docentes?sucesso=Docente deletado com sucesso.')
+  return redirect(`/docentes?sucesso=${encodeURIComponent('Docente deletado com sucesso.')}`)
 }
