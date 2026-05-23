@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 
 import type { DocenteFormState } from '@/actions/docente-actions'
 import { deleteDocenteAction, updateDocenteAction } from '@/actions/docente-actions'
@@ -23,6 +24,7 @@ export function UpdateDocenteForm({
   relatedInitialData,
   initialSuccessMessage,
 }: UpdateDocenteFormProps) {
+  const router = useRouter()
   const formState: DocenteFormState = { result: {} }
   const [state, action, isPending] = useActionState(updateDocenteAction, formState)
   const hasShownInitialSuccess = useRef(false)
@@ -32,6 +34,7 @@ export function UpdateDocenteForm({
     if (initialSuccessMessage && !hasShownInitialSuccess.current) {
       enqueueToast('success', initialSuccessMessage)
       hasShownInitialSuccess.current = true
+      router.replace(window.location.pathname, { scroll: false })
     }
   }, [initialSuccessMessage])
 

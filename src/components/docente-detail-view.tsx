@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { Box, Checkmark, Em, Fieldset, Grid, Stack, Table, Text } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
 
 import { deleteDocenteAction } from '@/actions/docente-actions'
 import { DocenteFormActionBar } from '@/components/docente-form-action-bar'
@@ -32,9 +33,14 @@ function formatText(value: string | null | undefined) {
 }
 
 export function DocenteDetailView({ docente, successMessage }: DocenteDetailViewProps) {
+  const router = useRouter()
+  const hasShownSuccess = useRef(false)
+
   useEffect(() => {
-    if (successMessage) {
+    if (successMessage && !hasShownSuccess.current) {
+      hasShownSuccess.current = true
       enqueueToast('success', successMessage)
+      router.replace(window.location.pathname, { scroll: false })
     }
   }, [successMessage])
   return (
