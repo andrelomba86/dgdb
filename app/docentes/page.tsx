@@ -85,11 +85,16 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
   const { items, total, pageSize } = result.data || { items: [], total: 0, pageSize: 10 }
   const totalPages = Math.ceil(total / pageSize)
 
-  const baseParams = {
+  const baseParams: {
+    nome: string | undefined
+    ativo: string | undefined
+    sortBy: DocenteSortField
+    sortOrder: SortDirection
+  } = {
     nome,
     ativo,
-    sortBy: (sortBy === 'dataAdmissao' ? sortBy : 'nome') as DocenteSortField,
-    sortOrder: (sortOrder === 'desc' ? 'desc' : 'asc') as SortDirection,
+    sortBy: sortBy === 'dataAdmissao' ? sortBy : 'nome',
+    sortOrder: sortOrder === 'desc' ? 'desc' : 'asc',
   }
 
   return (

@@ -31,14 +31,12 @@ function sortProgressoesList<T extends { dataInicio?: Date | string | null }>(
   })
 }
 
-function normalizeDocente(doc: DocenteWithIncludes, direction: 'asc' | 'desc' = 'desc') {
-  // If the source object doesn't have a progressoes property (common in unit tests/mocks),
-  // return it as-is to avoid adding extra fields. Otherwise normalize the list.
+function normalizeDocente(doc: DocenteWithIncludes, direction: 'asc' | 'desc' = 'desc'): DocenteAggregate {
   if (!Object.prototype.hasOwnProperty.call(doc, 'progressoes')) return doc
 
   return {
     ...doc,
-    progressoes: sortProgressoesList(doc.progressoes as any, direction),
+    progressoes: sortProgressoesList(doc.progressoes, direction),
   }
 }
 
@@ -128,7 +126,7 @@ export class DocenteRepository {
 
     const page = filters.page ?? 1
     const pageSize = filters.pageSize ?? 10
-    const sortBy = sanitizeSortBy(filters.sortBy as unknown as string)
+    const sortBy = sanitizeSortBy(filters.sortBy)
     const sortOrder = filters.sortOrder === 'desc' ? 'desc' : 'asc'
 
     const skip = (page - 1) * pageSize
@@ -146,11 +144,10 @@ export class DocenteRepository {
       prisma.docente.count({ where }),
     ])
 
-    // Garantir ordem por dataInicio nas progressoes de cada item
-    const normalizedItems = (items as DocenteWithIncludes[]).map(item => normalizeDocente(item, 'desc'))
+    const normalizedItems = items.map(item => normalizeDocente(item, 'desc'))
 
     return {
-      items: normalizedItems as unknown as DocenteAggregate[],
+      items: normalizedItems,
       total,
       page,
       pageSize,
@@ -162,7 +159,7 @@ export class DocenteRepository {
     sortBy: DocenteListInput['sortBy'],
     sortOrder: DocenteListInput['sortOrder'],
   ): Promise<DocenteAggregate[]> {
-    const orderField = sanitizeSortBy(sortBy as unknown as string)
+    const orderField = sanitizeSortBy(sortBy)
     const orderDirection = sortOrder === 'desc' ? 'desc' : 'asc'
     const items = await prisma.docente.findMany({
       include: docenteInclude,
@@ -172,10 +169,9 @@ export class DocenteRepository {
       },
     })
 
-    // Garantir ordem por dataInicio nas progressoes de cada item
-    const normalizedItems = (items as DocenteWithIncludes[]).map(item => normalizeDocente(item, 'desc'))
+    const normalizedItems = items.map(item => normalizeDocente(item, 'desc'))
 
-    return normalizedItems as unknown as DocenteAggregate[]
+    return normalizedItems
   }
 
   async findById(id: number): Promise<DocenteAggregate | null> {
@@ -186,7 +182,7 @@ export class DocenteRepository {
 
     if (!docente) return null
 
-    return normalizeDocente(docente as DocenteWithIncludes, 'desc') as unknown as DocenteAggregate | null
+    return normalizeDocente(docente, 'desc')
   }
 
   async findConflict(params: DocenteConflictParams) {
@@ -215,7 +211,7 @@ export class DocenteRepository {
       include: docenteInclude,
     })
 
-    return normalizeDocente(docente as DocenteWithIncludes, 'desc') as unknown as DocenteAggregate
+    return normalizeDocente(docente, 'desc')
   }
 
   async update(id: number, data: Prisma.DocenteUpdateInput): Promise<DocenteAggregate> {
@@ -225,7 +221,7 @@ export class DocenteRepository {
       include: docenteInclude,
     })
 
-    return normalizeDocente(docente as DocenteWithIncludes, 'desc') as unknown as DocenteAggregate
+    return normalizeDocente(docente, 'desc')
   }
 
   async delete(id: number): Promise<void> {

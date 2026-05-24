@@ -205,7 +205,7 @@ function toOptionalId(value: unknown) {
   return undefined
 }
 
-function parseRawArrayField(formData: FormData, fieldName: string) {
+function parseRawArrayField(formData: FormData, fieldName: string): unknown[] {
   const rawValue = formData.get(fieldName)
 
   if (typeof rawValue !== 'string' || rawValue.trim() === '') {
@@ -420,17 +420,13 @@ export async function createDocenteAction(
   const parsed = createDocenteSchema.safeParse({
     nome: formData.get('nome'),
     endereco: formData.get('endereco') || null,
-    dataNascimento: formData.get('dataNascimento')
-      ? new Date(formData.get('dataNascimento') as string)
-      : null,
+    dataNascimento: formData.get('dataNascimento') ?? null,
     matricula: formData.get('matricula') || null,
     email: formData.get('email') || null,
-    dataAdmissao: formData.get('dataAdmissao') ? new Date(formData.get('dataAdmissao') as string) : null,
+    dataAdmissao: formData.get('dataAdmissao') ?? null,
     regimeJuridico: formData.get('regimeJuridico') || null,
     regimeTrabalho: formData.get('regimeTrabalho') || null,
-    regimeDataAplicacao: formData.get('regimeDataAplicacao')
-      ? new Date(formData.get('regimeDataAplicacao') as string)
-      : null,
+    regimeDataAplicacao: formData.get('regimeDataAplicacao') ?? null,
     progressoes: relationsResult.data.progressoes,
     telefones: relationsResult.data.telefones,
     documentos: relationsResult.data.documentos,
@@ -466,7 +462,8 @@ export async function updateDocenteAction(
   _prevState: DocenteFormState,
   formData: FormData,
 ): Promise<DocenteFormState> {
-  const id = parseInt(formData.get('id') as string, 10)
+  const rawId = formData.get('id')
+  const id = typeof rawId === 'string' ? parseInt(rawId, 10) : NaN
 
   await ensureAuthenticated()
   await assertSameOriginRequest()
@@ -486,17 +483,13 @@ export async function updateDocenteAction(
     id,
     nome: formData.get('nome'),
     endereco: formData.get('endereco') || null,
-    dataNascimento: formData.get('dataNascimento')
-      ? new Date(formData.get('dataNascimento') as string)
-      : null,
+    dataNascimento: formData.get('dataNascimento') ?? null,
     matricula: formData.get('matricula') || null,
     email: formData.get('email') || null,
-    dataAdmissao: formData.get('dataAdmissao') ? new Date(formData.get('dataAdmissao') as string) : null,
+    dataAdmissao: formData.get('dataAdmissao') ?? null,
     regimeJuridico: formData.get('regimeJuridico') || null,
     regimeTrabalho: formData.get('regimeTrabalho') || null,
-    regimeDataAplicacao: formData.get('regimeDataAplicacao')
-      ? new Date(formData.get('regimeDataAplicacao') as string)
-      : null,
+    regimeDataAplicacao: formData.get('regimeDataAplicacao') ?? null,
     progressoes: relationsResult.data.progressoes,
     telefones: relationsResult.data.telefones,
     documentos: relationsResult.data.documentos,

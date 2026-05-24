@@ -36,7 +36,7 @@ export class AuthRepository {
       },
     })
 
-    return session as AuthenticatedSession
+    return session
   }
 
   async findValidSessionByTokenHash(tokenHash: string): Promise<AuthenticatedSession | null> {
@@ -62,7 +62,7 @@ export class AuthRepository {
       },
     })
 
-    return session as AuthenticatedSession | null
+    return session
   }
 
   async deleteSessionByTokenHash(tokenHash: string) {
