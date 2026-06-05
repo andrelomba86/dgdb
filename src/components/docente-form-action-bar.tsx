@@ -1,12 +1,11 @@
 'use client'
 
 import NextLink from 'next/link'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { ComponentProps } from 'react'
 
 import { ActionBar, Button, Text } from '@chakra-ui/react'
 
-import { popPreviousRoute } from '@/components/docente-route-history'
+import { useGoBack } from '@/hooks/use-back-navigation'
 import { ConfirmSubmitButton } from '@/components/confirm-submit-button'
 import { PendingSubmitButton } from '@/components/pending-submit-button'
 
@@ -33,17 +32,8 @@ export function DocenteFormActionBar({
   deleteIdleText = 'Excluir cadastro',
   deletePendingText = 'Excluindo...',
 }: DocenteFormActionBarProps) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const goBack = useGoBack(fallbackHref)
   const showDeleteAction = Boolean(deleteFormAction && deleteConfirmMessage)
-
-  function handleBackClick() {
-    const query = searchParams.toString()
-    const currentRoute = query ? `${pathname}?${query}` : pathname
-    const previousRoute = popPreviousRoute(window.sessionStorage, currentRoute)
-    router.push(previousRoute || fallbackHref)
-  }
 
   return (
     <ActionBar.Root open autoFocus={false} closeOnEscape={false} closeOnInteractOutside={false}>
@@ -78,7 +68,7 @@ export function DocenteFormActionBar({
             />
           )}
 
-          <Button variant="surface" size="sm" rounded="full" colorPalette="gray" onClick={handleBackClick}>
+          <Button variant="surface" size="sm" rounded="full" colorPalette="gray" onClick={goBack}>
             Voltar
           </Button>
 
