@@ -24,7 +24,7 @@ export function DocentePageShell({ badge, title, children }: DocentePageShellPro
           boxShadow="0 18px 50px rgba(15, 23, 42, 0.08)"
           p={{ base: '16px', md: '28px' }}>
           <Flex justify="space-between" align="flex-start" gap="16px" wrap="wrap" mb="24px">
-            <Box>
+            <Box overflow="auto">
               <Text m="0" color="teal.600" fontSize="0.9rem" fontWeight="700">
                 {badge}
               </Text>
