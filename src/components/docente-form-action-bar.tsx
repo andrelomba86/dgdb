@@ -8,13 +8,16 @@ import { ActionBar, Button, Text } from '@chakra-ui/react'
 import { useGoBack } from '@/hooks/use-back-navigation'
 import { ConfirmSubmitButton } from '@/components/confirm-submit-button'
 import { PendingSubmitButton } from '@/components/pending-submit-button'
+import { LinkWithPrevious } from '@/components/link-with-previous'
 
 type DocenteFormActionBarProps = {
   title: string
   submitIdleText: string
   submitPendingText: string
   submitHref?: string
+  submitActionKey?: string
   fallbackHref?: string
+  goBackActionKey?: string
   deleteFormAction?: ComponentProps<typeof ConfirmSubmitButton>['formAction']
   deleteConfirmMessage?: string
   deleteIdleText?: string
@@ -26,13 +29,15 @@ export function DocenteFormActionBar({
   submitIdleText,
   submitPendingText,
   submitHref,
+  submitActionKey,
   fallbackHref = '/docentes',
+  goBackActionKey,
   deleteFormAction,
   deleteConfirmMessage,
   deleteIdleText = 'Excluir cadastro',
   deletePendingText = 'Excluindo...',
 }: DocenteFormActionBarProps) {
-  const goBack = useGoBack(fallbackHref)
+  const goBack = useGoBack(goBackActionKey, fallbackHref)
   const showDeleteAction = Boolean(deleteFormAction && deleteConfirmMessage)
 
   return (
@@ -56,7 +61,9 @@ export function DocenteFormActionBar({
 
           {submitHref ? (
             <Button asChild colorPalette="teal" size="sm" rounded="full">
-              <NextLink href={submitHref}>{submitIdleText}</NextLink>
+              <LinkWithPrevious href={submitHref} actionKey={submitActionKey ?? 'edit'}>
+                {submitIdleText}
+              </LinkWithPrevious>
             </Button>
           ) : (
             <PendingSubmitButton

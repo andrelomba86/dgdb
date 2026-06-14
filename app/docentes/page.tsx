@@ -2,6 +2,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import NextLink from 'next/link'
+import { LinkWithPrevious } from '@/components/link-with-previous'
 
 import {
   Box,
@@ -284,9 +285,9 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                               size="sm"
                               title={`Visualizar cadastro de ${doc.nome}`}
                               aria-label={`Visualizar cadastro de ${doc.nome}`}>
-                              <NextLink href={`/docentes/${doc.id}`}>
+                              <LinkWithPrevious href={`/docentes/${doc.id}`} actionKey="view">
                                 <VisibilityIcon fontSize="small" />
-                              </NextLink>
+                              </LinkWithPrevious>
                             </IconButton>
                             <IconButton
                               asChild
@@ -297,9 +298,9 @@ export default async function DocentesPage({ searchParams }: DocentesPageProps) 
                               size="sm"
                               title={`Editar cadastro de ${doc.nome}`}
                               aria-label={`Editar cadastro de ${doc.nome}`}>
-                              <NextLink href={`/docentes/${doc.id}/editar`}>
+                              <LinkWithPrevious href={`/docentes/${doc.id}/editar`} actionKey="edit">
                                 <EditIcon fontSize="small" />
-                              </NextLink>
+                              </LinkWithPrevious>
                             </IconButton>
                             <form action={deleteDocenteAction.bind(null, doc.id)}>
                               <ConfirmSubmitButton
