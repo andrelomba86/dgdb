@@ -71,6 +71,7 @@ export function UpdateDocenteForm({
         submitIdleText="Atualizar cadastro"
         submitPendingText="Atualizando..."
         fallbackHref="/docentes"
+        goBackActionKey="edit"
         deleteFormAction={deleteDocenteAction.bind(null, id)}
         deleteConfirmMessage={`Excluir ${initialValues.nome}? Esta ação remove permanentemente o cadastro e os vínculos relacionados.`}
       />

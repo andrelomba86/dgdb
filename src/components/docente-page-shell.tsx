@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
-import { Box, Container, Flex, Heading, Text } from '@chakra-ui/react'
+import { Box, Button, Container, Flex, Heading, Text } from '@chakra-ui/react'
+import NextLink from 'next/link'
 
 type DocentePageShellProps = {
   badge: string
@@ -32,6 +33,11 @@ export function DocentePageShell({ badge, title, children }: DocentePageShellPro
                 {title}
               </Heading>
             </Box>
+            <NextLink href="/docentes" passHref>
+              <Button colorPalette="gray" rounded="full" variant="outline">
+                Painel Docente
+              </Button>
+            </NextLink>
           </Flex>
 
           {children}
