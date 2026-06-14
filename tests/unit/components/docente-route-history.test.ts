@@ -1,17 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { setPrevious, getPrevious, clearPrevious } from '@/hooks/use-back-navigation'
+import { popPreviousRoute, trackRouteVisit, readRouteStack, writeRouteStack } from '@/hooks/use-back-navigation'
+
+const STORAGE_KEY = 'dgdb.routeStack'
 
 const mockSessionStorage = vi.hoisted(() => {
   const store = new Map<string, string>()
   return {
     getItem: (key: string) => store.get(key) ?? null,
-    setItem: (key: string, value: string) => {
-      store.set(key, value)
-    },
-    removeItem: (key: string) => {
-      store.delete(key)
-    },
+    setItem: (key: string, value: string) => { store.set(key, value) },
     clear: () => store.clear(),
   }
 })
@@ -22,37 +19,62 @@ afterEach(() => {
   mockSessionStorage.clear()
 })
 
-describe('hooks/use-back-navigation (passive)', () => {
-  it('salva e recupera previous por actionKey', () => {
-    setPrevious('view', '/docentes')
-    setPrevious('edit', '/docentes/10')
+describe('hooks/use-back-navigation', () => {
+  it('mantém histórico de navegação em pilha sem duplicar rota consecutiva', () => {
+    trackRouteVisit('/docentes')
+    trackRouteVisit('/docentes/10')
+    trackRouteVisit('/docentes/10/editar')
+    trackRouteVisit('/docentes/10/editar')
 
-    expect(getPrevious('view')).toBe('/docentes')
-    expect(getPrevious('edit')).toBe('/docentes/10')
+    expect(readRouteStack()).toEqual(['/docentes', '/docentes/10', '/docentes/10/editar'])
   })
 
-  it('sobrescreve previous existente para a mesma actionKey', () => {
-    setPrevious('edit', '/docentes/10')
-    setPrevious('edit', '/docentes/10/editar')
+  it('retorna rota anterior correta ao desfazer caminho Editar -> Visualização -> Painel', () => {
+    trackRouteVisit('/docentes')
+    trackRouteVisit('/docentes/10')
+    trackRouteVisit('/docentes/10/editar')
 
-    expect(getPrevious('edit')).toBe('/docentes/10/editar')
+    const backFromEdit = popPreviousRoute('/docentes/10/editar')
+    expect(backFromEdit).toBe('/docentes/10')
+    expect(readRouteStack()).toEqual(['/docentes', '/docentes/10'])
+
+    const backFromView = popPreviousRoute('/docentes/10')
+    expect(backFromView).toBe('/docentes')
+    expect(readRouteStack()).toEqual(['/docentes'])
   })
 
-  it('clearPrevious remove apenas a chave especificada', () => {
-    setPrevious('view', '/docentes')
-    setPrevious('edit', '/docentes/10')
+  it('cenario 1: Painel -> Visualizar -> Editar -> Voltar retorna Visualizar', () => {
+    trackRouteVisit('/docentes')
+    trackRouteVisit('/docentes/10')
+    trackRouteVisit('/docentes/10/editar')
 
-    clearPrevious('edit')
-    expect(getPrevious('edit')).toBeNull()
-    expect(getPrevious('view')).toBe('/docentes')
+    const rotaAnterior = popPreviousRoute('/docentes/10/editar')
+    expect(rotaAnterior).toBe('/docentes/10')
+    expect(readRouteStack()).toEqual(['/docentes', '/docentes/10'])
   })
 
-  it('clearPrevious sem argumento limpa tudo', () => {
-    setPrevious('view', '/docentes')
-    setPrevious('edit', '/docentes/10')
+  it('cenario 2: Painel -> Editar -> Voltar retorna Painel', () => {
+    trackRouteVisit('/docentes')
+    trackRouteVisit('/docentes/10/editar')
 
-    clearPrevious()
-    expect(getPrevious('view')).toBeNull()
-    expect(getPrevious('edit')).toBeNull()
+    const rotaAnterior = popPreviousRoute('/docentes/10/editar')
+    expect(rotaAnterior).toBe('/docentes')
+    expect(readRouteStack()).toEqual(['/docentes'])
+  })
+
+  it('cenario 3: acesso direto a Editar -> Voltar retorna null (fallback para Painel)', () => {
+    trackRouteVisit('/docentes/10/editar')
+
+    const rotaAnterior = popPreviousRoute('/docentes/10/editar')
+    expect(rotaAnterior).toBeNull()
+    expect(readRouteStack()).toEqual([])
+  })
+
+  it('cenario 4: acesso direto a Visualizar -> Voltar retorna null (fallback para Painel)', () => {
+    trackRouteVisit('/docentes/10')
+
+    const rotaAnterior = popPreviousRoute('/docentes/10')
+    expect(rotaAnterior).toBeNull()
+    expect(readRouteStack()).toEqual([])
   })
 })

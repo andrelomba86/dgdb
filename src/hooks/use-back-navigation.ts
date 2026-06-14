@@ -1,83 +1,65 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-const PREVIOUS_STORAGE_KEY = 'dgdb.previousPages'
+const ROUTE_STORAGE_KEY = 'dgdb.routeStack'
 
-function readPreviousPages(): Record<string, string> {
+export function readRouteStack(): string[] {
   try {
-    const raw = sessionStorage.getItem(PREVIOUS_STORAGE_KEY)
-    if (!raw) return {}
+    const raw = sessionStorage.getItem(ROUTE_STORAGE_KEY)
+    if (!raw) return []
     const parsed = JSON.parse(raw)
-    return parsed && typeof parsed === 'object' ? parsed : {}
+    return Array.isArray(parsed) ? parsed.filter(item => typeof item === 'string') : []
   } catch {
-    return {}
+    return []
   }
 }
 
-function writePreviousPages(obj: Record<string, string>) {
-  sessionStorage.setItem(PREVIOUS_STORAGE_KEY, JSON.stringify(obj))
+export function writeRouteStack(stack: string[]) {
+  sessionStorage.setItem(ROUTE_STORAGE_KEY, JSON.stringify(stack))
 }
 
-export function setPrevious(actionKey: string, route: string) {
-  const pages = readPreviousPages()
-  pages[actionKey] = route
-  writePreviousPages(pages)
-}
-
-export function getPrevious(actionKey: string): string | null {
-  const pages = readPreviousPages()
-  return pages[actionKey] ?? null
-}
-
-export function clearPrevious(actionKey?: string) {
-  if (!actionKey) {
-    try {
-      sessionStorage.removeItem(PREVIOUS_STORAGE_KEY)
-    } catch {
-      // ignore
-    }
-    return
-  }
-  const pages = readPreviousPages()
-  if (pages && Object.prototype.hasOwnProperty.call(pages, actionKey)) {
-    delete pages[actionKey]
-    writePreviousPages(pages)
+export function trackRouteVisit(route: string) {
+  const stack = readRouteStack()
+  if (stack[stack.length - 1] !== route) {
+    stack.push(route)
+    writeRouteStack(stack)
   }
 }
 
-export function useRegisterPrevious(actionKey: string) {
+export function popPreviousRoute(currentRoute: string): string | null {
+  const stack = readRouteStack()
+  if (stack[stack.length - 1] === currentRoute) {
+    stack.pop()
+  }
+  const previousRoute = stack[stack.length - 1] ?? null
+  writeRouteStack(stack)
+  return previousRoute
+}
+
+export function useRouteTracking() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  return useCallback(() => {
-    try {
-      const query = searchParams.toString()
-      const route = query ? `${pathname}?${query}` : pathname
-      setPrevious(actionKey, route)
-    } catch {
-      // noop
-    }
-  }, [actionKey, pathname, searchParams])
+  useEffect(() => {
+    const query = searchParams.toString()
+    const route = query ? `${pathname}?${query}` : pathname
+    trackRouteVisit(route)
+  }, [pathname, searchParams])
 }
 
-export function useGoBack(actionKey?: string, fallbackHref = '/docentes') {
+export function useGoBack(fallbackHref = '/docentes') {
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   const goBack = useCallback(() => {
-    try {
-      const previous = actionKey ? getPrevious(actionKey) : null
-      if (previous) {
-        clearPrevious(actionKey)
-        router.push(previous)
-      } else {
-        router.push(fallbackHref)
-      }
-    } catch {
-      router.push(fallbackHref)
-    }
-  }, [router, actionKey, fallbackHref])
+    const query = searchParams.toString()
+    const currentRoute = query ? `${pathname}?${query}` : pathname
+    const previousRoute = popPreviousRoute(currentRoute)
+    router.push(previousRoute || fallbackHref)
+  }, [pathname, searchParams, router, fallbackHref])
 
   return goBack
 }
